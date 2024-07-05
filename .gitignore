@@ -1,5 +1,7 @@
 .vscode
 .venv
 .env
+.docker-env
 .pylintrc
 __pycache__
+certs/
