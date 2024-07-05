@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  s3_storage_app:
+    container_name: s3_storage_service
+    restart: always
+    command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    # command: bash -c "gunicorn -k uvicorn.workers.UvicornWorker auth_service.main:app --reload --bind 0.0.0.0:8000"
+    build:
+      context: ./s3_storage_service
+      dockerfile: ./Dockerfile
+    ports:
+      - 8001:8000
+    volumes:
+      - ./s3_storage_service/:/project/
+    env_file:
+      - ./s3_storage_service/.docker-env
+
+  video_app:
+    container_name: video_service
+    restart: always
+    # command: bash -c "ls -l"
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker auth_service.main:app --reload --bind 0.0.0.0:8000"
+    build:
+      context: ./video_service
+      dockerfile: ./Dockerfile
+    ports:
+      - 8002:8000
+    volumes:
+      - ./video_service/:/project/
+    env_file:
+      - ./video_service/.docker-env
+    depends_on:
+      - video_db
+      - s3_storage_app
+
+  video_db:
+    container_name: video_service_db
+    image: postgres
+    restart: always
+    ports:
+      - 5433:5432
+    env_file:
+      - ./.postgres-env
+    volumes:
+      - postgres_data_video:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "5050:80"
+    env_file:
+      - ./.postgres-env
+    depends_on:
+      - video_db
+
+volumes:
+  postgres_data_video:

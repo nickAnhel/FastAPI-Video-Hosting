@@ -2,6 +2,7 @@
 .venv
 .env
 .docker-env
+.postgres-env
 .pylintrc
 __pycache__
 certs/
