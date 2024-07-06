@@ -4,13 +4,13 @@ services:
   s3_storage_app:
     container_name: s3_storage_service
     restart: always
-    command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
-    # command: bash -c "gunicorn -k uvicorn.workers.UvicornWorker auth_service.main:app --reload --bind 0.0.0.0:8000"
+    command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload"
+    # command: bash -c "gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
     build:
       context: ./s3_storage_service
       dockerfile: ./Dockerfile
     ports:
-      - 8001:8000
+      - 8001:8001
     volumes:
       - ./s3_storage_service/:/project/
     env_file:
@@ -19,14 +19,13 @@ services:
   video_app:
     container_name: video_service
     restart: always
-    # command: bash -c "ls -l"
-    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
-    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker auth_service.main:app --reload --bind 0.0.0.0:8000"
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload"
+    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
     build:
       context: ./video_service
       dockerfile: ./Dockerfile
     ports:
-      - 8002:8000
+      - 8002:8002
     volumes:
       - ./video_service/:/project/
     env_file:

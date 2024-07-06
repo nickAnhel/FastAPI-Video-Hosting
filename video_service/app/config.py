@@ -7,6 +7,10 @@ from pydantic_settings import BaseSettings
 BASE_DIR = Path(__file__).parent.parent
 
 
+class ServicesSettings(BaseModel):
+    s3_storage_service: str | None = os.environ.get("S3_STORAGE_SERVICE_URL")
+
+
 class DBSettings(BaseModel):
     db_host: str | None = os.environ.get("DB_HOST")
     db_port: str | None = os.environ.get("DB_PORT")
@@ -24,6 +28,7 @@ class Settings(BaseSettings):
     debug: bool
     description: str
 
+    services: ServicesSettings = ServicesSettings()
     db_settings: DBSettings = DBSettings()
 
 
