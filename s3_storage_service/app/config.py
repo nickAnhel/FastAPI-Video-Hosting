@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     access_key: str | None = None
     secret_key: str | None = None
     bucket_name: str | None = None
+    bucket_url: str | None = None
     storage_url: str | None = None
 
     model_config = SettingsConfigDict(env_file=str(BASE_DIR / ".env"))

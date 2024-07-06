@@ -29,18 +29,20 @@ class S3Client:
         filename: str,
     ) -> None:
         async with self.get_client() as client:  # type: ignore
-            await client.put_object(  # type: ignore
+            res = await client.put_object(  # type: ignore
                 Bucket=self._bucket_name,
                 Key=filename,
                 Body=file,
             )
+            return res["ResponseMetadata"]["HTTPStatusCode"] == 200
 
     async def delete_file(
         self,
         filename: str,
     ) -> None:
         async with self.get_client() as client:  # type: ignore
-            await client.delete_object(  # type: ignore
+            res = await client.delete_object(  # type: ignore
                 Bucket=self._bucket_name,
                 Key=filename,
             )
+            return res["ResponseMetadata"]["HTTPStatusCode"] == 204
