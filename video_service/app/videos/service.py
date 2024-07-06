@@ -63,7 +63,7 @@ class VideoService:
         column: Literal["views", "likes", "dislikes"],
         id: UUID,
     ) -> VideoGet:
-        video = await self.repository.increment(column=column, id=id)
+        video = await self.repository.decrement(column=column, id=id)
         return self._validate_video_exists(video)
 
     async def increment_views(self, id: UUID) -> VideoGet:
@@ -79,7 +79,7 @@ class VideoService:
         return await self._increment(column="dislikes", id=id)
 
     async def decrement_dislikes(self, id: UUID) -> VideoGet:
-        return await self._decrement(column="likes", id=id)
+        return await self._decrement(column="dislikes", id=id)
 
     def _validate_video_exists(self, video: VideoModel | None) -> VideoGet:
         if not video:

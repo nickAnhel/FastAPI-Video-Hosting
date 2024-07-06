@@ -66,9 +66,15 @@ class VideoRepository:
             case "dislikes":
                 col = VideoModel.dislikes
 
-        stmt = update(VideoModel).filter_by(**filters).values({column: col + shift}).returning(VideoModel)
+        stmt = (
+            update(VideoModel)
+            .filter_by(**filters)
+            .values({column: col + shift})
+            .returning(VideoModel)
+        )
         video = await self._async_session.execute(stmt)
         await self._async_session.commit()
+
         return video.scalar_one_or_none()
 
     async def increment(
