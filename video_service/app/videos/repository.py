@@ -1,5 +1,5 @@
-from typing import Any
-from sqlalchemy import select, delete
+from typing import Any, Literal
+from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.videos.models import VideoModel
@@ -48,9 +48,39 @@ class VideoRepository:
         self,
         **filters,
     ) -> None:
-        stmt = (
-            delete(VideoModel)
-            .filter_by(**filters)
-        )
+        stmt = delete(VideoModel).filter_by(**filters)
         await self._async_session.execute(stmt)
         await self._async_session.commit()
+
+    async def _update_integer_column(
+        self,
+        shift: int,
+        column: Literal["views", "likes", "dislikes"],
+        **filters,
+    ) -> VideoModel | None:
+        match column:
+            case "views":
+                col = VideoModel.views
+            case "likes":
+                col = VideoModel.likes
+            case "dislikes":
+                col = VideoModel.dislikes
+
+        stmt = update(VideoModel).filter_by(**filters).values({column: col + shift}).returning(VideoModel)
+        video = await self._async_session.execute(stmt)
+        await self._async_session.commit()
+        return video.scalar_one_or_none()
+
+    async def increment(
+        self,
+        column: Literal["views", "likes", "dislikes"],
+        **filters,
+    ) -> VideoModel | None:
+        return await self._update_integer_column(1, column, **filters)
+
+    async def decrement(
+        self,
+        column: Literal["views", "likes", "dislikes"],
+        **filters,
+    ) -> VideoModel | None:
+        return await self._update_integer_column(-1, column, **filters)

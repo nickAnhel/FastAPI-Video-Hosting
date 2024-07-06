@@ -1,9 +1,11 @@
+from typing import Literal
 from uuid import UUID
 
 from app.videos.repository import VideoRepository
 from app.videos.scemas import VideoCreate, VideoGet
-from app.videos.exceptions import VideoNotFound, CantUploadVideo, CantDeleteVideo
+from app.videos.exceptions import VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
 from app.videos.utils import upload_file_to_s3, delete_file_from_s3
+from app.videos.models import VideoModel
 
 
 class VideoService:
@@ -19,7 +21,7 @@ class VideoService:
 
         if not await upload_file_to_s3(file=file, filename=str(video_model.id)):
             await self.delete_video(id=video_model.id)  # type: ignore
-            raise CantUploadVideo()
+            raise CantUploadVideoToS3()
 
         return VideoGet.model_validate(video_model)
 
@@ -28,11 +30,7 @@ class VideoService:
         **filters,
     ) -> VideoGet:
         video = await self.repository.get_single(**filters)
-
-        if not video:
-            raise VideoNotFound()
-
-        return VideoGet.model_validate(video)
+        return self._validate_video_exists(video)
 
     async def get_videos(
         self,
@@ -48,6 +46,42 @@ class VideoService:
         id: UUID,
     ) -> None:
         if not await delete_file_from_s3(filename=str(id)):
-            raise CantDeleteVideo()
+            raise CantDeleteVideoFromS3()
 
         await self.repository.delete(id=id)
+
+    async def _increment(
+        self,
+        column: Literal["views", "likes", "dislikes"],
+        id: UUID,
+    ) -> VideoGet:
+        video = await self.repository.increment(column=column, id=id)
+        return self._validate_video_exists(video)
+
+    async def _decrement(
+        self,
+        column: Literal["views", "likes", "dislikes"],
+        id: UUID,
+    ) -> VideoGet:
+        video = await self.repository.increment(column=column, id=id)
+        return self._validate_video_exists(video)
+
+    async def increment_views(self, id: UUID) -> VideoGet:
+        return await self._increment(column="views", id=id)
+
+    async def increment_likes(self, id: UUID) -> VideoGet:
+        return await self._increment(column="likes", id=id)
+
+    async def decrement_likes(self, id: UUID) -> VideoGet:
+        return await self._decrement(column="likes", id=id)
+
+    async def increment_dislikes(self, id: UUID) -> VideoGet:
+        return await self._increment(column="dislikes", id=id)
+
+    async def decrement_dislikes(self, id: UUID) -> VideoGet:
+        return await self._decrement(column="likes", id=id)
+
+    def _validate_video_exists(self, video: VideoModel | None) -> VideoGet:
+        if not video:
+            raise VideoNotFound()
+        return VideoGet.model_validate(video)
