@@ -78,11 +78,11 @@ async def watch_video(
 
 @video_router.get("/{video_id}")
 async def get_video_by_id(
-    video_id: UUID,
+    video: UUID,
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     try:
-        return await video_service.get_video(id=video_id)
+        return await video_service.get_video(id=video)
     except VideoNotFound as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -98,6 +98,11 @@ async def delete_video(
     try:
         await video_service.delete_video(id=video)
         return {"detail": "Video deleted successfully"}
+    except VideoNotFound as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Video not found",
+        ) from exc
     except CantDeleteVideoFromS3 as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

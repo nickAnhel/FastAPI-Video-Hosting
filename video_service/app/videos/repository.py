@@ -47,10 +47,11 @@ class VideoRepository:
     async def delete(
         self,
         **filters,
-    ) -> None:
+    ) -> int:
         stmt = delete(VideoModel).filter_by(**filters)
-        await self._async_session.execute(stmt)
+        res = await self._async_session.execute(stmt)
         await self._async_session.commit()
+        return res.rowcount
 
     async def _update_integer_column(
         self,

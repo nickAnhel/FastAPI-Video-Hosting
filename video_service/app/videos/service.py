@@ -48,7 +48,10 @@ class VideoService:
         if not await delete_file_from_s3(filename=str(id)):
             raise CantDeleteVideoFromS3()
 
-        await self.repository.delete(id=id)
+        res = await self.repository.delete(id=id)
+
+        if not res:
+            raise VideoNotFound()
 
     async def _increment(
         self,
