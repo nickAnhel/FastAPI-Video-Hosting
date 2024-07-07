@@ -9,8 +9,8 @@ app = FastAPI(
     version=settings.version,
     description=settings.description,
     debug=settings.debug,
-    openapi_url="/videos/openapi.json",
-    docs_url="/videos/docs",
+    openapi_url="/users/openapi.json",
+    docs_url="/users/docs",
 )
 
 

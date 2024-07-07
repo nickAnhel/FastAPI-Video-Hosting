@@ -68,6 +68,14 @@ async def get_videos(
     )
 
 
+@video_router.get("/watch")
+async def watch_video(
+    video: UUID,
+) -> HTMLResponse:
+    url = await get_s3_storage_url()
+    return HTMLResponse(content=f"<video src='{url}/{video}' controls></video>")
+
+
 @video_router.get("/{video_id}")
 async def get_video_by_id(
     video_id: UUID,
@@ -95,14 +103,6 @@ async def delete_video(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete video",
         ) from exc
-
-
-@video_router.get("/watch")
-async def watch_video(
-    video: UUID,
-) -> HTMLResponse:
-    url = await get_s3_storage_url()
-    return HTMLResponse(content=f"<video src='{url}/{video}' controls></video>")
 
 
 @video_router.patch("/increment-views")

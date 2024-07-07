@@ -17,7 +17,7 @@ services:
       - ./s3_storage_service/.docker-env
 
   video_app:
-    container_name: video_service
+    container_name: videos_service
     restart: always
     command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload"
     # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
@@ -35,7 +35,7 @@ services:
       - s3_storage_app
 
   video_db:
-    container_name: video_service_db
+    container_name: videos_service_db
     image: postgres
     restart: always
     ports:
@@ -44,6 +44,34 @@ services:
       - ./.postgres-env
     volumes:
       - postgres_data_video:/var/lib/postgresql/data
+
+  users_app:
+    container_name: users_service
+    restart: always
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload"
+    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
+    build:
+      context: ./users_service
+      dockerfile: ./Dockerfile
+    ports:
+      - 8003:8003
+    volumes:
+      - ./users_service/:/project/
+    env_file:
+      - ./users_service/.docker-env
+    depends_on:
+      - users_db
+
+  users_db:
+    container_name: users_service_db
+    image: postgres
+    restart: always
+    ports:
+      - 5434:5432
+    env_file:
+      - ./.postgres-env
+    volumes:
+      - postgres_data_users:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4
@@ -55,5 +83,16 @@ services:
     depends_on:
       - video_db
 
+  nginx:
+    image: nginx:latest
+    ports:
+      - 8000:8000
+    volumes:
+      - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - video_app
+      - users_app
+
 volumes:
   postgres_data_video:
+  postgres_data_users:
