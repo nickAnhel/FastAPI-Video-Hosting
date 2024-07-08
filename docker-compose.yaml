@@ -73,6 +73,21 @@ services:
     volumes:
       - postgres_data_users:/var/lib/postgresql/data
 
+  auth_app:
+    container_name: auth_service
+    restart: always
+    command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
+    # command: bash -c "gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
+    build:
+      context: ./auth_service
+      dockerfile: ./Dockerfile
+    ports:
+      - 8004:8004
+    volumes:
+      - ./auth_service/:/project/
+    env_file:
+      - ./auth_service/.docker-env
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin

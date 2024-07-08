@@ -4,7 +4,7 @@ from uuid import UUID
 from app.videos.repository import VideoRepository
 from app.videos.scemas import VideoCreate, VideoGet
 from app.videos.exceptions import VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
-from app.videos.utils import upload_file_to_s3, delete_file_from_s3
+from app.videos.external import upload_file_to_s3, delete_file_from_s3
 from app.videos.models import VideoModel
 from app.videos.enums import VideoOrder
 

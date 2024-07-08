@@ -15,7 +15,7 @@ from app.videos.service import VideoService
 from app.videos.dependencies import get_video_service
 from app.videos.exceptions import VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
 from app.videos.scemas import VideoGet
-from app.videos.utils import get_s3_storage_url
+from app.videos.external import get_s3_storage_url
 from app.videos.enums  import VideoOrder
 
 
