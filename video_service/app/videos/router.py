@@ -16,6 +16,7 @@ from app.videos.dependencies import get_video_service
 from app.videos.exceptions import VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
 from app.videos.scemas import VideoGet
 from app.videos.utils import get_s3_storage_url
+from app.videos.enums  import VideoOrder
 
 
 video_router = APIRouter(
@@ -56,7 +57,7 @@ async def create_video(
 
 @video_router.get("/")
 async def get_videos(
-    order: str = "id",
+    order: VideoOrder = VideoOrder.ID,  # type: ignore
     offset: int = 0,
     limit: int = 100,
     video_service: VideoService = Depends(get_video_service),

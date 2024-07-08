@@ -6,6 +6,7 @@ from app.videos.scemas import VideoCreate, VideoGet
 from app.videos.exceptions import VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
 from app.videos.utils import upload_file_to_s3, delete_file_from_s3
 from app.videos.models import VideoModel
+from app.videos.enums import VideoOrder
 
 
 class VideoService:
@@ -34,7 +35,7 @@ class VideoService:
 
     async def get_videos(
         self,
-        order: str = "id",
+        order: VideoOrder = VideoOrder.ID,  # type: ignore
         offset: int = 0,
         limit: int = 100,
     ) -> list[VideoGet]:
