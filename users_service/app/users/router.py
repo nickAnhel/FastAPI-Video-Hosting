@@ -2,9 +2,9 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.exc import IntegrityError, CompileError, DBAPIError
 
-from app.users.dependencies import get_user_service
+from app.users.dependencies import get_user_service, get_current_user
 from app.users.service import UserService
-from app.users.schemas import UserCreate, UserGet
+from app.users.schemas import UserCreate, UserGet, UserGetWithPassword
 from app.users.exceptions import UserNotFound
 
 
@@ -12,6 +12,7 @@ users_router = APIRouter(
     prefix="/users",
     tags=["Users"],
 )
+# TODO: add users subscriptions
 
 
 @users_router.post("/")
@@ -26,6 +27,13 @@ async def create_user(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username or email already exists",
         ) from exc
+
+
+@users_router.get("/me")
+async def get_current_user_info(
+    user: UserGet = Depends(get_current_user),
+) -> UserGet:
+    return user
 
 
 @users_router.get("/")
@@ -50,7 +58,7 @@ async def get_users(
 
 
 @users_router.get("/{user_id}")
-async def get_user(
+async def get_user_by_id(
     id: UUID,
     user_service: UserService = Depends(get_user_service),
 ) -> UserGet:
@@ -63,13 +71,28 @@ async def get_user(
         ) from exc
 
 
+@users_router.get("/auth/{username}")
+async def get_user_by_username_with_password(
+    username: str,
+    user_service: UserService = Depends(get_user_service),
+) -> UserGetWithPassword:
+    try:
+        return await user_service.get_user(include_password=True, username=username)  # type: ignore
+    except UserNotFound as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        ) from exc
+
+
+
 @users_router.delete("/")
 async def delete_user(
-    id: UUID,
+    user: UserGet = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
 ):
     try:
-        await user_service.delete_user(id=id)
+        await user_service.delete_user(id=user.id)
         return {"detail": "User deleted successfully"}
     except UserNotFound as exc:
         raise HTTPException(

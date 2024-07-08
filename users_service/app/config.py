@@ -14,6 +14,10 @@ class DBSettings(BaseModel):
     echo: bool = False
 
 
+class ServiceSettings(BaseModel):
+    auth_service_url: str | None = os.environ.get("AUTH_SERVICE_URL")
+
+
 class Settings(BaseSettings):
     project_title: str
     version: str
@@ -21,6 +25,7 @@ class Settings(BaseSettings):
     description: str
 
     db_settings: DBSettings = DBSettings()
+    services: ServiceSettings = ServiceSettings()
 
 
 settings = Settings(
