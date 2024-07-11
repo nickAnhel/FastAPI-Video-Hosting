@@ -2,9 +2,10 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.exc import IntegrityError, CompileError, DBAPIError
 
-from app.users.dependencies import get_user_service, get_current_user
+from app.auth.dependencies import get_current_user
+from app.users.dependencies import get_user_service
 from app.users.service import UserService
-from app.users.schemas import UserCreate, UserGet, UserGetWithPassword
+from app.users.schemas import UserCreate, UserGet
 from app.users.exceptions import UserNotFound
 
 
@@ -69,21 +70,6 @@ async def get_user_by_id(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         ) from exc
-
-
-@users_router.get("/auth/{username}")
-async def get_user_by_username_with_password(
-    username: str,
-    user_service: UserService = Depends(get_user_service),
-) -> UserGetWithPassword:
-    try:
-        return await user_service.get_user(include_password=True, username=username)  # type: ignore
-    except UserNotFound as exc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        ) from exc
-
 
 
 @users_router.delete("/")

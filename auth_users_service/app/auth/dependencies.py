@@ -8,10 +8,11 @@ from fastapi import (
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import InvalidTokenError
 
-from app.auth.external import get_user_from_users_service
-from app.auth.exceptions import UserNotFound
+from app.users.dependencies import get_user_service
+from app.users.service import UserService
+from app.users.exceptions import UserNotFound
 from app.auth.utils import validate_password, decode_jwt, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
-from app.auth.schemas import User
+from app.users.schemas import UserGet, UserGetWithPassword
 
 
 http_bearer = HTTPBearer()
@@ -20,9 +21,13 @@ http_bearer = HTTPBearer()
 async def authenticate_user(
     username: str = Form(...),
     password: str = Form(...),
-):
+    user_service: UserService = Depends(get_user_service),
+) -> UserGetWithPassword:
     try:
-        user = await get_user_from_users_service(username=username)
+        user: UserGetWithPassword = await user_service.get_user(
+            include_password=True,
+            username=username,
+        )  # type: ignore
     except UserNotFound as exc:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -51,10 +56,11 @@ async def _get_token_payload(
         ) from exc
 
 
-def get_current_user_by_token_type(token_type: str) -> Callable[..., Coroutine[Any, Any, User]]:
+def get_current_user_by_token_type(token_type: str) -> Callable[..., Coroutine[Any, Any, UserGet]]:
     async def get_current_user_by_token_type_wrapper(
         token_payload: dict[str, Any] = Depends(_get_token_payload),
-    ) -> User:
+        user_service: UserService = Depends(get_user_service),
+    ) -> UserGet:
         given_token_type = token_payload.get("type")
         if given_token_type != token_type:
             raise HTTPException(
@@ -63,7 +69,7 @@ def get_current_user_by_token_type(token_type: str) -> Callable[..., Coroutine[A
             )
 
         try:
-            user = await get_user_from_users_service(username=token_payload.get("username"))  # type: ignore
+            user = await user_service.get_user(username=token_payload.get("username"))  # type: ignore
         except UserNotFound as exc:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

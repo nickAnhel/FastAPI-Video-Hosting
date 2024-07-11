@@ -45,25 +45,25 @@ services:
     volumes:
       - postgres_data_video:/var/lib/postgresql/data
 
-  users_app:
-    container_name: users_service
+  auth_users_app:
+    container_name: auth_users_service
     restart: always
     command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload"
     # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
     build:
-      context: ./users_service
+      context: ./auth_users_service
       dockerfile: ./Dockerfile
     ports:
       - 8003:8003
     volumes:
-      - ./users_service/:/project/
+      - ./auth_users_service/:/project/
     env_file:
-      - ./users_service/.docker-env
+      - ./auth_users_service/.docker-env
     depends_on:
-      - users_db
+      - auth_users_db
 
-  users_db:
-    container_name: users_service_db
+  auth_users_db:
+    container_name: auth_users_service_db
     image: postgres
     restart: always
     ports:
@@ -72,21 +72,6 @@ services:
       - ./.postgres-env
     volumes:
       - postgres_data_users:/var/lib/postgresql/data
-
-  auth_app:
-    container_name: auth_service
-    restart: always
-    command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
-    # command: bash -c "gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
-    build:
-      context: ./auth_service
-      dockerfile: ./Dockerfile
-    ports:
-      - 8004:8004
-    volumes:
-      - ./auth_service/:/project/
-    env_file:
-      - ./auth_service/.docker-env
 
   pgadmin:
     image: dpage/pgadmin4
@@ -106,7 +91,7 @@ services:
       - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - video_app
-      - users_app
+      - auth_users_app
 
 volumes:
   postgres_data_video:
