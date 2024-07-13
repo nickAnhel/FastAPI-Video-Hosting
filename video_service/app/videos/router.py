@@ -12,11 +12,11 @@ from fastapi.responses import HTMLResponse
 
 from app.videos.scemas import VideoCreate
 from app.videos.service import VideoService
-from app.videos.dependencies import get_video_service
+from app.videos.dependencies import get_video_service, get_current_user_id
 from app.videos.exceptions import VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
 from app.videos.scemas import VideoGet
 from app.videos.external import get_s3_storage_url
-from app.videos.enums  import VideoOrder
+from app.videos.enums import VideoOrder
 
 
 video_router = APIRouter(
@@ -27,14 +27,15 @@ video_router = APIRouter(
 
 @video_router.post("/")
 async def create_video(
-    file: UploadFile,
+    video: UploadFile,
     title: str = Form(...),
     description: str = Form(...),
+    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     try:
         data = VideoCreate(title=title, description=description)
-        return await video_service.create_video(file=file.file, data=data)  # type: ignore
+        return await video_service.create_video(file=video.file, data=data)  # type: ignore
 
     except IntegrityError as exc:
         raise HTTPException(
@@ -94,6 +95,7 @@ async def get_video_by_id(
 @video_router.delete("/")
 async def delete_video(
     video: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> dict[str, str]:
     try:
