@@ -13,7 +13,7 @@ from fastapi.responses import HTMLResponse
 from app.videos.scemas import VideoCreate
 from app.videos.service import VideoService
 from app.videos.dependencies import get_video_service, get_current_user_id
-from app.videos.exceptions import VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
+from app.videos.exceptions import PermissionDenied, VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
 from app.videos.scemas import VideoGet
 from app.videos.external import get_s3_storage_url
 from app.videos.enums import VideoOrder
@@ -34,7 +34,7 @@ async def create_video(
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     try:
-        data = VideoCreate(title=title, description=description)
+        data = VideoCreate(title=title, description=description, user_id=user_id)
         return await video_service.create_video(file=video.file, data=data)  # type: ignore
 
     except IntegrityError as exc:
@@ -99,13 +99,21 @@ async def delete_video(
     video_service: VideoService = Depends(get_video_service),
 ) -> dict[str, str]:
     try:
-        await video_service.delete_video(id=video)
+        await video_service.delete_video(id=video, user_id=user_id)
         return {"detail": "Video deleted successfully"}
+
     except VideoNotFound as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Video not found",
         ) from exc
+
+    except PermissionDenied as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can't delete this video",
+        ) from exc
+
     except CantDeleteVideoFromS3 as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

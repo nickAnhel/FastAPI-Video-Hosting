@@ -11,10 +11,12 @@ class BaseSchema(BaseModel):
 class VideoCreate(BaseSchema):
     title: str
     description: str
+    user_id: UUID
 
 
 class VideoGet(VideoCreate):
     id: UUID
+    user_id: UUID
     views: PositiveInt | Literal[0]
     likes: PositiveInt | Literal[0]
     dislikes: PositiveInt | Literal[0]

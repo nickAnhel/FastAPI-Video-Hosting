@@ -3,7 +3,7 @@ from uuid import UUID
 
 from app.videos.repository import VideoRepository
 from app.videos.scemas import VideoCreate, VideoGet
-from app.videos.exceptions import VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
+from app.videos.exceptions import PermissionDenied, VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
 from app.videos.external import upload_file_to_s3, delete_file_from_s3
 from app.videos.models import VideoModel
 from app.videos.enums import VideoOrder
@@ -21,7 +21,7 @@ class VideoService:
         video_model = await self.repository.create(data=data.model_dump())
 
         if not await upload_file_to_s3(file=file, filename=str(video_model.id)):
-            await self.delete_video(id=video_model.id)  # type: ignore
+            await self.delete_video(id=video_model.id, user_id=video_model.user_id)  # type: ignore
             raise CantUploadVideoToS3()
 
         return VideoGet.model_validate(video_model)
@@ -45,14 +45,20 @@ class VideoService:
     async def delete_video(
         self,
         id: UUID,
+        user_id: UUID,
     ) -> None:
+        video = await self.repository.get_single(id=id)
+
+        if not video:
+            raise VideoNotFound()
+
+        if not video.user_id == user_id:  # type: ignore
+            raise PermissionDenied(f"User with id {user_id} can't delete video with id {id}.")
+
         if not await delete_file_from_s3(filename=str(id)):
             raise CantDeleteVideoFromS3()
 
-        res = await self.repository.delete(id=id)
-
-        if not res:
-            raise VideoNotFound()
+        await self.repository.delete(id=id)
 
     async def _increment(
         self,
