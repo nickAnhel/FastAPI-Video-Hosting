@@ -1,7 +1,8 @@
 from app.users.schemas import UserCreate, UserGet, UserGetWithPassword
 from app.users.repository import UserRepository
-from app.users.exceptions import UserNotFound
+from app.users.exceptions import UserNotFound, CantDeleteUsersVideos
 from app.users.utils import get_password_hash
+from app.users.external import delete_all_users_videos
 
 
 class UserService:
@@ -44,9 +45,13 @@ class UserService:
         )
         return [UserGet.model_validate(user) for user in users]
 
-    async def delete_user(self, **filters) -> None:
+    async def delete_user(
+        self,
+        token: str,
+        **filters,
+    ) -> None:
         """Delete user by filters (username, email or id)."""
-        res = await self.repository.delete(**filters)
+        if not await delete_all_users_videos(token=token):
+            raise CantDeleteUsersVideos()
 
-        if not res:
-            raise UserNotFound()
+        await self.repository.delete(**filters)

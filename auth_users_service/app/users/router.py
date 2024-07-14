@@ -1,12 +1,12 @@
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, Request, status
 from sqlalchemy.exc import IntegrityError, CompileError, DBAPIError
 
 from app.auth.dependencies import get_current_user
 from app.users.dependencies import get_user_service
 from app.users.service import UserService
 from app.users.schemas import UserCreate, UserGet
-from app.users.exceptions import UserNotFound
+from app.users.exceptions import CantDeleteUsersVideos, UserNotFound
 
 
 users_router = APIRouter(
@@ -74,14 +74,18 @@ async def get_user_by_id(
 
 @users_router.delete("/")
 async def delete_user(
+    request: Request,
     user: UserGet = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
 ):
     try:
-        await user_service.delete_user(id=user.id)
+        await user_service.delete_user(
+            token=request.headers.get("Authorization").replace("Bearer ", ""),  # type: ignore
+            id=user.id,
+        )
         return {"detail": "User deleted successfully"}
-    except UserNotFound as exc:
+    except CantDeleteUsersVideos as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Can't delete users videos",
         ) from exc

@@ -3,6 +3,10 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
 
+class ServicesSettings(BaseModel):
+    videos_service_url: str | None = os.environ.get("VIDEOS_SERVICE_URL")
+
+
 class DBSettings(BaseModel):
     db_host: str | None = os.environ.get("DB_HOST")
     db_port: str | None = os.environ.get("DB_PORT")
@@ -14,10 +18,6 @@ class DBSettings(BaseModel):
     echo: bool = False
 
 
-class ServiceSettings(BaseModel):
-    auth_service_url: str | None = os.environ.get("AUTH_SERVICE_URL")
-
-
 class Settings(BaseSettings):
     project_title: str
     version: str
@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     description: str
 
     db_settings: DBSettings = DBSettings()
-    services: ServiceSettings = ServiceSettings()
+    services: ServicesSettings = ServicesSettings()
 
 
 settings = Settings(

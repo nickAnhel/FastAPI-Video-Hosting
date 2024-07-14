@@ -10,3 +10,10 @@ class InvalidAuthToken(Exception):
 
     def __init__(self, message="Invalid authorization token"):
         super().__init__(message)
+
+
+class CantDeleteUsersVideos(Exception):
+    """Can't delete users videos exception."""
+
+    def __init__(self, message="Can't delete users videos"):
+        super().__init__(message)
