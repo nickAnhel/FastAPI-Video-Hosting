@@ -56,7 +56,7 @@ async def create_video(
         ) from exc
 
 
-@video_router.get("/")
+@video_router.get("/list")
 async def get_videos(
     order: VideoOrder = VideoOrder.ID,  # type: ignore
     offset: int = 0,
@@ -78,7 +78,7 @@ async def watch_video(
     return HTMLResponse(content=f"<video src='{url}/{video}' controls></video>")
 
 
-@video_router.get("/{video_id}")
+@video_router.get("/")
 async def get_video_by_id(
     video: UUID,
     video_service: VideoService = Depends(get_video_service),
@@ -93,7 +93,7 @@ async def get_video_by_id(
 
 
 @video_router.delete("/")
-async def delete_video(
+async def delete_video_by_id(
     video: UUID,
     user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
@@ -113,6 +113,22 @@ async def delete_video(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can't delete this video",
         ) from exc
+
+    except CantDeleteVideoFromS3 as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete video",
+        ) from exc
+
+
+@video_router.delete("/list")
+async def delete_videos(
+    user_id: UUID = Depends(get_current_user_id),
+    video_service: VideoService = Depends(get_video_service),
+) -> dict[str, str]:
+    try:
+        deleted_videos_count = await video_service.delete_videos(user_id=user_id)
+        return {"detail": f"Successfully deleted {deleted_videos_count} videos"}
 
     except CantDeleteVideoFromS3 as exc:
         raise HTTPException(

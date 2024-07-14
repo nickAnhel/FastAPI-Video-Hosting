@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, HTTPException, Depends, Form, status
 
 from app.client import S3Client
 from app.dependencies import get_s3_client
-from app.schemas import FilenameSchema
+from app.schemas import FilenameSchema, FilenamesSchema
 from app.config import settings
 
 s3_router = APIRouter(
@@ -28,20 +28,21 @@ async def upload_file(
 
 @s3_router.delete("/")
 async def delete_file(
-    filename: str,
+    filenames: FilenamesSchema,
     s3_client: S3Client = Depends(get_s3_client),
 ) -> dict[str, str]:
-    if not await s3_client.delete_file(filename):  # type: ignore
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete file",
-        )
+    for filename in filenames.filenames:
+        if not await s3_client.delete_file(filename):  # type: ignore
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to delete file {filename}",
+            )
 
     return {
-        "detail": "File deleted successfully",
+        "detail": "Files deleted successfully",
     }
 
 
 @s3_router.get("/")
 async def get_storage_url() -> str:
-    return settings.storage_url
+    return settings.storage_url  # type: ignore

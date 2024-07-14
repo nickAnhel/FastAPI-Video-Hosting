@@ -12,11 +12,11 @@ async def upload_file_to_s3(file: bytes, filename: str) -> bool:
             return response.status == 200
 
 
-async def delete_file_from_s3(filename: str) -> bool:
+async def delete_file_from_s3(filenames: list[str]) -> bool:
     async with aiohttp.ClientSession() as session:
         async with session.delete(
             f"{settings.services.s3_storage_service}/s3/",
-            params={"filename": filename},
+            json={"filenames": filenames},
         ) as response:
             return response.status == 200
 

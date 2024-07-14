@@ -34,9 +34,11 @@ class VideoRepository:
         order: str = "id",
         offset: int = 0,
         limit: int = 100,
+        **filters,
     ) -> list[VideoModel]:
         query = (
             select(VideoModel)
+            .filter_by(**filters)
             .order_by(order)
             .offset(offset)
             .limit(limit)

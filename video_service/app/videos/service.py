@@ -38,8 +38,12 @@ class VideoService:
         order: VideoOrder = VideoOrder.ID,  # type: ignore
         offset: int = 0,
         limit: int = 100,
+        user_id: UUID | None = None,
     ) -> list[VideoGet]:
-        videos = await self.repository.get_multi(order=order, offset=offset, limit=limit)
+        params = {"order": order, "offset": offset, "limit": limit}
+        if user_id:
+            params["user_id"] = user_id
+        videos = await self.repository.get_multi(**params)
         return [VideoGet.model_validate(video) for video in videos]
 
     async def delete_video(
@@ -55,10 +59,21 @@ class VideoService:
         if not video.user_id == user_id:  # type: ignore
             raise PermissionDenied(f"User with id {user_id} can't delete video with id {id}.")
 
-        if not await delete_file_from_s3(filename=str(id)):
+        if not await delete_file_from_s3(filenames=[str(id)]):
             raise CantDeleteVideoFromS3()
 
         await self.repository.delete(id=id)
+
+    async def delete_videos(
+        self,
+        user_id: UUID,
+    ) -> int:
+        videos = await self.get_videos(user_id=user_id)
+
+        if not await delete_file_from_s3(filenames=[str(video.id) for video in videos]):
+            raise CantDeleteVideoFromS3()
+
+        return await self.repository.delete(user_id=user_id)
 
     async def _increment(
         self,
