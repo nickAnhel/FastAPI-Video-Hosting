@@ -1,5 +1,6 @@
 from uuid import UUID
 from sqlalchemy.exc import IntegrityError, DBAPIError
+from fastapi.responses import HTMLResponse
 from fastapi import (
     APIRouter,
     HTTPException,
@@ -8,12 +9,18 @@ from fastapi import (
     Form,
     status,
 )
-from fastapi.responses import HTMLResponse
 
+from app.config import settings
 from app.videos.scemas import VideoCreate
 from app.videos.service import VideoService
 from app.videos.dependencies import get_video_service, get_current_user_id
-from app.videos.exceptions import PermissionDenied, VideoNotFound, CantUploadVideoToS3, CantDeleteVideoFromS3
+from app.videos.exceptions import (
+    PermissionDenied,
+    VideoNotFound,
+    CantUploadVideoToS3,
+    CantUploadPreviewToS3,
+    CantDeleteVideoFromS3,
+)
 from app.videos.scemas import VideoGet
 from app.videos.external import get_s3_storage_url
 from app.videos.enums import VideoOrder
@@ -28,14 +35,31 @@ video_router = APIRouter(
 @video_router.post("/")
 async def create_video(
     video: UploadFile,
+    preview: UploadFile,
     title: str = Form(...),
     description: str = Form(...),
     user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
+    if video.content_type != "video/mp4":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Only mp4 files are allowed for videos",
+        )
+
+    if preview.content_type not in ("image/jpeg", "image/png"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Only jpeg or png files are allowed for previews",
+        )
+
     try:
         data = VideoCreate(title=title, description=description, user_id=user_id)
-        return await video_service.create_video(file=video.file, data=data)  # type: ignore
+        return await video_service.create_video(
+            video=video.file,  # type: ignore
+            preview=preview.file,  # type: ignore
+            data=data,
+        )
 
     except IntegrityError as exc:
         raise HTTPException(
@@ -53,6 +77,12 @@ async def create_video(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to upload video",
+        ) from exc
+
+    except CantUploadPreviewToS3 as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to upload preview",
         ) from exc
 
 
@@ -74,8 +104,12 @@ async def get_videos(
 async def watch_video(
     video: UUID,
 ) -> HTMLResponse:
-    url = await get_s3_storage_url()
-    return HTMLResponse(content=f"<video src='{url}/{video}' controls></video>")
+    storage_url = await get_s3_storage_url()
+    video_url = f"{storage_url}/{settings.file_prefixes.video_file + str(video)}"
+    preview_url = f"{storage_url}/{settings.file_prefixes.preview_file + str(video)}"
+    return HTMLResponse(
+        content=f"<video src='{video_url}' poster='{preview_url}' width='960' height='540' controls></video>"
+    )
 
 
 @video_router.get("/")

@@ -9,6 +9,7 @@ async def upload_file_to_s3(file: bytes, filename: str) -> bool:
             f"{settings.services.s3_storage_service}/s3/",
             data={"file": file, "filename": filename},
         ) as response:
+            print(response.status)
             return response.status == 200
 
 

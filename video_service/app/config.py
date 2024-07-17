@@ -12,6 +12,11 @@ class ServicesSettings(BaseModel):
     auth_users_storage_service: str | None = os.environ.get("AUTH_USERS_SERVICE_URL")
 
 
+class FilePrefixes(BaseModel):
+    video_file: str = "VV@"
+    preview_file: str = "VP@"
+
+
 class DBSettings(BaseModel):
     db_host: str | None = os.environ.get("DB_HOST")
     db_port: str | None = os.environ.get("DB_PORT")
@@ -31,6 +36,7 @@ class Settings(BaseSettings):
 
     services: ServicesSettings = ServicesSettings()
     db_settings: DBSettings = DBSettings()
+    file_prefixes: FilePrefixes = FilePrefixes()
 
 
 settings = Settings(

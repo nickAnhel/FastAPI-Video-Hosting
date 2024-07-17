@@ -12,6 +12,13 @@ class CantUploadVideoToS3(Exception):
         super().__init__(message)
 
 
+class CantUploadPreviewToS3(Exception):
+    """Raised when video can't be uploaded to S3 storage."""
+
+    def __init__(self, message="Can't upload preview"):
+        super().__init__(message)
+
+
 class CantDeleteVideoFromS3(Exception):
     """Raised when video can't be deleted from S3 storage."""
 
