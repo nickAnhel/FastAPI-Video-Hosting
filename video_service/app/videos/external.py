@@ -35,7 +35,7 @@ async def get_s3_storage_url() -> str:
 async def get_user_id_by_token(token: str) -> str:
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"{settings.services.auth_users_storage_service}/auth/check",
+            f"{settings.services.auth_users_service}/auth/check",
             headers={"Authorization": f"Bearer {token}"},
         ) as response:
             if response.status !=  200:
