@@ -1,4 +1,4 @@
-from app.users.schemas import UserCreate, UserGet, UserGetWithPassword
+from app.users.schemas import UserCreate, UserGet, UserGetWithProfile, UserGetWithPassword
 from app.users.repository import UserRepository
 from app.users.exceptions import UserNotFound, CantDeleteUsersVideos
 from app.users.utils import get_password_hash
@@ -14,6 +14,7 @@ class UserService:
         user_data = data.model_dump()
         user_data["hashed_password"] = get_password_hash(user_data["password"])
         del user_data["password"]
+        user_data["social_links"] = [str(link) for link in user_data["social_links"]]
 
         user = await self.repository.create(data=user_data)
         return UserGet.model_validate(user)
@@ -21,15 +22,22 @@ class UserService:
     async def get_user(
         self,
         include_password: bool = False,
+        include_profile: bool = False,
         **filters,
-    ) -> UserGet | UserGetWithPassword:
+    ) -> UserGet | UserGetWithProfile | UserGetWithPassword:
         """Get user by filters (username, email or id)."""
         user = await self.repository.get_single(**filters)
 
         if not user:
             raise UserNotFound(f"User with filters {filters} not found")
 
-        return UserGetWithPassword.model_validate(user) if include_password else UserGet.model_validate(user)
+        if include_profile:
+            return UserGetWithProfile.model_validate(user)
+
+        if include_password:
+            return UserGetWithPassword.model_validate(user)
+
+        return UserGet.model_validate(user)
 
     async def get_users(
         self,

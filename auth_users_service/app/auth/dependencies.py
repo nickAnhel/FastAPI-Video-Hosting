@@ -12,7 +12,7 @@ from app.users.dependencies import get_user_service
 from app.users.service import UserService
 from app.users.exceptions import UserNotFound
 from app.auth.utils import validate_password, decode_jwt, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
-from app.users.schemas import UserGet, UserGetWithPassword
+from app.users.schemas import UserGet, UserGetWithPassword, UserGetWithProfile
 
 
 http_bearer = HTTPBearer()
@@ -56,7 +56,10 @@ async def _get_token_payload(
         ) from exc
 
 
-def get_current_user_by_token_type(token_type: str) -> Callable[..., Coroutine[Any, Any, UserGet]]:
+def get_current_user_closure(
+    token_type: str,
+    include_profile: bool = False,
+) -> Callable[..., Coroutine[Any, Any, UserGet | UserGetWithProfile]]:
     async def get_current_user_by_token_type_wrapper(
         token_payload: dict[str, Any] = Depends(_get_token_payload),
         user_service: UserService = Depends(get_user_service),
@@ -69,7 +72,10 @@ def get_current_user_by_token_type(token_type: str) -> Callable[..., Coroutine[A
             )
 
         try:
-            user = await user_service.get_user(username=token_payload.get("username"))  # type: ignore
+            user = await user_service.get_user(
+                include_profile=include_profile,
+                id=token_payload.get("sub"),
+            )  # type: ignore
         except UserNotFound as exc:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -81,5 +87,6 @@ def get_current_user_by_token_type(token_type: str) -> Callable[..., Coroutine[A
     return get_current_user_by_token_type_wrapper
 
 
-get_current_user = get_current_user_by_token_type(ACCESS_TOKEN_TYPE)
-get_current_user_for_refresh = get_current_user_by_token_type(REFRESH_TOKEN_TYPE)
+get_current_user = get_current_user_closure(ACCESS_TOKEN_TYPE)
+get_current_user_with_profile = get_current_user_closure(ACCESS_TOKEN_TYPE, include_profile=True)
+get_current_user_for_refresh = get_current_user_closure(REFRESH_TOKEN_TYPE)

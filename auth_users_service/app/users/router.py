@@ -2,10 +2,10 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends, Request, status
 from sqlalchemy.exc import IntegrityError, CompileError, DBAPIError
 
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user, get_current_user_with_profile
 from app.users.dependencies import get_user_service
 from app.users.service import UserService
-from app.users.schemas import UserCreate, UserGet
+from app.users.schemas import UserCreate, UserGet, UserGetWithProfile
 from app.users.exceptions import CantDeleteUsersVideos, UserNotFound
 
 
@@ -13,7 +13,6 @@ users_router = APIRouter(
     prefix="/users",
     tags=["Users"],
 )
-# TODO: add users subscriptions
 
 
 @users_router.post("/")
@@ -32,8 +31,8 @@ async def create_user(
 
 @users_router.get("/me")
 async def get_current_user_info(
-    user: UserGet = Depends(get_current_user),
-) -> UserGet:
+    user: UserGetWithProfile = Depends(get_current_user_with_profile),
+) -> UserGetWithProfile:
     return user
 
 
@@ -62,9 +61,9 @@ async def get_users(
 async def get_user_by_id(
     id: UUID,
     user_service: UserService = Depends(get_user_service),
-) -> UserGet:
+) -> UserGetWithProfile:
     try:
-        return await user_service.get_user(id=id)
+        return await user_service.get_user(include_profile=True, id=id)  # type: ignore
     except UserNotFound as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -77,7 +76,7 @@ async def delete_user(
     request: Request,
     user: UserGet = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
-):
+) -> dict[str, str]:
     try:
         await user_service.delete_user(
             token=request.headers.get("Authorization").replace("Bearer ", ""),  # type: ignore

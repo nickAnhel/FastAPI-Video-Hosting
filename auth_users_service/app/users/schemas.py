@@ -1,5 +1,5 @@
 from uuid import UUID
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, AnyUrl
 
 
 class BaseChema(BaseModel):
@@ -10,6 +10,8 @@ class UserCreate(BaseChema):
     username: str
     email: EmailStr
     password: str
+    about: str
+    social_links: list[AnyUrl]
 
 
 class UserGet(BaseChema):
@@ -20,3 +22,8 @@ class UserGet(BaseChema):
 
 class UserGetWithPassword(UserGet):
     hashed_password: str
+
+
+class UserGetWithProfile(UserGet):
+    about: str
+    social_links: list[AnyUrl]
