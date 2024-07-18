@@ -7,7 +7,7 @@ from app.users.dependencies import get_user_service
 from app.users.service import UserService
 from app.users.schemas import UserCreate, UserGet, UserGetWithProfile
 from app.users.exceptions import CantDeleteUsersVideos, UserNotFound
-
+from app.users.enums import UserOrder
 
 users_router = APIRouter(
     prefix="/users",
@@ -36,9 +36,9 @@ async def get_current_user_info(
     return user
 
 
-@users_router.get("/")
+@users_router.get("/list")
 async def get_users(
-    order: str = "id",
+    order: UserOrder = UserOrder.ID,
     offset: int = 0,
     limit: int = 100,
     user_service: UserService = Depends(get_user_service),
@@ -57,7 +57,7 @@ async def get_users(
         ) from exc
 
 
-@users_router.get("/{user_id}")
+@users_router.get("/")
 async def get_user_by_id(
     id: UUID,
     user_service: UserService = Depends(get_user_service),

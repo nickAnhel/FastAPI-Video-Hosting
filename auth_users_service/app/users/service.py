@@ -3,6 +3,7 @@ from app.users.repository import UserRepository
 from app.users.exceptions import UserNotFound, CantDeleteUsersVideos
 from app.users.utils import get_password_hash
 from app.users.external import delete_all_users_videos
+from app.users.enums import UserOrder
 
 
 class UserService:
@@ -41,7 +42,7 @@ class UserService:
 
     async def get_users(
         self,
-        order: str = "id",
+        order: UserOrder = UserOrder.ID,
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserGet]:
