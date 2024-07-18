@@ -1,6 +1,7 @@
 version: '3.9'
 
 services:
+  # S3 Storage
   s3_storage_app:
     container_name: s3_storage_service
     restart: always
@@ -16,6 +17,7 @@ services:
     env_file:
       - ./s3_storage_service/.docker-env
 
+  # Videos
   video_app:
     container_name: videos_service
     restart: always
@@ -45,6 +47,7 @@ services:
     volumes:
       - postgres_data_video:/var/lib/postgresql/data
 
+  # Auth and Users
   auth_users_app:
     container_name: auth_users_service
     restart: always
@@ -73,6 +76,37 @@ services:
     volumes:
       - postgres_data_users:/var/lib/postgresql/data
 
+  # Comments
+  comments_app:
+    container_name: comments_service
+    restart: always
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
+    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
+    build:
+      context: ./comments_service
+      dockerfile: ./Dockerfile
+    ports:
+      - 8004:8004
+    volumes:
+      - ./comments_service/:/project/
+    env_file:
+      - ./comments_service/.docker-env
+    depends_on:
+      - comments_db
+      - video_app
+
+  comments_db:
+    container_name: comments_service_db
+    image: postgres
+    restart: always
+    ports:
+      - 5435:5432
+    env_file:
+      - ./.postgres-env
+    volumes:
+      - postgres_data_comments:/var/lib/postgresql/data
+
+  # Tools
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -96,3 +130,4 @@ services:
 volumes:
   postgres_data_video:
   postgres_data_users:
+  postgres_data_comments:
