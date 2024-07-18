@@ -10,3 +10,10 @@ class PermissionDenied(Exception):
 
     def __init__(self, message="Permission denied"):
         super().__init__(message)
+
+
+class CommentNotFound(Exception):
+    """Raised when comment is not found."""
+
+    def __init__(self, message="Comment not found"):
+        super().__init__(message)

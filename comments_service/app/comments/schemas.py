@@ -9,12 +9,12 @@ class BaseSchema(BaseModel):
 
 class CommentCreate(BaseSchema):
     content: str
-    user_id: UUID
     video_id: UUID
 
 
 class CommentGet(CommentCreate):
     id: UUID
+    user_id: UUID
     likes: int
     dislikes: int
     created_at: datetime

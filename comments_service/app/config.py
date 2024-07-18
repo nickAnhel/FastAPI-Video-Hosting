@@ -8,7 +8,8 @@ BASE_DIR = Path(__file__).parent.parent
 
 
 class ServicesSettings(BaseModel):
-    auth_users_storage_service: str | None = os.environ.get("AUTH_USERS_SERVICE_URL")
+    auth_users_service_url: str | None = os.environ.get("AUTH_USERS_SERVICE_URL")
+    videos_service_url: str | None = os.environ.get("VIDEOS_SERVICE_URL")
 
 
 class DBSettings(BaseModel):
