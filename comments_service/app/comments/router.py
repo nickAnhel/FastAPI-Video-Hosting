@@ -23,7 +23,7 @@ async def create_comment(
     return await comment_service.create_comment(data=data, user_id=user_id)
 
 
-@comment_router.get("/")
+@comment_router.get("/list")
 async def get_comments(
     video_id: UUID,
     order: CommentOrder = CommentOrder.ID,  # type: ignore
@@ -58,3 +58,13 @@ async def delete_comment(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can't delete this comment",
         ) from exc
+
+
+@comment_router.delete("/list")
+async def delete_comments(
+    video_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
+    comment_service: CommentService = Depends(get_comment_service),
+) -> dict[str, str]:
+    deleted_comments_count = await comment_service.delete_comments(video_id=video_id)
+    return {"detail": f"Successfully deleted {deleted_comments_count} comments"}

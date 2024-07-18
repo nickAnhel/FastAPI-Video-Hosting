@@ -51,3 +51,9 @@ class CommentService:
             raise PermissionDenied()
 
         await self._repository.delete(id=comment_id)
+
+    async def delete_comments(
+        self,
+        video_id: UUID,
+    ) -> int:
+        return await self._repository.delete(video_id=video_id)

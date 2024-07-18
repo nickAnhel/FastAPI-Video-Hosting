@@ -53,4 +53,4 @@ class CommentRepository:
 
         res = await self._async_session.execute(stmt)
         await self._async_session.commit()
-        return res.rowcount != 0
+        return res.rowcount

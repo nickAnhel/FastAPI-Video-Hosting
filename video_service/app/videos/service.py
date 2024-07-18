@@ -4,7 +4,7 @@ from uuid import UUID
 from app.config import settings
 from app.videos.repository import VideoRepository
 from app.videos.schemas import VideoCreate, VideoGet
-from app.videos.external import upload_file_to_s3, delete_file_from_s3
+from app.videos.external import upload_file_to_s3, delete_file_from_s3, delete_all_video_comments
 from app.videos.models import VideoModel
 from app.videos.enums import VideoOrder
 from app.videos.exceptions import (
@@ -43,11 +43,13 @@ class VideoService:
         video_model: VideoModel,
     ) -> None:
         if not await upload_file_to_s3(file=video, filename=settings.file_prefixes.video_file + str(video_model.id)):
-            await self.delete_video(id=video_model.id, user_id=video_model.user_id)  # type: ignore
+            await self.repository.delete(id=video_model.id)
             raise CantUploadVideoToS3()
 
-        if not await upload_file_to_s3(file=preview, filename=settings.file_prefixes.preview_file + str(video_model.id)):
-            await self.delete_video(id=video_model.id, user_id=video_model.user_id)  # type: ignore
+        if not await upload_file_to_s3(
+            file=preview, filename=settings.file_prefixes.preview_file + str(video_model.id)
+        ):
+            await self.repository.delete(id=video_model.id)
             raise CantUploadPreviewToS3()
 
     async def search_videos(
@@ -79,6 +81,7 @@ class VideoService:
 
     async def delete_video(
         self,
+        token: str,
         id: UUID,
         user_id: UUID,
     ) -> None:
@@ -98,23 +101,25 @@ class VideoService:
         ):
             raise CantDeleteVideoFromS3()
 
+        await delete_all_video_comments(video_id=id, token=token)
+
         await self.repository.delete(id=id)
 
     async def delete_videos(
         self,
+        token: str,
         user_id: UUID,
     ) -> int:
         videos = await self.get_videos(user_id=user_id)
 
         if not await delete_file_from_s3(
-            filenames=[
-                settings.file_prefixes.video_file + str(video.id) for video in videos
-            ] + [
-                settings.file_prefixes.preview_file + str(video.id)
-                for video in videos
-            ]
+            filenames=[settings.file_prefixes.video_file + str(video.id) for video in videos]
+            + [settings.file_prefixes.preview_file + str(video.id) for video in videos]
         ):
             raise CantDeleteVideoFromS3()
+
+        for video in videos:
+            await delete_all_video_comments(video_id=video.id, token=token)
 
         return await self.repository.delete(user_id=user_id)
 

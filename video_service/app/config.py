@@ -8,8 +8,9 @@ BASE_DIR = Path(__file__).parent.parent
 
 
 class ServicesSettings(BaseModel):
-    s3_storage_service: str | None = os.environ.get("S3_STORAGE_SERVICE_URL")
-    auth_users_service: str | None = os.environ.get("AUTH_USERS_SERVICE_URL")
+    s3_storage_service_url: str | None = os.environ.get("S3_STORAGE_SERVICE_URL")
+    auth_users_service_url: str | None = os.environ.get("AUTH_USERS_SERVICE_URL")
+    comments_service_url: str | None = os.environ.get("COMMENTS_SERVICE_URL")
 
 
 class FilePrefixes(BaseModel):

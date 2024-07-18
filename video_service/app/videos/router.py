@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse
 from fastapi import (
     APIRouter,
     HTTPException,
+    Request,
     UploadFile,
     Depends,
     Form,
@@ -124,12 +125,17 @@ async def get_video_by_id(
 
 @video_router.delete("/")
 async def delete_video_by_id(
+    request: Request,
     video: UUID,
     user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> dict[str, str]:
     try:
-        await video_service.delete_video(id=video, user_id=user_id)
+        await video_service.delete_video(
+            token=request.headers.get("Authorization").replace("Bearer ", ""),  # type: ignore
+            id=video,
+            user_id=user_id,
+        )
         return {"detail": "Video deleted successfully"}
 
     except VideoNotFound as exc:
@@ -153,11 +159,15 @@ async def delete_video_by_id(
 
 @video_router.delete("/list")
 async def delete_videos(
+    request: Request,
     user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> dict[str, str]:
     try:
-        deleted_videos_count = await video_service.delete_videos(user_id=user_id)
+        deleted_videos_count = await video_service.delete_videos(
+            token=request.headers.get("Authorization").replace("Bearer ", ""),  # type: ignore
+            user_id=user_id,
+        )
         return {"detail": f"Successfully deleted {deleted_videos_count} videos"}
 
     except CantDeleteVideoFromS3 as exc:

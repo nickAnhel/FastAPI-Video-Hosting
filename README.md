@@ -6,7 +6,6 @@ Simple videohosting made with Python and FastAPI.
 
 - Users subscriptions
 - Videos search (Elasticsearch)
-- Comments
 - Playlists
 
 - Frontend
