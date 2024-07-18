@@ -11,10 +11,10 @@ from fastapi import (
 )
 
 from app.config import settings
-from video_service.app.videos.schemas import VideoCreate
+from app.videos.schemas import VideoCreate
 from app.videos.service import VideoService
 from app.videos.dependencies import get_video_service, get_current_user_id
-from video_service.app.videos.schemas import VideoGet
+from app.videos.schemas import VideoGet
 from app.videos.external import get_s3_storage_url
 from app.videos.enums import VideoOrder
 from app.videos.exceptions import (
