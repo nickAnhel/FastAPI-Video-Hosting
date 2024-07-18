@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.config import settings
-from app.routes import get_routes
+from app.videos.router import video_router
 
 
 app = FastAPI(
@@ -14,8 +14,7 @@ app = FastAPI(
 )
 
 
-for route in get_routes():
-    app.include_router(route)
+app.include_router(video_router)
 
 
 if __name__ == "__main__":
