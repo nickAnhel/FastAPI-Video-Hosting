@@ -50,6 +50,13 @@ class VideoService:
             await self.delete_video(id=video_model.id, user_id=video_model.user_id)  # type: ignore
             raise CantUploadPreviewToS3()
 
+    async def search_videos(
+        self,
+        query: str,
+    ) -> list[VideoGet]:
+        videos = await self.repository.search(search_query=query)
+        return [VideoGet.model_validate(video) for video in videos]
+
     async def get_video(
         self,
         **filters,

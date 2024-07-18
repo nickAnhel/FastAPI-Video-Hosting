@@ -14,6 +14,9 @@ from app.config import settings
 from app.videos.scemas import VideoCreate
 from app.videos.service import VideoService
 from app.videos.dependencies import get_video_service, get_current_user_id
+from app.videos.scemas import VideoGet
+from app.videos.external import get_s3_storage_url
+from app.videos.enums import VideoOrder
 from app.videos.exceptions import (
     PermissionDenied,
     VideoNotFound,
@@ -21,9 +24,6 @@ from app.videos.exceptions import (
     CantUploadPreviewToS3,
     CantDeleteVideoFromS3,
 )
-from app.videos.scemas import VideoGet
-from app.videos.external import get_s3_storage_url
-from app.videos.enums import VideoOrder
 
 
 video_router = APIRouter(
@@ -86,6 +86,14 @@ async def create_video(
         ) from exc
 
 
+@video_router.get("/search")
+async def search_videos(
+    query: str,
+    video_service: VideoService = Depends(get_video_service),
+) -> list[VideoGet]:
+    return await video_service.search_videos(query=query)
+
+
 @video_router.get("/list")
 async def get_videos(
     order: VideoOrder = VideoOrder.ID,  # type: ignore
@@ -97,18 +105,6 @@ async def get_videos(
         order=order,
         offset=offset,
         limit=limit,
-    )
-
-
-@video_router.get("/watch")
-async def watch_video(
-    video: UUID,
-) -> HTMLResponse:
-    storage_url = await get_s3_storage_url()
-    video_url = f"{storage_url}/{settings.file_prefixes.video_file + str(video)}"
-    preview_url = f"{storage_url}/{settings.file_prefixes.preview_file + str(video)}"
-    return HTMLResponse(
-        content=f"<video src='{video_url}' poster='{preview_url}' width='960' height='540' controls></video>"
     )
 
 
@@ -171,7 +167,7 @@ async def delete_videos(
         ) from exc
 
 
-@video_router.patch("/increment-views")
+@video_router.patch("/increment/views")
 async def increment_video_views(
     video: UUID,
     video_service: VideoService = Depends(get_video_service),
@@ -179,33 +175,67 @@ async def increment_video_views(
     return await video_service.increment_views(id=video)
 
 
-@video_router.patch("/increment-likes")
+@video_router.patch("/increment/likes")
 async def increment_video_likes(
     video: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     return await video_service.increment_likes(id=video)
 
 
-@video_router.patch("/decrement-likes")
+@video_router.patch("/decrement/likes")
 async def decrement_video_likes(
     video: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     return await video_service.decrement_likes(id=video)
 
 
-@video_router.patch("/increment-dislikes")
+@video_router.patch("/increment/dislikes")
 async def increment_video_dislikes(
     video: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     return await video_service.increment_dislikes(id=video)
 
 
-@video_router.patch("/decrement-dislikes")
+@video_router.patch("/decrement/dislikes")
 async def decrement_video_dislikes(
     video: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     return await video_service.decrement_dislikes(id=video)
+
+
+# Test routes
+@video_router.get("/test/watch")
+async def watch_video(
+    video: UUID,
+) -> HTMLResponse:
+    storage_url = await get_s3_storage_url()
+    video_url = f"{storage_url}/{settings.file_prefixes.video_file + str(video)}"
+    preview_url = f"{storage_url}/{settings.file_prefixes.preview_file + str(video)}"
+    return HTMLResponse(
+        content=f"<video src='{video_url}' poster='{preview_url}' width='960' height='540' controls></video>"
+    )
+
+
+@video_router.get("/test/search")
+async def test_search_videos(
+    query: str,
+    video_service: VideoService = Depends(get_video_service),
+) -> HTMLResponse:
+    storage_url = await get_s3_storage_url()
+    videos = await video_service.search_videos(query=query)
+    content = f"""
+<h1>{query}</h1>
+{[
+    f"<video src='{storage_url}/{settings.file_prefixes.video_file + str(video.id)}' controls poster='{storage_url}/{settings.file_prefixes.preview_file + str(video.id)}' width='960' height='540'></video>"
+    for video in videos
+]}
+"""
+    return HTMLResponse(content=content)
