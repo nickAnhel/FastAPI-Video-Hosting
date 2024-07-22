@@ -11,3 +11,4 @@ Simple videohosting made with Python and FastAPI.
 
 - Frontend
 - Background tasks
+- Monitoring 
