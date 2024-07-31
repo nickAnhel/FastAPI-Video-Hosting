@@ -3,6 +3,7 @@ import datetime
 import jwt
 import bcrypt
 
+from app.users.schemas import UserGet
 from app.auth.config import auth_settings
 
 
@@ -63,7 +64,7 @@ def create_token(
     )
 
 
-def create_access_token(user) -> str:
+def create_access_token(user: UserGet) -> str:
     payload = {
         "sub": str(user.id),
         "username": user.username,
@@ -76,7 +77,7 @@ def create_access_token(user) -> str:
     )
 
 
-def create_refresh_token(user) -> str:
+def create_refresh_token(user: UserGet) -> str:
     payload = {
         "sub": str(user.id),
         "username": user.username,

@@ -1,4 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import (
+    APIRouter,
+    Response,
+    Depends,
+)
 
 from app.users.schemas import UserGet, UserGetWithPassword
 from app.auth.schemas import Token
@@ -14,14 +18,16 @@ auth_router = APIRouter(
 
 @auth_router.post("/token")
 async def get_jwt_token(
+    response: Response,
     user: UserGetWithPassword = Depends(authenticate_user),
 ) -> Token:
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)
 
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True)
+
     return Token(
         access_token=access_token,
-        refresh_token=refresh_token,
     )
 
 
