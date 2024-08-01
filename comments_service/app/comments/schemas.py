@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class BaseSchema(BaseModel):
@@ -8,7 +8,7 @@ class BaseSchema(BaseModel):
 
 
 class CommentCreate(BaseSchema):
-    content: str
+    content: str = Field(max_length=255)
     video_id: UUID
 
 

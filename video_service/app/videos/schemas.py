@@ -1,7 +1,6 @@
 from uuid import UUID
-from typing import Literal
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class BaseSchema(BaseModel):
@@ -9,15 +8,14 @@ class BaseSchema(BaseModel):
 
 
 class VideoCreate(BaseSchema):
-    title: str
-    description: str
+    title: str = Field(max_length=50)
+    description: str = Field(max_length=255)
     user_id: UUID
 
 
 class VideoGet(VideoCreate):
     id: UUID
-    user_id: UUID
-    views: PositiveInt | Literal[0]
-    likes: PositiveInt | Literal[0]
-    dislikes: PositiveInt | Literal[0]
+    views: int
+    likes: int
+    dislikes: int
     created_at: datetime

@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 from sqlalchemy.exc import IntegrityError, DBAPIError
 from fastapi.responses import HTMLResponse
@@ -6,16 +7,16 @@ from fastapi import (
     HTTPException,
     Request,
     UploadFile,
+    Query,
     Depends,
     Form,
     status,
 )
 
 from app.config import settings
-from app.videos.schemas import VideoCreate
+from app.videos.schemas import VideoGet, VideoCreate
 from app.videos.service import VideoService
 from app.videos.dependencies import get_video_service, get_current_user_id
-from app.videos.schemas import VideoGet
 from app.videos.external import get_s3_storage_url
 from app.videos.enums import VideoOrder
 from app.videos.exceptions import (
@@ -89,7 +90,7 @@ async def create_video(
 
 @video_router.get("/search")
 async def search_videos(
-    query: str,
+    query: Annotated[str, Query(max_length=50)],
     video_service: VideoService = Depends(get_video_service),
 ) -> list[VideoGet]:
     return await video_service.search_videos(query=query)
