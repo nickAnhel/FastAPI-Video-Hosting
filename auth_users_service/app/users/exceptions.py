@@ -4,6 +4,12 @@ class UserNotFound(Exception):
     def __init__(self, message="User not found"):
         super().__init__(message)
 
+class UserNotInSubscriptions(Exception):
+    """User not found exception."""
+
+    def __init__(self, message="User not in subscriptions"):
+        super().__init__(message)
+
 
 class InvalidAuthToken(Exception):
     """Invalid authorization token exception."""

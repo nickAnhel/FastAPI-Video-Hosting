@@ -244,9 +244,9 @@ async def test_search_videos(
     videos = await video_service.search_videos(query=query)
     content = f"""
 <h1>{query}</h1>
-{[
+{"".join([
     f"<video src='{storage_url}/{settings.file_prefixes.video_file + str(video.id)}' controls poster='{storage_url}/{settings.file_prefixes.preview_file + str(video.id)}' width='960' height='540'></video>"
     for video in videos
-]}
+])}
 """
     return HTMLResponse(content=content)

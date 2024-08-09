@@ -2,12 +2,13 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends, Request, status
 from sqlalchemy.exc import IntegrityError, CompileError, DBAPIError
 
-from app.auth.dependencies import get_current_user, get_current_user_with_profile
+from app.auth.dependencies import get_current_user, get_current_user_with_subscriptions
 from app.users.dependencies import get_user_service
 from app.users.service import UserService
-from app.users.schemas import UserCreate, UserGet, UserGetWithProfile
-from app.users.exceptions import CantDeleteUsersVideos, UserNotFound
+from app.users.schemas import UserCreate, UserGet, UserGetWithProfile, UserGetWithSubscriptions
+from app.users.exceptions import CantDeleteUsersVideos, UserNotFound, UserNotInSubscriptions
 from app.users.enums import UserOrder
+
 
 users_router = APIRouter(
     prefix="/users",
@@ -31,8 +32,8 @@ async def create_user(
 
 @users_router.get("/me")
 async def get_current_user_info(
-    user: UserGetWithProfile = Depends(get_current_user_with_profile),
-) -> UserGetWithProfile:
+    user: UserGetWithSubscriptions = Depends(get_current_user_with_subscriptions),
+) -> UserGetWithSubscriptions:
     return user
 
 
@@ -87,4 +88,41 @@ async def delete_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Can't delete users videos",
+        ) from exc
+
+
+@users_router.post("/subscribe")
+async def subscribe_to_user(
+    user_id: UUID,
+    user: UserGet = Depends(get_current_user),
+    user_service: UserService = Depends(get_user_service),
+) -> dict[str, str]:
+    try:
+        await user_service.subscribe(user_id=user_id, subscriber_id=user.id)
+        return {"detail": "User subscribed successfully"}
+    except UserNotFound as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        ) from exc
+
+
+@users_router.delete("/unsubscribe")
+async def unsubscribe_from_user(
+    user_id: UUID,
+    user: UserGet = Depends(get_current_user),
+    user_service: UserService = Depends(get_user_service),
+) -> dict[str, str]:
+    try:
+        await user_service.unsubscribe(user_id=user_id, subscriber_id=user.id)
+        return {"detail": "User unsubscribed successfully"}
+    except UserNotFound as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        ) from exc
+    except UserNotInSubscriptions as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"User with id {user_id} not in subscriptions",
         ) from exc

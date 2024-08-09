@@ -27,3 +27,8 @@ class UserGetWithPassword(UserGet):
 class UserGetWithProfile(UserGet):
     about: str
     social_links: list[HttpUrl]
+
+
+class UserGetWithSubscriptions(UserGetWithProfile):
+    subscribers: list[UserGet]
+    subscribed: list[UserGet]

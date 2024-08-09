@@ -90,6 +90,7 @@ def _check_token_type(
 
 def get_current_user_closure(
     include_profile: bool = False,
+    include_subscriptions: bool = False,
 ) -> Callable[..., Coroutine[Any, Any, UserGet | UserGetWithProfile]]:
     async def get_current_user_wrapper(
         token_payload: dict[str, Any] = Depends(_get_token_payload_from_header),
@@ -100,6 +101,7 @@ def get_current_user_closure(
         try:
             return await user_service.get_user(
                 include_profile=include_profile,
+                include_subscriptions=include_subscriptions,
                 id=token_payload.get("sub"),
             )  # type: ignore
 
@@ -114,6 +116,7 @@ def get_current_user_closure(
 
 get_current_user = get_current_user_closure()
 get_current_user_with_profile = get_current_user_closure(include_profile=True)
+get_current_user_with_subscriptions = get_current_user_closure(include_subscriptions=True)
 
 
 async def get_current_user_for_refresh(

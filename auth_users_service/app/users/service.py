@@ -1,9 +1,18 @@
-from app.users.schemas import UserCreate, UserGet, UserGetWithProfile, UserGetWithPassword
+from uuid import UUID
+
 from app.users.repository import UserRepository
-from app.users.exceptions import UserNotFound, CantDeleteUsersVideos
+from app.users.exceptions import UserNotFound, CantDeleteUsersVideos, UserNotInSubscriptions
 from app.users.utils import get_password_hash
 from app.users.external import delete_all_users_videos
 from app.users.enums import UserOrder
+from app.users.schemas import (
+    UserCreate,
+    UserGet,
+    UserGetWithProfile,
+    UserGetWithPassword,
+    UserGetWithSubscriptions,
+)
+from app.users.models import UserModel
 
 
 class UserService:
@@ -24,6 +33,7 @@ class UserService:
         self,
         include_password: bool = False,
         include_profile: bool = False,
+        include_subscriptions: bool = False,
         **filters,
     ) -> UserGet | UserGetWithProfile | UserGetWithPassword:
         """Get user by filters (username, email or id)."""
@@ -31,6 +41,17 @@ class UserService:
 
         if not user:
             raise UserNotFound(f"User with filters {filters} not found")
+
+        if include_subscriptions:
+            # user_subribers = [UserGet.model_validate(sub) for sub in user.subscribers]
+            # user_subribed = [UserGet.model_validate(sub) for sub in user.subscribed]
+            # user = UserGetWithProfile.model_validate(user)
+            # return UserGetWithSubscriptions(
+            #     **user.model_dump(),
+            #     subscribers=user_subribers,
+            #     subscribed=user_subribed,
+            # )
+            return UserGetWithSubscriptions.model_validate(user)
 
         if include_profile:
             return UserGetWithProfile.model_validate(user)
@@ -47,7 +68,7 @@ class UserService:
         limit: int = 100,
     ) -> list[UserGet]:
         """Get users with pagination."""
-        users = await self.repository.get_multiple(
+        users: list[UserModel] = await self.repository.get_multiple(
             order=order,
             offset=offset,
             limit=limit,
@@ -64,3 +85,27 @@ class UserService:
             raise CantDeleteUsersVideos()
 
         await self.repository.delete(**filters)
+
+    async def subscribe(
+        self,
+        user_id: UUID,
+        subscriber_id: UUID,
+    ) -> None:
+        """Subscribe to user."""
+        try:
+            await self.repository.subscribe(user_id=user_id, subscriber_id=subscriber_id)
+        except AttributeError as exc:
+            raise UserNotFound(f"User with id {user_id} not found") from exc
+
+    async def unsubscribe(
+        self,
+        user_id: UUID,
+        subscriber_id: UUID,
+    ) -> None:
+        """Unsubscribe from user."""
+        try:
+            await self.repository.unsubscribe(user_id=user_id, subscriber_id=subscriber_id)
+        except AttributeError as exc:
+            raise UserNotFound(f"User with id {user_id} not found") from exc
+        except ValueError as exc:
+            raise UserNotInSubscriptions(f"User with id {subscriber_id} not found in subscribers of {user_id}") from exc
