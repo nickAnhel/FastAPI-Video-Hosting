@@ -25,6 +25,7 @@ from app.videos.exceptions import (
     CantUploadVideoToS3,
     CantUploadPreviewToS3,
     CantDeleteVideoFromS3,
+    CantDeleteComments,
 )
 
 
@@ -157,6 +158,12 @@ async def delete_video_by_id(
             detail="Failed to delete video",
         ) from exc
 
+    except CantDeleteComments as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete comments",
+        ) from exc
+
 
 @video_router.delete("/list")
 async def delete_videos(
@@ -175,6 +182,12 @@ async def delete_videos(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete video",
+        ) from exc
+
+    except CantDeleteComments as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete comments",
         ) from exc
 
 

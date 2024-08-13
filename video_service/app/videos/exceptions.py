@@ -38,3 +38,10 @@ class PermissionDenied(Exception):
 
     def __init__(self, message="Permission denied"):
         super().__init__(message)
+
+
+class CantDeleteComments(Exception):
+    """Raised when can't delete comments."""
+
+    def __init__(self, message="Can't delete comments"):
+        super().__init__(message)
