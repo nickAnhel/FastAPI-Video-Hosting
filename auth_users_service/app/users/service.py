@@ -1,10 +1,18 @@
 from uuid import UUID
+from sqlalchemy.exc import NoResultFound
 
 from app.users.repository import UserRepository
-from app.users.exceptions import UserNotFound, CantDeleteUsersVideos, UserNotInSubscriptions
 from app.users.utils import get_password_hash
 from app.users.external import delete_all_users_videos
 from app.users.enums import UserOrder
+from app.users.models import UserModel
+from app.users.exceptions import (
+    UserNotFound,
+    CantDeleteUsersVideos,
+    UserNotInSubscriptions,
+    CantSubscribeToUser,
+    CantUnsubscribeFromUser,
+)
 from app.users.schemas import (
     UserCreate,
     UserGet,
@@ -12,7 +20,6 @@ from app.users.schemas import (
     UserGetWithPassword,
     UserGetWithSubscriptions,
 )
-from app.users.models import UserModel
 
 
 class UserService:
@@ -37,20 +44,12 @@ class UserService:
         **filters,
     ) -> UserGet | UserGetWithProfile | UserGetWithPassword:
         """Get user by filters (username, email or id)."""
-        user = await self.repository.get_single(**filters)
-
-        if not user:
-            raise UserNotFound(f"User with filters {filters} not found")
+        try:
+            user = await self.repository.get_single(**filters)
+        except NoResultFound as exc:
+            raise UserNotFound(f"User with filters {filters} not found") from exc
 
         if include_subscriptions:
-            # user_subribers = [UserGet.model_validate(sub) for sub in user.subscribers]
-            # user_subribed = [UserGet.model_validate(sub) for sub in user.subscribed]
-            # user = UserGetWithProfile.model_validate(user)
-            # return UserGetWithSubscriptions(
-            #     **user.model_dump(),
-            #     subscribers=user_subribers,
-            #     subscribed=user_subribed,
-            # )
             return UserGetWithSubscriptions.model_validate(user)
 
         if include_profile:
@@ -92,9 +91,12 @@ class UserService:
         subscriber_id: UUID,
     ) -> None:
         """Subscribe to user."""
+        if user_id == subscriber_id:
+            raise CantSubscribeToUser("Can't subscribe to yourself")
+
         try:
             await self.repository.subscribe(user_id=user_id, subscriber_id=subscriber_id)
-        except AttributeError as exc:
+        except NoResultFound as exc:
             raise UserNotFound(f"User with id {user_id} not found") from exc
 
     async def unsubscribe(
@@ -103,9 +105,14 @@ class UserService:
         subscriber_id: UUID,
     ) -> None:
         """Unsubscribe from user."""
+        if user_id == subscriber_id:
+            raise CantUnsubscribeFromUser("Can't unsubscribe from yourself")
+
         try:
             await self.repository.unsubscribe(user_id=user_id, subscriber_id=subscriber_id)
-        except AttributeError as exc:
+        except NoResultFound as exc:
             raise UserNotFound(f"User with id {user_id} not found") from exc
         except ValueError as exc:
-            raise UserNotInSubscriptions(f"User with id {subscriber_id} not found in subscribers of {user_id}") from exc
+            raise UserNotInSubscriptions(
+                f"User with id {subscriber_id} not found in subscribers of {user_id}"
+            ) from exc

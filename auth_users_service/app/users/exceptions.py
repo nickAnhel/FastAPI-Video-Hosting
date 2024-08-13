@@ -23,3 +23,16 @@ class CantDeleteUsersVideos(Exception):
 
     def __init__(self, message="Can't delete users videos"):
         super().__init__(message)
+
+
+class CantSubscribeToUser(Exception):
+    """Can't subscribe exception."""
+
+    def __init__(self, message="Can't subscribe"):
+        super().__init__(message)
+
+class CantUnsubscribeFromUser(Exception):
+    """Can't unsubscribe exception."""
+
+    def __init__(self, message="Can't subscribe"):
+        super().__init__(message)

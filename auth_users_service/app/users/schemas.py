@@ -18,6 +18,7 @@ class UserGet(BaseChema):
     id: UUID
     username: str
     email: EmailStr
+    subscribers_count: int = Field(ge=0)
 
 
 class UserGetWithPassword(UserGet):

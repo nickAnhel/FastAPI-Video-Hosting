@@ -38,6 +38,8 @@ class UserModel(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
 
+    subscribers_count: Mapped[int] = mapped_column(default=0)
+
     subscribers: Mapped[list["UserModel"]] = relationship(
         back_populates="subscribed",
         secondary="user_subscriptions",
