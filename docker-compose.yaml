@@ -106,6 +106,36 @@ services:
     volumes:
       - postgres_data_comments:/var/lib/postgresql/data
 
+  # Playlists
+  playlists_app:
+    container_name: playlists_service
+    restart: always
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8005 --reload"
+    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
+    build:
+      context: ./playlists_service
+      dockerfile: ./Dockerfile
+    ports:
+      - 8005:8005
+    volumes:
+      - ./playlists_service/:/project/
+    env_file:
+      - ./playlists_service/.docker-env
+    depends_on:
+      - playlists_db
+      - video_app
+
+  playlists_db:
+    container_name: playlists_service_db
+    image: postgres
+    restart: always
+    ports:
+      - 5436:5432
+    env_file:
+      - ./.postgres-env
+    volumes:
+      - postgres_data_playlists:/var/lib/postgresql/data
+
   # Tools
   pgadmin:
     image: dpage/pgadmin4
@@ -131,3 +161,4 @@ volumes:
   postgres_data_video:
   postgres_data_users:
   postgres_data_comments:
+  postgres_data_playlists:
