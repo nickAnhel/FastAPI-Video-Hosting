@@ -1,5 +1,6 @@
 from typing import Literal
 from uuid import UUID
+from sqlalchemy.exc import IntegrityError, DBAPIError
 
 from app.config import settings
 from app.videos.repository import VideoRepository
@@ -8,10 +9,12 @@ from app.videos.external import upload_file_to_s3, delete_files_from_s3, delete_
 from app.videos.models import VideoModel
 from app.videos.enums import VideoOrder
 from app.videos.exceptions import (
-    CantUploadPreviewToS3,
-    PermissionDenied,
     VideoNotFound,
+    VideoTitleAlreadyExists,
+    VideoDataWrongFormat,
+    PermissionDenied,
     CantUploadVideoToS3,
+    CantUploadPreviewToS3,
     CantDeleteVideoFromS3,
     CantDeleteComments,
 )
@@ -19,7 +22,7 @@ from app.videos.exceptions import (
 
 class VideoService:
     def __init__(self, repository: VideoRepository):
-        self.repository = repository
+        self._repository = repository
 
     async def create_video(
         self,
@@ -27,7 +30,12 @@ class VideoService:
         preview: bytes,
         data: VideoCreate,
     ) -> VideoGet:
-        video_model = await self.repository.create(data=data.model_dump())
+        try:
+            video_model: VideoModel = await self._repository.create(data=data.model_dump())
+        except IntegrityError as exc:
+            raise VideoTitleAlreadyExists(f"Video with title {data.title} already exists") from exc
+        except DBAPIError as exc:
+            raise VideoDataWrongFormat("Title or description is too long") from exc
 
         await self._upload_video_files(
             video=video,
@@ -43,29 +51,29 @@ class VideoService:
         preview: bytes,
         video_model: VideoModel,
     ) -> None:
-        if not await upload_file_to_s3(file=video, filename=settings.file_prefixes.video_file + str(video_model.id)):
-            await self.repository.delete(id=video_model.id)
+        if not await upload_file_to_s3(file=video, filename=settings.file_prefixes.video + str(video_model.id)):
+            await self._repository.delete(id=video_model.id)
             raise CantUploadVideoToS3()
 
         if not await upload_file_to_s3(
-            file=preview, filename=settings.file_prefixes.preview_file + str(video_model.id)
+            file=preview, filename=settings.file_prefixes.preview + str(video_model.id)
         ):
-            await self.repository.delete(id=video_model.id)
+            await self._repository.delete(id=video_model.id)
             raise CantUploadPreviewToS3()
 
     async def search_videos(
         self,
         query: str,
     ) -> list[VideoGet]:
-        videos = await self.repository.search(search_query=query)
+        videos = await self._repository.search(search_query=query)
         return [VideoGet.model_validate(video) for video in videos]
 
     async def get_video(
         self,
         **filters,
     ) -> VideoGet:
-        video = await self.repository.get_single(**filters)
-        return self._validate_video_exists(video)
+        video = await self._repository.get_single(**filters)
+        return self._check_video_exists(video)
 
     async def get_videos(
         self,
@@ -78,7 +86,7 @@ class VideoService:
         if user_id:
             params["user_id"] = user_id
 
-        videos = await self.repository.get_multi(**params)
+        videos = await self._repository.get_multi(**params)
         return [VideoGet.model_validate(video) for video in videos]
 
     async def delete_video(
@@ -87,16 +95,16 @@ class VideoService:
         id: UUID,
         user_id: UUID,
     ) -> None:
-        video = await self.repository.get_single(id=id)
-        self._validate_video_exists(video)
+        video = await self._repository.get_single(id=id)
+        self._check_video_exists(video)
 
         if not video.user_id == user_id:  # type: ignore
             raise PermissionDenied(f"User with id {user_id} can't delete video with id {id}.")
 
         if not await delete_files_from_s3(
             filenames=[
-                settings.file_prefixes.video_file + str(id),
-                settings.file_prefixes.preview_file + str(id),
+                settings.file_prefixes.video + str(id),
+                settings.file_prefixes.preview + str(id),
             ]
         ):
             raise CantDeleteVideoFromS3()
@@ -104,7 +112,7 @@ class VideoService:
         if not await delete_all_video_comments(video_id=id, token=token):
             raise CantDeleteComments()
 
-        await self.repository.delete(id=id)
+        await self._repository.delete(id=id)
 
     async def delete_videos(
         self,
@@ -114,33 +122,32 @@ class VideoService:
         videos = await self.get_videos(user_id=user_id)
 
         if not await delete_files_from_s3(
-            filenames=[settings.file_prefixes.video_file + str(video.id) for video in videos]
-            + [settings.file_prefixes.preview_file + str(video.id) for video in videos]
+            filenames=[settings.file_prefixes.video + str(video.id) for video in videos]
+            + [settings.file_prefixes.preview + str(video.id) for video in videos]
         ):
             raise CantDeleteVideoFromS3()
 
         for video in videos:
             if not await delete_all_video_comments(video_id=video.id, token=token):
-                raise CantDeleteComments()
+                raise CantDeleteComments(f"Can't delete comments for video with id {video.id}.")
 
-
-        return await self.repository.delete(user_id=user_id)
+        return await self._repository.delete(user_id=user_id)
 
     async def _increment(
         self,
         column: Literal["views", "likes", "dislikes"],
         id: UUID,
     ) -> VideoGet:
-        video = await self.repository.increment(column=column, id=id)
-        return self._validate_video_exists(video)
+        video = await self._repository.increment(column=column, id=id)
+        return self._check_video_exists(video)
 
     async def _decrement(
         self,
         column: Literal["views", "likes", "dislikes"],
         id: UUID,
     ) -> VideoGet:
-        video = await self.repository.decrement(column=column, id=id)
-        return self._validate_video_exists(video)
+        video = await self._repository.decrement(column=column, id=id)
+        return self._check_video_exists(video)
 
     async def increment_views(self, id: UUID) -> VideoGet:
         return await self._increment(column="views", id=id)
@@ -157,7 +164,7 @@ class VideoService:
     async def decrement_dislikes(self, id: UUID) -> VideoGet:
         return await self._decrement(column="dislikes", id=id)
 
-    def _validate_video_exists(self, video: VideoModel | None) -> VideoGet:
+    def _check_video_exists(self, video: VideoModel | None) -> VideoGet:
         if not video:
             raise VideoNotFound()
 

@@ -14,8 +14,8 @@ class ServicesSettings(BaseModel):
 
 
 class FilePrefixes(BaseModel):
-    video_file: str = "VV@"
-    preview_file: str = "VP@"
+    video: str = "VV@"
+    preview: str = "VP@"
 
 
 class DBSettings(BaseModel):
