@@ -1,20 +1,9 @@
 from uuid import UUID
 from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_async_session
-from app.playlists.service import PlaylistService
-from app.playlists.repository import PlaylistRepository
 from app.playlists.external import get_user_id_by_token
 from app.playlists.exceptions import CantGetUserID
-
-
-def get_playlist_service(
-    async_session: AsyncSession = Depends(get_async_session),
-) -> PlaylistService:
-    video_repository = PlaylistRepository(async_session)
-    return PlaylistService(video_repository)
 
 
 def _get_token_from_header(
@@ -43,7 +32,7 @@ def _get_optional_token_from_header(
     return credentials.credentials if credentials else None
 
 
-async def get_optional_current_user_id(
+async def get_optional_user_id(
     token: str | None = Depends(_get_optional_token_from_header),
 ) -> UUID | None:
     if not token:

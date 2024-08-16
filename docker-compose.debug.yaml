@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  playlists_app_debug:
+    container_name: playlists_service_debug
+    restart: always
+    command: sh -c "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005"
+
+    build:
+      context: ./playlists_service
+      dockerfile: ./Dockerfile
+    ports:
+      - 8005:8005
+      - 5678:5678
+    # volumes:
+    #   - ./playlists_service/:/project/
+    env_file:
+      - ./playlists_service/.docker-env

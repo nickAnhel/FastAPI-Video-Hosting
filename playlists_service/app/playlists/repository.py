@@ -1,13 +1,15 @@
 from uuid import UUID
-from typing import Any
+from typing import Any, Annotated
+from fastapi import Depends
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.playlists.models import PlaylistModel
+from app.database import get_async_session
 
 
 class PlaylistRepository:
-    def __init__(self, async_session: AsyncSession):
+    def __init__(self, async_session: Annotated[AsyncSession, Depends(get_async_session)]):
         self._async_session = async_session
 
     async def create(
@@ -37,13 +39,7 @@ class PlaylistRepository:
         limit: int = 100,
         **filters,
     ) -> list[PlaylistModel]:
-        query = (
-            select(PlaylistModel)
-            .filter_by(**filters)
-            .order_by(order)
-            .offset(offset)
-            .limit(limit)
-        )
+        query = select(PlaylistModel).filter_by(**filters).order_by(order).offset(offset).limit(limit)
 
         playlists = await self._async_session.execute(query)
         return list(playlists.scalars().all())
@@ -57,29 +53,31 @@ class PlaylistRepository:
         await self._async_session.commit()
         return res.rowcount
 
-    # async def add_video(
-    #     self,
-    #     video_id: UUID,
-    #     **filters,
-    # ) -> PlaylistModel:
-    #     playlist = await self.get_single(**filters)
+    async def add_video(
+        self,
+        video_id: UUID,
+        **filters,
+    ) -> PlaylistModel:
+        playlist = await self.get_single(**filters)
 
-    #     if video_id not in playlist.video_ids:
-    #         playlist.video_ids.append(video_id)
-    #         await self._async_session.commit()
-    #         await self._async_session.refresh(playlist)
+        if video_id not in playlist.video_ids:
+            playlist.video_ids = list(playlist.video_ids)
+            playlist.video_ids.append(video_id)
+            await self._async_session.commit()
+            await self._async_session.refresh(playlist)
 
-    #     return playlist
+        return playlist
 
-    # async def remove_video(
-    #     self,
-    #     video_id: UUID,
-    #     **filters,
-    # ) -> PlaylistModel:
-    #     playlist = await self.get_single(**filters)
+    async def remove_video(
+        self,
+        video_id: UUID,
+        **filters,
+    ) -> PlaylistModel:
+        playlist = await self.get_single(**filters)
 
-    #     playlist.video_ids.remove(video_id)
-    #     await self._async_session.commit()
-    #     await self._async_session.refresh(playlist)
+        playlist.video_ids = list(playlist.video_ids)
+        playlist.video_ids.remove(video_id)
+        await self._async_session.commit()
+        await self._async_session.refresh(playlist)
 
-    #     return playlist
+        return playlist

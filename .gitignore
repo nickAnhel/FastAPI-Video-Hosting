@@ -6,3 +6,4 @@
 .pylintrc
 __pycache__
 certs/
+solutions.md

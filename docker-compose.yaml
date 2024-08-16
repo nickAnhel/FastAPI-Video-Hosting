@@ -123,7 +123,6 @@ services:
       - ./playlists_service/.docker-env
     depends_on:
       - playlists_db
-      - video_app
 
   playlists_db:
     container_name: playlists_service_db

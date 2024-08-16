@@ -2,8 +2,18 @@ from fastapi import FastAPI
 
 from app.config import settings
 from app.playlists.router import playlists_router
-from app.playlists.exc_handlers import playlist_not_found_handler, permission_denied_handler
-from app.playlists.exceptions import PlaylistNotFound, PermissionDenied
+from app.playlists.exc_handlers import (
+    playlist_not_found_handler,
+    permission_denied_handler,
+    playlist_title_already_exists_handler,
+    playlist_not_contain_video_handler,
+)
+from app.playlists.exceptions import (
+    PlaylistNotFound,
+    PermissionDenied,
+    PlaylistTitleAlreadyExists,
+    PlaylistDoesNotContainVideo,
+)
 
 
 app = FastAPI(
@@ -20,6 +30,8 @@ app.include_router(playlists_router)
 
 app.add_exception_handler(PlaylistNotFound, playlist_not_found_handler)  # type: ignore
 app.add_exception_handler(PermissionDenied, permission_denied_handler)  # type: ignore
+app.add_exception_handler(PlaylistTitleAlreadyExists, playlist_title_already_exists_handler)  # type: ignore
+app.add_exception_handler(PlaylistDoesNotContainVideo, playlist_not_contain_video_handler)  # type: ignore
 
 
 if __name__ == "__main__":
