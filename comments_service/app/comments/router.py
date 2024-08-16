@@ -48,10 +48,9 @@ async def delete_comment(
     return {"detail": "Comment deleted successfully"}
 
 
-@comment_router.delete("/list")
+@comment_router.delete("/list", dependencies=[Depends(get_current_user_id)])
 async def delete_comments(
     video_id: UUID,
-    user_id: UUID = Depends(get_current_user_id),
     comment_service: CommentService = Depends(get_comment_service),
 ) -> dict[str, str]:
     deleted_comments_count = await comment_service.delete_comments(video_id=video_id)

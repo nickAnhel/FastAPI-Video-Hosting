@@ -122,37 +122,33 @@ async def increment_video_views(
     return await video_service.increment_views(id=video)
 
 
-@video_router.patch("/increment/likes")
+@video_router.patch("/increment/likes", dependencies=[Depends(get_current_user_id)])
 async def increment_video_likes(
     video: UUID,
-    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     return await video_service.increment_likes(id=video)
 
 
-@video_router.patch("/decrement/likes")
+@video_router.patch("/decrement/likes", dependencies=[Depends(get_current_user_id)])
 async def decrement_video_likes(
     video: UUID,
-    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     return await video_service.decrement_likes(id=video)
 
 
-@video_router.patch("/increment/dislikes")
+@video_router.patch("/increment/dislikes", dependencies=[Depends(get_current_user_id)])
 async def increment_video_dislikes(
     video: UUID,
-    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     return await video_service.increment_dislikes(id=video)
 
 
-@video_router.patch("/decrement/dislikes")
+@video_router.patch("/decrement/dislikes", dependencies=[Depends(get_current_user_id)])
 async def decrement_video_dislikes(
     video: UUID,
-    user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
     return await video_service.decrement_dislikes(id=video)
