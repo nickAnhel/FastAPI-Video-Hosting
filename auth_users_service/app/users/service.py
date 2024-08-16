@@ -1,17 +1,19 @@
 from uuid import UUID
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, IntegrityError, DBAPIError, CompileError
 
 from app.users.repository import UserRepository
 from app.users.utils import get_password_hash
 from app.users.external import delete_all_users_videos
 from app.users.enums import UserOrder
-from app.users.models import UserModel
 from app.users.exceptions import (
     UserNotFound,
+    UsernameOrEmailAlreadyExists,
     CantDeleteUsersVideos,
     UserNotInSubscriptions,
     CantSubscribeToUser,
     CantUnsubscribeFromUser,
+    WrongValueOfOrder,
+    WrongLimitOrOffset,
 )
 from app.users.schemas import (
     UserCreate,
@@ -26,14 +28,21 @@ class UserService:
     def __init__(self, repository: UserRepository) -> None:
         self.repository: UserRepository = repository
 
-    async def create_user(self, data: UserCreate) -> UserGet:
+    async def create_user(
+        self,
+        data: UserCreate,
+    ) -> UserGet:
         """Create new user."""
         user_data = data.model_dump()
         user_data["hashed_password"] = get_password_hash(user_data["password"])
         del user_data["password"]
         user_data["social_links"] = [str(link) for link in user_data["social_links"]]
 
-        user = await self.repository.create(data=user_data)
+        try:
+            user = await self.repository.create(data=user_data)
+        except IntegrityError as exc:
+            raise UsernameOrEmailAlreadyExists("Username or email already exists") from exc
+
         return UserGet.model_validate(user)
 
     async def get_user(
@@ -67,12 +76,19 @@ class UserService:
         limit: int = 100,
     ) -> list[UserGet]:
         """Get users with pagination."""
-        users: list[UserModel] = await self.repository.get_multiple(
-            order=order,
-            offset=offset,
-            limit=limit,
-        )
-        return [UserGet.model_validate(user) for user in users]
+        try:
+            users = await self.repository.get_multiple(
+                order=order,
+                offset=offset,
+                limit=limit,
+            )
+            return [UserGet.model_validate(user) for user in users]
+
+        except CompileError as exc:
+            raise WrongValueOfOrder(f"Wrong value of order: {order}") from exc
+
+        except DBAPIError as exc:
+            raise WrongLimitOrOffset("Limit and offset must be positive integers or 0") from exc
 
     async def delete_user(
         self,
