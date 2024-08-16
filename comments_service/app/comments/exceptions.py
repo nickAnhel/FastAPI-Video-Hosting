@@ -5,6 +5,13 @@ class CantGetUserID(Exception):
         super().__init__(message)
 
 
+class CommentNotFound(Exception):
+    """Raised when comment is not found."""
+
+    def __init__(self, message="Comment not found"):
+        super().__init__(message)
+
+
 class PermissionDenied(Exception):
     """Raised when permission is denied."""
 
@@ -12,8 +19,8 @@ class PermissionDenied(Exception):
         super().__init__(message)
 
 
-class CommentNotFound(Exception):
-    """Raised when comment is not found."""
+class CommentContentWrongFormat(Exception):
+    """Raised when comment content has wrong format."""
 
-    def __init__(self, message="Comment not found"):
+    def __init__(self, message="Comment content has wrong format"):
         super().__init__(message)

@@ -2,6 +2,16 @@ from fastapi import FastAPI
 
 from app.config import settings
 from app.comments.router import comment_router
+from app.comments.exc_handlers import (
+    comment_not_found_handler,
+    permission_denied_handler,
+    comment_content_wrong_format_handler,
+)
+from app.comments.exceptions import (
+    CommentNotFound,
+    PermissionDenied,
+    CommentContentWrongFormat,
+)
 
 
 app = FastAPI(
@@ -15,6 +25,10 @@ app = FastAPI(
 
 
 app.include_router(comment_router)
+
+app.add_exception_handler(CommentNotFound, comment_not_found_handler)  # type: ignore
+app.add_exception_handler(PermissionDenied, permission_denied_handler)  # type: ignore
+app.add_exception_handler(CommentContentWrongFormat, comment_content_wrong_format_handler)  # type: ignore
 
 
 if __name__ == "__main__":

@@ -48,7 +48,7 @@ class CommentRepository:
     async def delete(
         self,
         **filters,
-    ) -> bool:
+    ) -> int:
         stmt = delete(CommentModel).filter_by(**filters)
 
         res = await self._async_session.execute(stmt)
