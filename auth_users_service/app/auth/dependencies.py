@@ -3,10 +3,9 @@ from fastapi import (
     HTTPException,
     Request,
     Depends,
-    Form,
     status,
 )
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jwt import InvalidTokenError
 
 from app.users.dependencies import get_user_service
@@ -16,29 +15,28 @@ from app.auth.utils import validate_password, decode_jwt, ACCESS_TOKEN_TYPE, REF
 from app.users.schemas import UserGet, UserGetWithPassword, UserGetWithProfile
 
 
-http_bearer = HTTPBearer()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 async def authenticate_user(
-    username: str = Form(...),
-    password: str = Form(...),
+    form_data: OAuth2PasswordRequestForm = Depends(),
     user_service: UserService = Depends(get_user_service),
 ) -> UserGetWithPassword:
     try:
         user: UserGetWithPassword = await user_service.get_user(
             include_password=True,
-            username=username,
+            username=form_data.username,
         )  # type: ignore
     except UserNotFound as exc:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Incorrect username",
+            detail="Incorrect username or password",
         ) from exc
 
-    if not validate_password(password, user.hashed_password):
+    if not validate_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Incorrect password",
+            detail="Incorrect username or password",
         )
 
     return user
@@ -57,9 +55,8 @@ def _get_token_payload(
 
 
 def _get_token_payload_from_header(
-    credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
+    token: str = Depends(oauth2_scheme),
 ) -> dict[str, Any]:
-    token = credentials.credentials
     return _get_token_payload(token)
 
 
