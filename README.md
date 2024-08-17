@@ -4,9 +4,8 @@ Simple videohosting made with Python and FastAPI.
 
 ## TODO
 
-- Refactor video service
 - Videos search (Elasticsearch)
-
+- Caching
+- Background tasks (Notifications)
+- Monitoring (Logs)
 - Frontend
-- Background tasks
-- Monitoring
