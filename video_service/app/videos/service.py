@@ -73,6 +73,7 @@ class VideoService:
         **filters,
     ) -> VideoGet:
         video = await self._repository.get_single(**filters)
+        await self._increment(column="views", id=video.id)  # type: ignore
         return self._check_video_exists(video)
 
     async def get_videos(
@@ -148,9 +149,6 @@ class VideoService:
     ) -> VideoGet:
         video = await self._repository.decrement(column=column, id=id)
         return self._check_video_exists(video)
-
-    async def increment_views(self, id: UUID) -> VideoGet:
-        return await self._increment(column="views", id=id)
 
     async def increment_likes(self, id: UUID) -> VideoGet:
         return await self._increment(column="likes", id=id)

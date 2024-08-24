@@ -114,14 +114,6 @@ async def delete_videos(
     return {"detail": f"Successfully deleted {deleted_videos_count} videos"}
 
 
-@video_router.patch("/increment/views")
-async def increment_video_views(
-    video: UUID,
-    video_service: VideoService = Depends(get_video_service),
-) -> VideoGet:
-    return await video_service.increment_views(id=video)
-
-
 @video_router.patch("/increment/likes", dependencies=[Depends(get_current_user_id)])
 async def increment_video_likes(
     video: UUID,
