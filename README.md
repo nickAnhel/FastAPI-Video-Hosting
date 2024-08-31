@@ -7,5 +7,6 @@ Simple videohosting made with Python and FastAPI.
 - Videos search (Elasticsearch)
 - Caching
 - Background tasks (Notifications)
-- Monitoring (Logs)
+- Monitoring (Logstash)
 - Frontend
+- User settings

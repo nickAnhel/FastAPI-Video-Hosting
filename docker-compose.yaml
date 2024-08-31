@@ -4,9 +4,8 @@ services:
   # S3 Storage
   s3_storage_app:
     container_name: s3_storage_service
-    restart: always
+    restart: on-failure
     command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload"
-    # command: bash -c "gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
     build:
       context: ./s3_storage_service
       dockerfile: ./Dockerfile
@@ -20,9 +19,8 @@ services:
   # Videos
   video_app:
     container_name: videos_service
-    restart: always
+    restart: on-failure
     command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload"
-    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
     build:
       context: ./video_service
       dockerfile: ./Dockerfile
@@ -39,7 +37,7 @@ services:
   video_db:
     container_name: videos_service_db
     image: postgres
-    restart: always
+    restart: on-failure
     ports:
       - 5433:5432
     env_file:
@@ -50,9 +48,8 @@ services:
   # Auth and Users
   auth_users_app:
     container_name: auth_users_service
-    restart: always
+    restart: on-failure
     command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload"
-    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
     build:
       context: ./auth_users_service
       dockerfile: ./Dockerfile
@@ -68,7 +65,7 @@ services:
   auth_users_db:
     container_name: auth_users_service_db
     image: postgres
-    restart: always
+    restart: on-failure
     ports:
       - 5434:5432
     env_file:
@@ -79,9 +76,8 @@ services:
   # Comments
   comments_app:
     container_name: comments_service
-    restart: always
+    restart: on-failure
     command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
-    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
     build:
       context: ./comments_service
       dockerfile: ./Dockerfile
@@ -98,7 +94,7 @@ services:
   comments_db:
     container_name: comments_service_db
     image: postgres
-    restart: always
+    restart: on-failure
     ports:
       - 5435:5432
     env_file:
@@ -109,9 +105,8 @@ services:
   # Playlists
   playlists_app:
     container_name: playlists_service
-    restart: always
+    restart: on-failure
     command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8005 --reload"
-    # command: bash -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker app.main:app --reload --bind 0.0.0.0:8000"
     build:
       context: ./playlists_service
       dockerfile: ./Dockerfile
@@ -127,13 +122,31 @@ services:
   playlists_db:
     container_name: playlists_service_db
     image: postgres
-    restart: always
+    restart: on-failure
     ports:
       - 5436:5432
     env_file:
       - ./.postgres-env
     volumes:
       - postgres_data_playlists:/var/lib/postgresql/data
+
+  # Notifications
+  notifications_app:
+    container_name: notifications_service
+    restart: on-failure
+    command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8006 --reload"
+    build:
+      context: ./notifications_service
+      dockerfile: ./Dockerfile
+    ports:
+      - 8006:8006
+    volumes:
+      - ./notifications_service/:/project/
+    env_file:
+      - ./notifications_service/.docker-env
+    depends_on:
+      - redis
+      - celery
 
   # Tools
   pgadmin:
@@ -145,9 +158,13 @@ services:
       - ./.postgres-env
     depends_on:
       - video_db
+      - auth_users_db
+      - comments_db
+      - playlists_db
 
   nginx:
     image: nginx:latest
+    container_name: nginx
     ports:
       - 8000:8000
     volumes:
@@ -155,6 +172,38 @@ services:
     depends_on:
       - video_app
       - auth_users_app
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379
+
+  celery:
+    container_name: celery
+    build:
+      context: ./notifications_service
+    restart: on-failure
+    command: celery --app=app.notifications.tasks:celery_app worker --loglevel=info
+    env_file:
+      - ./notifications_service/.docker-env
+    volumes:
+      - ./notifications_service/:/project/
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: ./notifications_service
+    restart: on-failure
+    command: celery --app=app.notifications.tasks:celery_app flower
+    env_file:
+      - ./notifications_service/.docker-env
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+      - celery
 
 volumes:
   postgres_data_video:
