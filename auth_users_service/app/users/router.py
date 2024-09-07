@@ -8,28 +8,28 @@ from app.users.schemas import UserCreate, UserGet, UserGetWithProfile, UserGetWi
 from app.users.enums import UserOrder
 
 
-users_router = APIRouter(
+router = APIRouter(
     prefix="/users",
     tags=["Users"],
 )
 
 
-@users_router.post("/")
+@router.post("/")
 async def create_user(
     data: UserCreate,
     users_service: UserService = Depends(get_user_service),
-) -> UserGet:
+) -> UserGetWithProfile:
     return await users_service.create_user(data)
 
 
-@users_router.get("/me")
+@router.get("/me")
 async def get_current_user_info(
     user: UserGetWithSubscriptions = Depends(get_current_user_with_subscriptions),
 ) -> UserGetWithSubscriptions:
     return user
 
 
-@users_router.get("/list")
+@router.get("/list")
 async def get_users(
     order: UserOrder = UserOrder.ID,
     offset: int = 0,
@@ -39,7 +39,7 @@ async def get_users(
     return await user_service.get_users(order=order, offset=offset, limit=limit)
 
 
-@users_router.get("/")
+@router.get("/")
 async def get_user_by_id(
     id: UUID,
     user_service: UserService = Depends(get_user_service),
@@ -47,7 +47,7 @@ async def get_user_by_id(
     return await user_service.get_user(include_profile=True, id=id)  # type: ignore
 
 
-@users_router.delete("/")
+@router.delete("/")
 async def delete_user(
     request: Request,
     user: UserGet = Depends(get_current_user),
@@ -60,7 +60,7 @@ async def delete_user(
     return {"detail": "User deleted successfully"}
 
 
-@users_router.post("/subscribe")
+@router.post("/subscribe")
 async def subscribe_to_user(
     user_id: UUID,
     user: UserGet = Depends(get_current_user),
@@ -70,7 +70,7 @@ async def subscribe_to_user(
     return {"detail": "User subscribed successfully"}
 
 
-@users_router.delete("/unsubscribe")
+@router.delete("/unsubscribe")
 async def unsubscribe_from_user(
     user_id: UUID,
     user: UserGet = Depends(get_current_user),

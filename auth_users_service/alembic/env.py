@@ -9,6 +9,7 @@ from alembic import context
 
 from app.models import Base
 from app.users.models import UserModel
+from app.settings.models import SettingsModel
 from app.config import settings
 
 

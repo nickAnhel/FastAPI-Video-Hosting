@@ -17,8 +17,6 @@ class UserRepository:
     ) -> UserModel:
         user = UserModel(**data)
         self.async_session.add(user)
-        await self.async_session.commit()
-        await self.async_session.refresh(user)
         return user
 
     async def get_single(

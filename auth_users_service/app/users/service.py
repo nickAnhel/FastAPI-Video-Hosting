@@ -1,13 +1,14 @@
 from uuid import UUID
-from sqlalchemy.exc import NoResultFound, IntegrityError, DBAPIError, CompileError
+from sqlalchemy.exc import NoResultFound, DBAPIError, CompileError
 
+from app.database import async_session_maker
+from app.users.uow import UserSettingsUOW
 from app.users.repository import UserRepository
 from app.users.utils import get_password_hash
 from app.users.external import delete_all_users_videos
 from app.users.enums import UserOrder
 from app.users.exceptions import (
     UserNotFound,
-    UsernameOrEmailAlreadyExists,
     CantDeleteUsersVideos,
     UserNotInSubscriptions,
     CantSubscribeToUser,
@@ -27,23 +28,29 @@ from app.users.schemas import (
 class UserService:
     def __init__(self, repository: UserRepository) -> None:
         self.repository: UserRepository = repository
+        self.uow = UserSettingsUOW(session_maker=async_session_maker)
 
     async def create_user(
         self,
         data: UserCreate,
-    ) -> UserGet:
+    ) -> UserGetWithProfile:
         """Create new user."""
         user_data = data.model_dump()
         user_data["hashed_password"] = get_password_hash(user_data["password"])
         del user_data["password"]
         user_data["social_links"] = [str(link) for link in user_data["social_links"]]
 
-        try:
-            user = await self.repository.create(data=user_data)
-        except IntegrityError as exc:
-            raise UsernameOrEmailAlreadyExists("Username or email already exists") from exc
+        # try:
+        #     user = await self.repository.create(data=user_data)
+        # except IntegrityError as exc:
+        #     raise UsernameOrEmailAlreadyExists("Username or email already exists") from exc
 
-        return UserGet.model_validate(user)
+        async with self.uow.start() as uow:
+            user = await uow.user_repo.create(data=user_data)
+            await uow.refresh(user)
+            await uow.settings_repo.create(user_id=user.id)  # type: ignore
+
+        return UserGetWithProfile.model_validate(user)
 
     async def get_user(
         self,
@@ -75,7 +82,7 @@ class UserService:
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserGet]:
-        """Get users with pagination."""
+        """Get users with pagination and sorting."""
         try:
             users = await self.repository.get_multiple(
                 order=order,

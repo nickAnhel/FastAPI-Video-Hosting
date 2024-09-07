@@ -52,3 +52,6 @@ class UserModel(Base):
         primaryjoin=(id == UserSubscription.subscriber_id),
         secondaryjoin=(id == UserSubscription.subscribed_id),
     )
+
+    settings: Mapped["SettingsModel"] = relationship(back_populates="user")  # type: ignore
+    # settings_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("settings.id"))
