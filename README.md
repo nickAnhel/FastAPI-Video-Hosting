@@ -15,3 +15,4 @@ Simple video hosting made with Python and FastAPI.
 
 - Video likes and dislikes (add MtM with users)
 - Change `/auth/check` route return data format
+- Watch history Playlist
