@@ -184,7 +184,7 @@ services:
     build:
       context: ./notifications_service
     restart: on-failure
-    command: celery --app=app.notifications.tasks:celery_app worker --loglevel=info
+    command: celery --app=app.notifications.tasks.app:celery_app worker --loglevel=info
     env_file:
       - ./notifications_service/.docker-env
     volumes:
@@ -193,10 +193,11 @@ services:
       - redis
 
   flower:
+    container_name: flower
     build:
       context: ./notifications_service
     restart: on-failure
-    command: celery --app=app.notifications.tasks:celery_app flower
+    command: celery --app=app.notifications.tasks.app:celery_app flower
     env_file:
       - ./notifications_service/.docker-env
     ports:

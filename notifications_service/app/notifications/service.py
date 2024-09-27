@@ -6,8 +6,10 @@ from app.notifications.schemas import (
     EmailNotification,
     TelegramNotification,
 )
-from app.notifications.tasks import send_console_notification, send_email_notification
 from app.notifications.templates import notification_templates
+from app.notifications.tasks.console import send_console_notification
+from app.notifications.tasks.email import send_email_notification
+from app.notifications.tasks.telegram import send_telegram_notification
 
 
 Notification = TypeVar("Notification")
@@ -26,7 +28,7 @@ class ConsoleNotificationsService(INotificationService):
             notification_type=notification.notification_type,
             content=notification.content,
         )
-
+        # app.notifications.tasks.console_task.send_console_notification
         send_console_notification.delay(message)
 
 
@@ -43,4 +45,5 @@ class EmailNotificationsService(INotificationService):
 
 class TelegramNotificationsService(INotificationService):
     def send_notification(self, notification: TelegramNotification) -> None:
-        pass
+        username = notification.link.split("/")[-1]
+        send_telegram_notification.delay(username, notification.content)

@@ -2,16 +2,9 @@ import smtplib
 import ssl
 from typing import Literal
 from email.message import EmailMessage
-from celery import Celery
 
 from app.config import settings
-
-celery_app = Celery("tasks", broker="redis://redis:6379")
-
-
-@celery_app.task
-def send_console_notification(message: str) -> None:
-    print(message)
+from app.notifications.tasks.app import celery_app
 
 
 def get_email_message(data: dict[Literal["To", "Subject", "Content"], str]) -> EmailMessage:
@@ -23,9 +16,7 @@ def get_email_message(data: dict[Literal["To", "Subject", "Content"], str]) -> E
     return message
 
 
-@celery_app.task
-def send_email_notification(data: dict[Literal["To", "Subject", "Content"], str]) -> None:
-    message = get_email_message(data)
+def send_email_message(message: EmailMessage) -> None:
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(
         host=settings.smtp.host,
@@ -34,3 +25,9 @@ def send_email_notification(data: dict[Literal["To", "Subject", "Content"], str]
     ) as server:
         server.login(settings.smtp.username, settings.smtp.password)
         server.send_message(message)
+
+
+@celery_app.task
+def send_email_notification(data: dict[Literal["To", "Subject", "Content"], str]) -> None:
+    message = get_email_message(data)
+    send_email_message(message)

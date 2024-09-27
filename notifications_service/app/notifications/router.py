@@ -13,13 +13,13 @@ from app.notifications.dependencies import (
 )
 
 
-notifications_router = APIRouter(
+router = APIRouter(
     prefix="/notifications",
     tags=["Notifications"],
 )
 
 
-@notifications_router.post("/console")
+@router.post("/console")
 async def send_console_notification(
     data: ConsoleNotification,
     service: INotificationService[ConsoleNotification] = Depends(get_console_notification_service),
@@ -28,7 +28,7 @@ async def send_console_notification(
     return {"detail": "Console notification sent"}
 
 
-@notifications_router.post("/email")
+@router.post("/email")
 async def send_email_notification(
     data: EmailNotification,
     service: INotificationService[EmailNotification] = Depends(get_email_notification_service),
@@ -37,7 +37,7 @@ async def send_email_notification(
     return {"detail": "Email notification sent"}
 
 
-@notifications_router.post("/telegram")
+@router.post("/telegram")
 async def send_telegram_notification(
     data: TelegramNotification,
     service: INotificationService[TelegramNotification] = Depends(get_telegram_notification_service),

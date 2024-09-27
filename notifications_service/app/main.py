@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from app.config import settings
-from app.notifications.router import notifications_router
+from app.notifications.router import router
 
 
 app = FastAPI(
@@ -15,7 +15,7 @@ app = FastAPI(
 )
 
 
-app.include_router(notifications_router)
+app.include_router(router)
 
 
 if __name__ == "__main__":
