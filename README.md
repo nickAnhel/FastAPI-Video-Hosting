@@ -10,3 +10,8 @@ Simple video hosting made with Python and FastAPI.
 - Notifications
 - Modify sql search (Trigram)
 - Tests
+
+### Fixes
+
+- Video likes and dislikes (add MtM with users)
+- Change `/auth/check` route return data format
