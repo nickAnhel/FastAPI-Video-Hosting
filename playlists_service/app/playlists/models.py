@@ -9,7 +9,7 @@ from app.models import Base
 class PlaylistModel(Base):
     __tablename__ = "playlists"
 
-    title: Mapped[str] = mapped_column(String(50), unique=True)
+    title: Mapped[str] = mapped_column(String(50))
     description: Mapped[str] = mapped_column(String(255))
 
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))

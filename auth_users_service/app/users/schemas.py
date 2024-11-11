@@ -2,11 +2,11 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, EmailStr, HttpUrl
 
 
-class BaseChema(BaseModel):
+class BaseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class UserCreate(BaseChema):
+class UserCreate(BaseSchema):
     username: str = Field(max_length=50)
     email: EmailStr
     password: str = Field(min_length=8, max_length=50)
@@ -14,7 +14,7 @@ class UserCreate(BaseChema):
     social_links: list[HttpUrl]
 
 
-class UserGet(BaseChema):
+class UserGet(BaseSchema):
     id: UUID
     username: str
     email: EmailStr
@@ -33,3 +33,9 @@ class UserGetWithProfile(UserGet):
 class UserGetWithSubscriptions(UserGetWithProfile):
     subscribers: list[UserGet]
     subscribed: list[UserGet]
+
+
+class Playlist(BaseSchema):
+    user_id: UUID
+    title: str
+    private: bool = True

@@ -1,7 +1,6 @@
 from uuid import UUID
-from typing import Annotated
+from typing import Self
 from sqlalchemy.exc import NoResultFound, IntegrityError
-from fastapi import Depends
 
 from app.playlists.repository import PlaylistRepository
 from app.playlists.schemas import PlaylistCreate, PlaylistGet
@@ -16,8 +15,15 @@ from app.playlists.exceptions import (
 
 
 class PlaylistService:
-    def __init__(self, repository: Annotated[PlaylistRepository, Depends()]):
-        self._repository = repository
+    __instance = None
+
+    def __new__(cls, *args, **kwargs) -> Self:
+        if cls.__instance is None:
+            cls.__instance = super().__new__(cls, *args, **kwargs)
+        return cls.__instance
+
+    def __init__(self):
+        self._repository = PlaylistRepository()
 
     async def create_playlist(
         self,
@@ -31,6 +37,7 @@ class PlaylistService:
             playlist = await self._repository.create(playlist_data)
             return PlaylistGet.model_validate(playlist)
         except IntegrityError as exc:
+            print(exc)
             raise PlaylistTitleAlreadyExists(f"Playlist with title {data.title!r} already exists") from exc
 
     async def get_playlist_by_id(

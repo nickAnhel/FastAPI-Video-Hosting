@@ -162,16 +162,16 @@ services:
       - comments_db
       - playlists_db
 
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    ports:
-      - 8000:8000
-    volumes:
-      - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - video_app
-      - auth_users_app
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   ports:
+  #     - 8000:8000
+  #   volumes:
+  #     - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
+  #   depends_on:
+  #     - video_app
+  #     - auth_users_app
 
   redis:
     image: redis:latest

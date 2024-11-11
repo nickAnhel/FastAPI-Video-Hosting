@@ -3,8 +3,13 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
 
+class PlaylistsNames(BaseModel):
+    watch_history: str = "Watch history"
+
+
 class ServicesSettings(BaseModel):
     videos_service_url: str | None = os.environ.get("VIDEOS_SERVICE_URL")
+    playlists_service_url: str | None = os.environ.get("PLAYLISTS_SERVICE_URL")
 
 
 class DBSettings(BaseModel):
@@ -26,6 +31,8 @@ class Settings(BaseSettings):
 
     db_settings: DBSettings = DBSettings()
     services: ServicesSettings = ServicesSettings()
+
+    playlists_names: PlaylistsNames = PlaylistsNames()
 
 
 settings = Settings(

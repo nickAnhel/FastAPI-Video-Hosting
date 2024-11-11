@@ -6,6 +6,7 @@ from app.users.uow import UserSettingsUOW
 from app.users.repository import UserRepository
 from app.users.utils import get_password_hash
 from app.users.external import delete_all_users_videos
+from app.grpc_transport.playlist_stub import plylist_grpc_stub
 from app.users.enums import UserOrder
 from app.users.exceptions import (
     UserNotFound,
@@ -22,13 +23,14 @@ from app.users.schemas import (
     UserGetWithProfile,
     UserGetWithPassword,
     UserGetWithSubscriptions,
+    Playlist,
 )
 
 
 class UserService:
     def __init__(self, repository: UserRepository) -> None:
-        self.repository: UserRepository = repository
-        self.uow = UserSettingsUOW(session_maker=async_session_maker)
+        self._repository: UserRepository = repository
+        self._uow = UserSettingsUOW(session_maker=async_session_maker)
 
     async def create_user(
         self,
@@ -40,17 +42,40 @@ class UserService:
         del user_data["password"]
         user_data["social_links"] = [str(link) for link in user_data["social_links"]]
 
-        # try:
-        #     user = await self.repository.create(data=user_data)
-        # except IntegrityError as exc:
-        #     raise UsernameOrEmailAlreadyExists("Username or email already exists") from exc
-
-        async with self.uow.start() as uow:
+        async with self._uow.start() as uow:
             user = await uow.user_repo.create(data=user_data)
             await uow.refresh(user)
             await uow.settings_repo.create(user_id=user.id)  # type: ignore
 
+        self._create_default_playlists(user.id)  # type: ignore
+
         return UserGetWithProfile.model_validate(user)
+
+    def _create_default_playlists(
+        self,
+        user_id: UUID,
+    ) -> None:
+        plylist_grpc_stub.create(
+            data=Playlist(
+                user_id=user_id,  # type: ignore
+                title="Watch History",
+                private=True,
+            )
+        )
+        plylist_grpc_stub.create(
+            data=Playlist(
+                user_id=user_id,  # type: ignore
+                title="Liked Videos",
+                private=True,
+            )
+        )
+        plylist_grpc_stub.create(
+            data=Playlist(
+                user_id=user_id,  # type: ignore
+                title="Disliked Videos",
+                private=True,
+            )
+        )
 
     async def get_user(
         self,
@@ -61,7 +86,7 @@ class UserService:
     ) -> UserGet | UserGetWithProfile | UserGetWithPassword:
         """Get user by filters (username, email or id)."""
         try:
-            user = await self.repository.get_single(**filters)
+            user = await self._repository.get_single(**filters)
         except NoResultFound as exc:
             raise UserNotFound(f"User with filters {filters} not found") from exc
 
@@ -84,7 +109,7 @@ class UserService:
     ) -> list[UserGet]:
         """Get users with pagination and sorting."""
         try:
-            users = await self.repository.get_multiple(
+            users = await self._repository.get_multiple(
                 order=order,
                 offset=offset,
                 limit=limit,
@@ -106,7 +131,7 @@ class UserService:
         if not await delete_all_users_videos(token=token):
             raise CantDeleteUsersVideos()
 
-        await self.repository.delete(**filters)
+        await self._repository.delete(**filters)
 
     async def subscribe(
         self,
@@ -118,7 +143,7 @@ class UserService:
             raise CantSubscribeToUser("Can't subscribe to yourself")
 
         try:
-            await self.repository.subscribe(user_id=user_id, subscriber_id=subscriber_id)
+            await self._repository.subscribe(user_id=user_id, subscriber_id=subscriber_id)
         except NoResultFound as exc:
             raise UserNotFound(f"User with id {user_id} not found") from exc
 
@@ -132,9 +157,11 @@ class UserService:
             raise CantUnsubscribeFromUser("Can't unsubscribe from yourself")
 
         try:
-            await self.repository.unsubscribe(user_id=user_id, subscriber_id=subscriber_id)
+            await self._repository.unsubscribe(user_id=user_id, subscriber_id=subscriber_id)
+
         except NoResultFound as exc:
             raise UserNotFound(f"User with id {user_id} not found") from exc
+
         except ValueError as exc:
             raise UserNotInSubscriptions(
                 f"User with id {subscriber_id} not found in subscribers of {user_id}"

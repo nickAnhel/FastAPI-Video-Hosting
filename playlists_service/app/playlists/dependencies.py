@@ -4,6 +4,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.playlists.external import get_user_id_by_token
 from app.playlists.exceptions import CantGetUserID
+from app.playlists.service import PlaylistService
+
+
+def get_playlists_service() -> PlaylistService:
+    return PlaylistService()
 
 
 def _get_optional_token_from_header(

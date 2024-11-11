@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     services: ServicesSettings = ServicesSettings()
     db_settings: DBSettings = DBSettings()
 
+    prohibited_names: list[str] = ["Watch History", "Liked Videos", "Disliked Videos"]
+
 
 settings = Settings(
     project_title="Playlists Service API",
