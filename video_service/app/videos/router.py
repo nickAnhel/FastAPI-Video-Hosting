@@ -79,23 +79,23 @@ async def get_videos(
 
 @video_router.get("/")
 async def get_video_by_id(
-    video: UUID,
+    video_id: UUID,
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
-    return await video_service.get_video(id=video)
+    return await video_service.get_video(id=video_id)
 
 
 @video_router.delete("/")
 async def delete_video_by_id(
     request: Request,
-    video: UUID,
+    video_id: UUID,
     user_id: UUID = Depends(get_current_user_id),
     video_service: VideoService = Depends(get_video_service),
 ) -> dict[str, str]:
 
     await video_service.delete_video(
         token=request.headers.get("Authorization").replace("Bearer ", ""),  # type: ignore
-        id=video,
+        id=video_id,
         user_id=user_id,
     )
     return {"detail": "Video deleted successfully"}
@@ -116,44 +116,44 @@ async def delete_videos(
 
 @video_router.patch("/increment/likes", dependencies=[Depends(get_current_user_id)])
 async def increment_video_likes(
-    video: UUID,
+    video_id: UUID,
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
-    return await video_service.increment_likes(id=video)
+    return await video_service.increment_likes(id=video_id)
 
 
 @video_router.patch("/decrement/likes", dependencies=[Depends(get_current_user_id)])
 async def decrement_video_likes(
-    video: UUID,
+    video_id: UUID,
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
-    return await video_service.decrement_likes(id=video)
+    return await video_service.decrement_likes(id=video_id)
 
 
 @video_router.patch("/increment/dislikes", dependencies=[Depends(get_current_user_id)])
 async def increment_video_dislikes(
-    video: UUID,
+    video_id: UUID,
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
-    return await video_service.increment_dislikes(id=video)
+    return await video_service.increment_dislikes(id=video_id)
 
 
 @video_router.patch("/decrement/dislikes", dependencies=[Depends(get_current_user_id)])
 async def decrement_video_dislikes(
-    video: UUID,
+    video_id: UUID,
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
-    return await video_service.decrement_dislikes(id=video)
+    return await video_service.decrement_dislikes(id=video_id)
 
 
 # Test routes
 @video_router.get("/test/watch")
 async def watch_video(
-    video: UUID,
+    video_id: UUID,
 ) -> HTMLResponse:
     storage_url = await get_s3_storage_url()
-    video_url = f"{storage_url}/{settings.file_prefixes.video + str(video)}"
-    preview_url = f"{storage_url}/{settings.file_prefixes.preview + str(video)}"
+    video_url = f"{storage_url}/{settings.file_prefixes.video + str(video_id)}"
+    preview_url = f"{storage_url}/{settings.file_prefixes.preview + str(video_id)}"
     return HTMLResponse(
         content=f"<video src='{video_url}' poster='{preview_url}' width='960' height='540' controls></video>"
     )
