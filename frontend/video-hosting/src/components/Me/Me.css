@@ -1,0 +1,38 @@
+.me {
+    height: calc(100vh - 6rem);
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    box-sizing: border-box;
+}
+
+.page-content {
+    width: 80%;
+    height: 100%;
+}
+
+.pages {
+    width: 20%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-sizing: border-box;
+}
+
+.page {
+    text-decoration: none;
+    vertical-align: middle;
+    color: #fff;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}
+
+.page:hover {
+    background-color: #474747;
+    transition: all 0.2s linear;
+}

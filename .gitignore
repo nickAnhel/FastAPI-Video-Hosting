@@ -7,3 +7,4 @@
 __pycache__
 certs/
 solutions.md
+node_modules

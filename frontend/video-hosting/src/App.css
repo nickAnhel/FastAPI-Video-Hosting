@@ -1,0 +1,40 @@
+#root {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100vh;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+    color: #fff;
+    background-color: #242424;
+}
+
+input:focus {
+    outline: none;
+}
+
+button {
+    /* box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; */
+    /* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px 0px;
+}
+
+button:focus {
+    outline: none;
+    outline: 1px solid #fff;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+a {
+    text-decoration: underline;
+    color: #fff;
+    /* color: dodgerblue; */
+}
+
+.error {
+    color: red;
+}

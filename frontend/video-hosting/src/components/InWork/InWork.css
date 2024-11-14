@@ -1,0 +1,21 @@
+.in-work {
+    width: 80%;
+    height: calc(100vh - 6rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    color: #7e7e7e;
+}
+
+.in-work h1 {
+    margin: 0;
+    font-size: 3rem;
+}
+
+.in-work p {
+    margin: 0;
+    font-size: 1.5rem;
+}

@@ -1,0 +1,19 @@
+.unauthorized {
+    height: calc(100vh - 10rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.unauthorized h1 {
+    margin: 0;
+    font-size: 4rem;
+}
+
+.unauthorized p {
+    margin: 0;
+    color: #7e7e7e;
+    font-size: 1.5rem;
+}

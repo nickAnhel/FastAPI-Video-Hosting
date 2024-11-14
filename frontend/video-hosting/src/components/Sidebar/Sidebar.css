@@ -1,0 +1,41 @@
+.sidebar {
+    width: 20%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-sizing: border-box;
+}
+
+.sidebar hr {
+    width: 100%;
+    border: 1px solid #474747;
+    margin: 0;
+}
+
+.item {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}
+
+.item:hover {
+    transition: all 0.2s linear;
+    background-color: #474747;
+}
+
+.item img {
+    width: 1.7rem;
+    height: 1.7rem;
+}
+
+.active {
+    background-color: #7e7e7e;
+}

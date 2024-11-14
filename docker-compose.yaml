@@ -148,6 +148,23 @@ services:
       - redis
       - celery
 
+  # Frontend
+  frontend:
+    container_name: frontend
+    restart: on-failure
+    build:
+      context: ./frontend/
+      dockerfile: ./Dockerfile
+    command: bash -c "npm run dev"
+    ports:
+      - 5000:5000
+    volumes:
+      - ./frontend/video-hosting/:/project/
+      - node_modules:/project/node_modules
+    depends_on:
+      - auth_users_app
+      - video_app
+
   # Tools
   pgadmin:
     image: dpage/pgadmin4
@@ -162,16 +179,16 @@ services:
       - comments_db
       - playlists_db
 
-  # nginx:
-  #   image: nginx:latest
-  #   container_name: nginx
-  #   ports:
-  #     - 8000:8000
-  #   volumes:
-  #     - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
-  #   depends_on:
-  #     - video_app
-  #     - auth_users_app
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 8000:8000
+    volumes:
+      - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - video_app
+      - auth_users_app
 
   redis:
     image: redis:latest
@@ -211,3 +228,4 @@ volumes:
   postgres_data_users:
   postgres_data_comments:
   postgres_data_playlists:
+  node_modules:
