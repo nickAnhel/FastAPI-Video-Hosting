@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request
 from app.auth.dependencies import get_current_user, get_current_user_with_subscriptions
 from app.users.dependencies import get_user_service
 from app.users.service import UserService
-from app.users.schemas import UserCreate, UserGet, UserGetWithProfile, UserGetWithSubscriptions
+from app.users.schemas import UserCreate, UserUpdate, UserGet, UserGetWithProfile, UserGetWithSubscriptions
 from app.users.enums import UserOrder
 
 
@@ -78,3 +78,12 @@ async def unsubscribe_from_user(
 ) -> dict[str, str]:
     await user_service.unsubscribe(user_id=user_id, subscriber_id=user.id)
     return {"detail": "User unsubscribed successfully"}
+
+
+@router.put("/")
+async def update_user(
+    data: UserUpdate,
+    user: UserGet = Depends(get_current_user),
+    user_service: UserService = Depends(get_user_service),
+) -> UserGetWithProfile:
+    return await user_service.update_user(user_id=user.id, data=data)

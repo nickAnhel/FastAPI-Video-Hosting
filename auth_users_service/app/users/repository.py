@@ -1,6 +1,6 @@
 from typing import Any
 from uuid import UUID
-from sqlalchemy import select, delete
+from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,6 +42,23 @@ class UserRepository:
 
         result = await self.async_session.execute(query)
         return list(result.scalars().all())
+
+    async def update(
+        self,
+        data: dict[str, Any],
+        **filters,
+    ) -> UserModel:
+        stmt = (
+            update(UserModel)
+            .filter_by(**filters)
+            .values(**data)
+            .returning(UserModel)
+        )
+
+        result = await self.async_session.execute(stmt)
+        await self.async_session.commit()
+
+        return result.scalar_one()
 
     async def delete(
         self,

@@ -35,6 +35,12 @@ class UserGetWithSubscriptions(UserGetWithProfile):
     subscribed: list[UserGet]
 
 
+class UserUpdate(BaseSchema):
+    username: str | None = Field(max_length=50, default=None)
+    about: str | None = Field(max_length=255, default=None)
+    social_links: list[HttpUrl] | None = None
+
+
 class Playlist(BaseSchema):
     user_id: UUID
     title: str

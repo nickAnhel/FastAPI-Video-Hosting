@@ -1,5 +1,5 @@
 from uuid import UUID
-from sqlalchemy.exc import NoResultFound, DBAPIError, CompileError
+from sqlalchemy.exc import NoResultFound, DBAPIError, CompileError, IntegrityError
 
 from app.database import async_session_maker
 from app.users.uow import UserSettingsUOW
@@ -11,6 +11,7 @@ from app.users.enums import UserOrder
 from app.users.exceptions import (
     UserNotFound,
     CantDeleteUsersVideos,
+    UsernameOrEmailAlreadyExists,
     UserNotInSubscriptions,
     CantSubscribeToUser,
     CantUnsubscribeFromUser,
@@ -19,6 +20,7 @@ from app.users.exceptions import (
 )
 from app.users.schemas import (
     UserCreate,
+    UserUpdate,
     UserGet,
     UserGetWithProfile,
     UserGetWithPassword,
@@ -121,6 +123,31 @@ class UserService:
 
         except DBAPIError as exc:
             raise WrongLimitOrOffset("Limit and offset must be positive integers or 0") from exc
+
+    async def update_user(
+        self,
+        user_id: UUID,
+        data: UserUpdate,
+    ) -> UserGetWithProfile:
+        """Update user by id."""
+        try:
+            user_data = data.model_dump(exclude_none=True)
+
+            if "social_links" in user_data:
+                user_data["social_links"] = [str(link) for link in user_data["social_links"]]
+
+            user = await self._repository.update(
+                data=user_data,
+                id=user_id,
+            )
+            return UserGetWithProfile.model_validate(user)
+
+        except NoResultFound as exc:
+            raise UserNotFound(f"User with id {user_id} not found") from exc
+
+        except IntegrityError as exc:
+            raise UsernameOrEmailAlreadyExists(f"User with username {data.username} already exists") from exc
+
 
     async def delete_user(
         self,
