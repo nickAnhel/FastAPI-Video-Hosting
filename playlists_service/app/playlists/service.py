@@ -75,11 +75,18 @@ class PlaylistService:
         playlist_id: UUID,
         user_id: UUID,
     ) -> None:
-        await self._check_user_permissions_and_playlist_exists(
+        await self._check_user_permissions_with_defaults(
             playlist_id=playlist_id,
             user_id=user_id,
         )
         await self._repository.delete(id=playlist_id, user_id=user_id)
+
+    async def delete_playlist_by_title(
+        self,
+        title: str,
+        user_id: UUID,
+    ) -> None:
+        await self._repository.delete(title=title, user_id=user_id)
 
     async def add_video_to_playlist(
         self,
@@ -137,4 +144,16 @@ class PlaylistService:
     ) -> PlaylistModel:
         playlist = await self._check_playlist_exists(playlist_id=playlist_id)
         await self._check_user_permissions(playlist=playlist, user_id=user_id)
+        return playlist
+
+    async def _check_user_permissions_with_defaults(
+        self,
+        playlist_id: UUID,
+        user_id: UUID,
+    ) -> PlaylistModel:
+        playlist = await self._check_user_permissions_and_playlist_exists(playlist_id=playlist_id, user_id=user_id)
+
+        if playlist.title in ["Watch History", "Liked Videos", "Disliked Videos"]:
+            raise PermissionDenied("You can't modify this playlist")
+
         return playlist
