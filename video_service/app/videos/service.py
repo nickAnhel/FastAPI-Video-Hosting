@@ -51,15 +51,20 @@ class VideoService:
         preview: bytes,
         video_model: VideoModel,
     ) -> None:
-        if not await upload_file_to_s3(file=video, filename=settings.file_prefixes.video + str(video_model.id)):
-            await self._repository.delete(id=video_model.id)
-            raise CantUploadVideoToS3()
-
         if not await upload_file_to_s3(
-            file=preview, filename=settings.file_prefixes.preview + str(video_model.id)
+            file=preview,
+            filename=settings.file_prefixes.preview + str(video_model.id),
         ):
             await self._repository.delete(id=video_model.id)
             raise CantUploadPreviewToS3()
+
+        if not await upload_file_to_s3(
+            file=video,
+            filename=settings.file_prefixes.video + str(video_model.id),
+        ):
+            # Delete preview from S3 storage
+            await self._repository.delete(id=video_model.id)
+            raise CantUploadVideoToS3()
 
     async def search_videos(
         self,
