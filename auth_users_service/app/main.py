@@ -12,6 +12,8 @@ from app.users.exc_handlers import (
     cant_unsubscribe_from_user_handler,
     wrong_value_of_order_handler,
     wrong_limit_or_offset_handler,
+    cant_upload_file_to_s3_handler,
+    cant_delete_file_from_s3_handler,
 )
 from app.users.exceptions import (
     UserNotFound,
@@ -22,6 +24,8 @@ from app.users.exceptions import (
     CantUnsubscribeFromUser,
     WrongValueOfOrder,
     WrongLimitOrOffset,
+    CantUploadFileToS3,
+    CantDeleteFileFromS3,
 )
 
 app = FastAPI(
@@ -54,6 +58,8 @@ app.add_exception_handler(CantSubscribeToUser, cant_subscribe_to_user_handler)  
 app.add_exception_handler(CantUnsubscribeFromUser, cant_unsubscribe_from_user_handler)  # type: ignore
 app.add_exception_handler(WrongValueOfOrder, wrong_value_of_order_handler)  # type: ignore
 app.add_exception_handler(WrongLimitOrOffset, wrong_limit_or_offset_handler)  # type: ignore
+app.add_exception_handler(CantUploadFileToS3, cant_upload_file_to_s3_handler)  # type: ignore
+app.add_exception_handler(CantDeleteFileFromS3, cant_delete_file_from_s3_handler)  # type: ignore
 
 
 if __name__ == "__main__":

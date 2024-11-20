@@ -52,3 +52,17 @@ class WrongLimitOrOffset(Exception):
 
     def __init__(self, message="Wrong limit or offset"):
         super().__init__(message)
+
+
+class CantUploadFileToS3(Exception):
+    """Can't upload file to S3 exception."""
+
+    def __init__(self, message="Can't upload file to S3"):
+        super().__init__(message)
+
+
+class CantDeleteFileFromS3(Exception):
+    """Can't delete file from S3 exception."""
+
+    def __init__(self, message="Can't delete file from S3"):
+        super().__init__(message)

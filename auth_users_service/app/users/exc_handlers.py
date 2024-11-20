@@ -11,6 +11,8 @@ from app.users.exceptions import (
     CantUnsubscribeFromUser,
     WrongValueOfOrder,
     WrongLimitOrOffset,
+    CantUploadFileToS3,
+    CantDeleteFileFromS3,
 )
 
 
@@ -68,5 +70,19 @@ async def wrong_value_of_order_handler(request: Request, exc: WrongValueOfOrder)
 async def wrong_limit_or_offset_handler(request: Request, exc: WrongLimitOrOffset) -> HTTPException:
     raise HTTPException(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail=str(exc),
+    )
+
+
+async def cant_upload_file_to_s3_handler(request: Request, exc: CantUploadFileToS3) -> HTTPException:
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail=str(exc),
+    )
+
+
+async def cant_delete_file_from_s3_handler(request: Request, exc: CantDeleteFileFromS3) -> HTTPException:
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         detail=str(exc),
     )

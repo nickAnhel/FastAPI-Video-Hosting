@@ -2,10 +2,11 @@ from uuid import UUID
 from sqlalchemy.exc import NoResultFound, DBAPIError, CompileError, IntegrityError
 
 from app.database import async_session_maker
+from app.config import settings
 from app.users.uow import UserSettingsUOW
 from app.users.repository import UserRepository
 from app.users.utils import get_password_hash
-from app.users.external import delete_all_users_videos
+from app.users.external import delete_all_users_videos, upload_file_to_s3, delete_files_from_s3
 from app.grpc_transport.playlist_stub import plylist_grpc_stub
 from app.users.enums import UserOrder
 from app.users.exceptions import (
@@ -17,6 +18,8 @@ from app.users.exceptions import (
     CantUnsubscribeFromUser,
     WrongValueOfOrder,
     WrongLimitOrOffset,
+    CantUploadFileToS3,
+    CantDeleteFileFromS3,
 )
 from app.users.schemas import (
     UserCreate,
@@ -148,6 +151,35 @@ class UserService:
         except IntegrityError as exc:
             raise UsernameOrEmailAlreadyExists(f"User with username {data.username} already exists") from exc
 
+    async def update_profile_photo(
+        self,
+        user_id: UUID,
+        photo: bytes,
+    ) -> bool:
+        """Update user profile photo."""
+        if not (
+            await upload_file_to_s3(
+                file=photo,
+                filename=settings.file_prefixes.profile_photo + str(user_id),
+            )
+        ):
+            raise CantUploadFileToS3("Failed to upload file to S3")
+
+        return True
+
+    async def delete_profile_photo(
+        self,
+        user_id: UUID,
+    ) -> bool:
+        """Delete user profile photo."""
+        if not (
+            await delete_files_from_s3(
+                filenames=[settings.file_prefixes.profile_photo + str(user_id)],
+            )
+        ):
+            raise CantDeleteFileFromS3("Failed to delete file from S3")
+
+        return True
 
     async def delete_user(
         self,

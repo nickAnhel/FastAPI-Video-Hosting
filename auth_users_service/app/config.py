@@ -3,11 +3,8 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
 
-class PlaylistsNames(BaseModel):
-    watch_history: str = "Watch history"
-
-
 class ServicesSettings(BaseModel):
+    s3_storage_service_url: str | None = os.environ.get("S3_STORAGE_SERVICE_URL")
     videos_service_url: str | None = os.environ.get("VIDEOS_SERVICE_URL")
     playlists_service_url: str | None = os.environ.get("PLAYLISTS_SERVICE_URL")
 
@@ -23,6 +20,10 @@ class DBSettings(BaseModel):
     echo: bool = False
 
 
+class FilePrefixes(BaseModel):
+    profile_photo: str = "PP@"
+
+
 class Settings(BaseSettings):
     project_title: str
     version: str
@@ -32,7 +33,7 @@ class Settings(BaseSettings):
     db_settings: DBSettings = DBSettings()
     services: ServicesSettings = ServicesSettings()
 
-    playlists_names: PlaylistsNames = PlaylistsNames()
+    file_prefixes: FilePrefixes = FilePrefixes()
 
 
 settings = Settings(
