@@ -1,0 +1,25 @@
+.alert {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    box-sizing: border-box;
+    border-radius: 0.5rem;
+    background-color: #474747;
+    color: #b1b1b1;
+    line-height: 1.2rem;
+    animation: test .2s linear 1;
+}
+
+.error {
+    color: #f00;
+    background-color: #f06e6e;
+}
+
+@keyframes test {
+    0% {
+        opacity: .2;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

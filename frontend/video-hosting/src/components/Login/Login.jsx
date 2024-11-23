@@ -1,28 +1,49 @@
-import { useState, useContext } from "react"
+import { useState, useContext, useRef, useEffect } from "react"
 import { observer } from "mobx-react-lite";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css"
 
 import { Context } from "../../main";
+import { AlertsContext } from "../../App";
+import Loader from "../Loader/Loader";
 
 
 const Login = () => {
     const { store } = useContext(Context);
+    const alertsContext = useContext(AlertsContext);
     const navigate = useNavigate();
 
+    const [isLoading, setIsLoading] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
+    const usernameInputRef = useRef(null);
+
+    useEffect(() => {
+        if (username === "") {
+            usernameInputRef?.current?.focus();
+        }
+    }, [username])
+
     const handleSubmit = async (e) => {
+        setIsLoading(true);
         e.preventDefault();
+
         try {
             await store.login(username, password);
             navigate("/");
         } catch (e) {
-            setError(e.response?.data?.detail);
+            // setError(e.response?.data?.detail);
             console.log(e.response?.data?.detail);
+            alertsContext.addAlert({
+                text: e.response?.data?.detail,
+                time: 2000,
+                type: "error"
+            })
         }
+
+        setIsLoading(false);
     }
 
     return (
@@ -32,6 +53,7 @@ const Login = () => {
             <form className="login-form" onSubmit={(e) => { handleSubmit(e); }}>
 
                 <input
+                    ref={usernameInputRef}
                     id="username"
                     type="text"
                     placeholder="Username"
@@ -52,8 +74,11 @@ const Login = () => {
 
                 {error && <div className="error">{error}</div>}
 
-                <button type="submit">
-                    Sign In
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                >
+                    { isLoading ? <Loader /> : "Sign In"}
                 </button>
                 <div className="hint">Don't have an account? <Link to="/register">Sign Up</Link></div>
             </form>

@@ -1,0 +1,14 @@
+.alerts {
+    width: 20rem;
+    max-height: 12rem;
+    overflow-y: hidden;
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: end;
+    gap: 0.5rem;
+    box-sizing: border-box;
+}

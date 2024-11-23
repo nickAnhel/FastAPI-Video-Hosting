@@ -158,6 +158,8 @@ services:
     command: bash -c "npm run dev"
     ports:
       - 5000:5000
+    env_file:
+      - ./frontend/video-hosting/.docker-env
     volumes:
       - ./frontend/video-hosting/:/project/
       - node_modules:/project/node_modules

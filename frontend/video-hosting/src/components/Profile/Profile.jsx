@@ -3,19 +3,44 @@ import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css"
 
+import Modal from "../Modal/Model";
+import Loader from "../Loader/Loader";
 import UserService from "../../service/UserService";
 import { Context } from "../../main";
+import { AlertsContext } from "../../App";
 
 
 function Profile() {
     const { store } = useContext(Context);
+    const alertsContext = useContext(AlertsContext);
     const navigate = useNavigate();
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingSave, setIsLoadingSave] = useState(false);
     const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+    const [isLoadingProfilePhotoUpdate, setIsLoadingProfilePhotoUpdate] = useState(false);
+    const [isLoadingProfilePhotoDelete, setIsLoadingProfilePhotoDelete] = useState(false);
+    const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PP@${store.user.id}?${performance.now()}`);
+    const [isModalActive, setIsModalActive] = useState(false);
+
     const [username, setUsername] = useState("");
     const [about, setAbout] = useState("");
     const [socialLinks, setSocialLinks] = useState([]);
+
+    const [profilePhoto, setProfilePhoto] = useState(null);
+    const [selectedFile, setSelectedFile] = useState()
+    const [preview, setPreview] = useState()
+
+    useEffect(() => {
+        if (!selectedFile) {
+            setPreview(undefined)
+            return
+        }
+
+        const objectUrl = URL.createObjectURL(selectedFile)
+        setPreview(objectUrl)
+
+        return () => URL.revokeObjectURL(objectUrl)
+    }, [selectedFile])
 
     useEffect(() => {
         setUsername(store.user.username);
@@ -48,7 +73,8 @@ function Profile() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
+
+        setIsLoadingSave(true);
         try {
             const data = {
                 username: username.trim(),
@@ -58,28 +84,113 @@ function Profile() {
 
             const res = await UserService.updateMe(data);
             store.setUser(res.data);
-        } catch (error) {
-            console.log(error);
+
+            alertsContext.addAlert({
+                text: "Profile data updated successfully",
+                time: 2000,
+                type: "success"
+            })
+
+        } catch (e) {
+            alertsContext.addAlert({
+                text: e.response?.data?.detail,
+                time: 2000,
+                type: "error"
+            })
+
+            console.log(e.response?.data?.detail);
         }
-        setIsLoading(false);
+        setIsLoadingSave(false);
     };
 
     const handleLogout = () => {
         store.logout();
         navigate("/login");
+
+        alertsContext.addAlert({
+            text: "You have successfully logged out",
+            time: 2000,
+            type: "success"
+        })
     }
 
     const handleDelete = async () => {
         setIsLoadingDelete(true);
+
         try {
             await UserService.deleteMe();
             store.logout();
             navigate("/login");
-        } catch (error) {
-            console.log(error);
+        } catch (e) {
+            alertsContext.addAlert({
+                text: e.response?.data?.detail,
+                time: 2000,
+                type: "error"
+            })
+
+            console.log(e.response?.data?.detail);
         }
+
         setIsLoadingDelete(false);
+
+        alertsContext.addAlert({
+            text: "Your account successfully deleted",
+            time: 2000,
+            type: "success"
+        })
     }
+
+    const handleProfilePhotoUpdate = async () => {
+        setIsLoadingProfilePhotoUpdate(true);
+
+        try {
+            const formData = new FormData()
+            formData.append("photo", profilePhoto);
+            await UserService.updateProfilePhoto(formData);
+            setImgSrc(`${import.meta.env.VITE_STORAGE_URL}PP@${store.user.id}?${performance.now()}`);
+
+            alertsContext.addAlert({
+                text: "Profile photo updated successfully",
+                time: 2000,
+                type: "success"
+            })
+        } catch (e) {
+            console.log(e.response?.data?.detail);
+        }
+
+        setIsLoadingProfilePhotoUpdate(false);
+        setIsModalActive(false);
+    }
+
+    const handleProfilePhotoDelete = async () => {
+        setIsLoadingProfilePhotoDelete(true);
+
+        try {
+            await UserService.deleteProfilePhoto();
+
+            alertsContext.addAlert({
+                text: "Profile deleted successfully",
+                time: 2000,
+                type: "success"
+            })
+        } catch (e) {
+            console.log(e.response?.data?.detail);
+        }
+
+        setImgSrc("../../../../assets/profile.svg");
+        setIsLoadingProfilePhotoDelete(false);
+        setIsModalActive(false);
+    }
+
+    const handleSelectFile = e => {
+        if (!e.target.files || e.target.files.length === 0) {
+            setSelectedFile(undefined)
+            return
+        }
+
+        setSelectedFile(e.target.files[0])
+    }
+
 
     return (
         <div className="profile">
@@ -89,7 +200,13 @@ function Profile() {
             >
                 <div>
                     <div className="credentials-wrapper">
-                        <img src="../../../../assets/profile.svg" alt="Profile Picture" />
+                        <img
+                            src={imgSrc}
+                            onError={() => { setImgSrc("../../../../assets/profile.svg") }}
+                            alt="Profile Picture"
+                            onClick={() => { setIsModalActive(true) }}
+                        />
+
                         <div className="credentials">
                             <input
                                 type="text"
@@ -166,7 +283,7 @@ function Profile() {
                             onClick={handleDelete}
                             disabled={isLoadingDelete}
                         >
-                            { isLoadingDelete ? "Deleting..." : "Delete Account"}
+                            {isLoadingDelete ? <Loader /> : "Delete Account"}
                         </button>
                     </div>
                 </div>
@@ -174,18 +291,51 @@ function Profile() {
                 <button
                     type="submit"
                     className="save-button"
-                    disabled={isLoading}
+                    disabled={isLoadingSave}
                 >
-                    { isLoading ? "Saving..." : "Save"}
+                    {isLoadingSave ? <Loader /> : "Save"}
                 </button>
                 <button
-                    type="submit"
+                    type="reset"
                     className="reset"
                     onClick={handleReset}
                 >
                     Reset
                 </button>
             </form>
+
+            <Modal active={isModalActive} setActive={setIsModalActive}>
+                <form className="image-form">
+                    <label htmlFor="profile-photo-file">
+                        <img
+                            src={preview}
+                            alt="🖫"
+                        />
+                        <input
+                            type="file"
+                            id="profile-photo-file"
+                            accept=".png, .jpg, .jpeg"
+                            onChange={e => {setProfilePhoto(e.target.files[0]); handleSelectFile(e)}}
+                        />
+                    </label>
+                    <button
+                        className="btn"
+                        type="submit"
+                        onClick={e => { e.preventDefault(); handleProfilePhotoUpdate() }}
+                        disabled={profilePhoto == null}
+                    >
+                        {isLoadingProfilePhotoUpdate ? <Loader /> : "Save image"}
+                    </button>
+
+                    <button
+                        className="btn delete"
+                        onClick={e => { e.preventDefault(); handleProfilePhotoDelete() }}
+                    >
+                        {isLoadingProfilePhotoDelete ? <Loader /> : "Delete image"}
+
+                    </button>
+                </form>
+            </Modal>
         </div>
     )
 }

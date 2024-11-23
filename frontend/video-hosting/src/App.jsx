@@ -1,4 +1,4 @@
-import { useEffect, useContext } from 'react'
+import { useEffect, useContext, createContext } from 'react'
 import {observer} from "mobx-react-lite";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import './App.css'
@@ -13,13 +13,23 @@ import Profile from './components/Profile/Profile';
 import Settings from './components/Settings/Settings';
 import NotFound from './components/NotFound/NotFound';
 import InWork from './components/InWork/InWork';
+import Loader from "./components/Loader/Loader";
+import Alerts from './components/Alerts/Alerts';
+
+import useAlerts from './hooks/useAlerts';
+
+
+export const AlertsContext = createContext(null);
 
 
 function Layout() {
+    const alertsContext = useContext(AlertsContext);
+
     return (
         <>
             <Header />
             <Outlet />
+            <Alerts alerts={ alertsContext.alerts }/>
         </>
     )
 }
@@ -103,6 +113,8 @@ const router = createBrowserRouter([
 function App() {
     const { store } = useContext(Context)
 
+    const { alerts, addAlert, removeAlert } = useAlerts();
+
     useEffect(() => {
         if (localStorage.getItem('token')) {
             store.checkAuth();
@@ -110,13 +122,12 @@ function App() {
     }, [])
 
     if (store.isLoading) {
-        return <div>Loading...</div>
+        return <Loader />
     }
-
     return (
-        <>
+        <AlertsContext.Provider value={{ alerts, addAlert, removeAlert }}>
             <RouterProvider router={router} />
-        </>
+        </AlertsContext.Provider>
     )
 }
 

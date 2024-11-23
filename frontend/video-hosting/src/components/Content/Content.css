@@ -1,5 +1,6 @@
 .main {
     height: calc(100vh - 6rem);
+    padding: 1rem 0;
     display: flex;
     gap: 1rem;
     box-sizing: border-box;

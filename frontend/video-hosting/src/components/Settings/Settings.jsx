@@ -3,11 +3,16 @@ import { observer } from "mobx-react-lite";
 import "./Settings.css"
 
 import { Context } from "../../main";
+import { AlertsContext } from "../../App";
+
 import SettingsService from "../../service/SettingsService";
+import Loader from "../Loader/Loader";
 
 
 function Settings() {
     const { store } = useContext(Context);
+    const alertsContext = useContext(AlertsContext);
+
     const [isLoading, setIsLoading] = useState(false);
     const [emailNotifications, setEmailNotifications] = useState(false);
     const [telegramNotifications, setTelegramNotifications] = useState(false);
@@ -37,6 +42,12 @@ function Settings() {
             console.log(error);
         }
         setIsLoading(false);
+
+        alertsContext.addAlert({
+            text: "Settings updated successfully",
+            time: 2000,
+            type: "success"
+        })
     };
 
     return (
@@ -85,7 +96,7 @@ function Settings() {
                 onClick={handleSave}
                 disabled={isLoading}
             >
-                {isLoading ? "Saving..." : "Save"}
+                {isLoading ? <Loader /> : "Save"}
             </button>
         </div>
     )

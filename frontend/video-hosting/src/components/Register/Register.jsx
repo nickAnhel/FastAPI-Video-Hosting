@@ -4,10 +4,12 @@ import { useNavigate } from "react-router-dom";
 import "./Register.css"
 
 import { Context } from "../../main";
+import { AlertsContext } from "../../App";
 
 
 function Register() {
     const { store } = useContext(Context);
+    const alertsContext = useContext(AlertsContext);
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
@@ -48,7 +50,11 @@ function Register() {
             )
             navigate("/");
         } catch (e) {
-            setError(e.response?.data?.detail);
+            alertsContext.addAlert({
+                text: e.response?.data?.detail,
+                time: 2000,
+                type: "error"
+            })
             console.log(e.response?.data?.detail);
         }
     }

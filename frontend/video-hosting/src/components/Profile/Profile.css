@@ -40,6 +40,14 @@
 .credentials-wrapper img {
     width: 10rem;
     height: 10rem;
+    border-radius: 10rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.credentials-wrapper img:hover {
+    cursor: pointer;
+    opacity: 0.8;
 }
 
 .credentials {
@@ -128,7 +136,7 @@
     border-radius: 0.5rem;
     border: 0;
     background-color: #474747;
-    color: #fff;
+    color: #b1b1b1;
     font-size: 1.2rem;
     cursor: pointer;
     transition: all 0.2s linear;
@@ -156,4 +164,43 @@
 .delete {
     background-color: #474747;
     color: #b1b1b1;
+}
+
+.image-form {
+    width: 25rem;
+    padding: 1rem;;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.image-form img {
+    width: 20rem;
+    height: 20rem;
+    border-radius: 10rem;
+    border: .3rem solid #474747;
+    background-color: #202020;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    color: #474747;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    transition: all 0.2s linear;
+}
+
+.image-form img:hover {
+    opacity: 0.8;
+    background-color: #191919;
+}
+
+.image-form input {
+    display: none;
+}
+
+.image-form button {
+    width: 100%;
 }

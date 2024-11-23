@@ -16,29 +16,24 @@ export default class Store {
     }
 
     setAuthenticated(value) {
-        this.isAuthenticated = value
+        this.isAuthenticated = value;
     }
 
     setUser(user) {
-        this.user = user
+        this.user = user;
     }
 
     setLoading(value) {
-        this.isLoading = value
+        this.isLoading = value;
     }
 
     async register(data) {
-        // try {
         const response = await AuthService.register(data);
         this.setUser(response.data);
         await this.login(data.username, data.password);
-        // } catch (e) {
-        //     console.log(e.response?.data?.detail)
-        // }
     }
 
     async login(username, password) {
-        // try {
         const response = await AuthService.login(username, password);
         localStorage.setItem('token', response.data.access_token);
         this.setAuthenticated(true);
@@ -48,9 +43,6 @@ export default class Store {
         delete userData.subscribers;
         delete userData.subscribed;
         this.setUser(userData);
-        // } catch (e) {
-        //     console.log(e.response?.data?.detail)
-        // }
     }
 
     async logout() {
