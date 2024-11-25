@@ -157,6 +157,10 @@ class UserService:
         photo: bytes,
     ) -> bool:
         """Update user profile photo."""
+        await delete_files_from_s3(
+            filenames=[settings.file_prefixes.profile_photo + str(user_id)],
+        )
+
         if not (
             await upload_file_to_s3(
                 file=photo,
@@ -184,13 +188,18 @@ class UserService:
     async def delete_user(
         self,
         token: str,
-        **filters,
+        user_id: UUID,
     ) -> None:
         """Delete user by filters (username, email or id)."""
+        if not await delete_files_from_s3(
+            filenames=[settings.file_prefixes.profile_photo + str(user_id)],
+        ):
+            raise CantDeleteFileFromS3("Failed to delete file from S3")
+
         if not await delete_all_users_videos(token=token):
             raise CantDeleteUsersVideos()
 
-        await self._repository.delete(**filters)
+        await self._repository.delete(id=user_id)
 
     async def subscribe(
         self,

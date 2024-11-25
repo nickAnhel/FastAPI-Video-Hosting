@@ -56,9 +56,8 @@ async def delete_user(
 ) -> Status:
     await user_service.delete_user(
         token=request.headers.get("Authorization").replace("Bearer ", ""),  # type: ignore
-        id=user.id,
+        user_id=user.id,
     )
-    await user_service.delete_profile_photo(user_id=user.id)
     return Status(detail="User deleted successfully")
 
 
