@@ -27,8 +27,8 @@ function Profile() {
     const [socialLinks, setSocialLinks] = useState([]);
 
     const [profilePhoto, setProfilePhoto] = useState(null);
-    const [selectedFile, setSelectedFile] = useState()
-    const [preview, setPreview] = useState()
+    const [selectedFile, setSelectedFile] = useState();
+    const [preview, setPreview] = useState();
 
     useEffect(() => {
         if (!selectedFile) {
