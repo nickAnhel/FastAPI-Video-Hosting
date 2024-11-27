@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.comments.router import comment_router
@@ -21,6 +22,14 @@ app = FastAPI(
     debug=settings.debug,
     openapi_url="/comments/openapi.json",
     docs_url="/comments/docs",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.videos.router import video_router
@@ -33,6 +34,13 @@ app = FastAPI(
     docs_url="/videos/docs",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost/", "http://localhost:5000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(video_router)
 
