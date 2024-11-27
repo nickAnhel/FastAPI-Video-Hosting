@@ -33,6 +33,7 @@ async def get_current_user_info(
 @router.get("/list")
 async def get_users(
     order: UserOrder = UserOrder.ID,
+    desc: bool = False,
     offset: int = 0,
     limit: int = 100,
     user: UserGet | None = Depends(get_current_optional_user),
@@ -41,6 +42,7 @@ async def get_users(
     return await user_service.get_users(
         user=user,
         order=order,
+        desc=desc,
         offset=offset,
         limit=limit,
     )

@@ -1,6 +1,6 @@
 from typing import Any
 from uuid import UUID
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, desc
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -36,10 +36,16 @@ class UserRepository:
         self,
         user_id: UUID | None = None,
         order: str = "id",
+        order_desc: bool = False,
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserModel]:
-        query = select(UserModel).order_by(order).offset(offset).limit(limit)
+        query = (
+            select(UserModel)
+            .order_by(desc(order) if order_desc else order)
+            .offset(offset)
+            .limit(limit)
+        )
 
         if user_id:
             query  = query.options(selectinload(UserModel.subscribers))

@@ -110,6 +110,7 @@ class UserService:
         self,
         user: UserGet | None = None,
         order: UserOrder = UserOrder.ID,
+        desc: bool = False,
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserGet]:
@@ -118,6 +119,7 @@ class UserService:
             users = await self._repository.get_multi(
                 user_id=user.id if user else None,  # type: ignore
                 order=order,
+                order_desc=desc,
                 offset=offset,
                 limit=limit,
             )
