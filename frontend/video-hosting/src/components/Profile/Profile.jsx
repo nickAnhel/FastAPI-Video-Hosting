@@ -308,14 +308,15 @@ function Profile() {
                 <form className="image-form">
                     <label htmlFor="profile-photo-file">
                         <img
-                            src={preview}
-                            alt="🖫"
+                            src={preview || imgSrc}
+                            alt="Profile photo"
                         />
+
                         <input
                             type="file"
                             id="profile-photo-file"
                             accept=".png, .jpg, .jpeg"
-                            onChange={e => {setProfilePhoto(e.target.files[0]); handleSelectFile(e)}}
+                            onChange={e => { setProfilePhoto(e.target.files[0]); handleSelectFile(e) }}
                         />
                     </label>
                     <button

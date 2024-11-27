@@ -199,6 +199,13 @@
     background-color: #191919;
 }
 
+.image-form .img-span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
 .image-form input {
     display: none;
 }
