@@ -66,12 +66,14 @@ async def search_videos(
 @video_router.get("/list")
 async def get_videos(
     order: VideoOrder = VideoOrder.ID,  # type: ignore
+    desc: bool = False,
     offset: int = 0,
     limit: int = 100,
     video_service: VideoService = Depends(get_video_service),
 ) -> list[VideoGet]:
     return await video_service.get_videos(
         order=order,
+        desc=desc,
         offset=offset,
         limit=limit,
     )

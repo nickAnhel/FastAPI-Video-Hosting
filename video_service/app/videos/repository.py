@@ -1,5 +1,5 @@
 from typing import Any, Literal
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.videos.models import VideoModel
@@ -44,6 +44,7 @@ class VideoRepository:
     async def get_multi(
         self,
         order: str = "id",
+        order_desc: bool = True,
         offset: int = 0,
         limit: int = 100,
         **filters,
@@ -51,7 +52,7 @@ class VideoRepository:
         query = (
             select(VideoModel)
             .filter_by(**filters)
-            .order_by(order)
+            .order_by(desc(order) if order_desc else order)
             .offset(offset)
             .limit(limit)
         )

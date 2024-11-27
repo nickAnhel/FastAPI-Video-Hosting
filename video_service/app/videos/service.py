@@ -85,10 +85,11 @@ class VideoService:
         self,
         order: VideoOrder = VideoOrder.ID,  # type: ignore
         offset: int = 0,
+        desc: bool = False,
         limit: int = 100,
         user_id: UUID | None = None,
     ) -> list[VideoGet]:
-        params = {"order": order, "offset": offset, "limit": limit}
+        params = {"order": order, "offset": offset, "limit": limit, "order_desc": desc}
         if user_id:
             params["user_id"] = user_id
 
