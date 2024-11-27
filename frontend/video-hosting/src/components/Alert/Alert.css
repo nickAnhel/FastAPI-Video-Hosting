@@ -10,8 +10,8 @@
 }
 
 .error {
-    color: #f00;
-    background-color: #f06e6e;
+    color: rgb(206, 0, 0);
+    background-color: #570000;
 }
 
 @keyframes test {

@@ -1,0 +1,60 @@
+
+.channel-item-list {
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    box-sizing: border-box;
+    transition: all .2s;
+}
+
+.channel-item-list:hover {
+    cursor: pointer;
+    background-color: #474747;
+    transition: all .2s;
+}
+
+.channel-item-list .left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.channel-item-list img {
+    width: 5rem;
+    height: 5rem;
+    object-fit: cover;
+    border-radius: 5rem;
+}
+
+.channel-item-list .username {
+    font-size: 1.3rem;
+}
+
+.channel-item-list .subs {
+    color: #7e7e7e;
+}
+
+.channel-item-list .btn {
+    background-color: #7e7e7e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 2rem;
+    font-size: 1rem;
+    width: 8rem;
+    border-radius: 2rem;
+    box-sizing: border-box;
+    transition: all .2s;
+}
+
+.channel-item-list .btn:focus {
+    outline: none;
+}
+
+.channel-item-list .unsubscribe {
+    color: #8a8a8a;
+    background-color: #5e5e5e;
+}

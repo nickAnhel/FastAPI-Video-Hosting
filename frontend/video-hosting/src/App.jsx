@@ -20,6 +20,7 @@ import Alerts from './components/Alerts/Alerts';
 
 import Main from './pages/Main/Main';
 import Trending from './pages/Trending/Trending';
+import Channels from './pages/Channels/Channels';
 
 
 export const AlertsContext = createContext(null);
@@ -58,7 +59,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "/channels",
-                        element: <InWork />
+                        element: <Channels />
                     },
                     {
                         path: "/channels",

@@ -25,4 +25,16 @@ export default class UserService {
     static async deleteProfilePhoto() {
         return api.delete("/users/photo/")
     }
+
+    static async getUsers(params) {
+        return api.get("/users/list", { params });
+    }
+
+    static async subscribeToUser(userId) {
+        return api.post(`/users/subscribe?user_id=${userId}`);
+    }
+
+    static async unsubscribFromuser(userId) {
+        return api.delete(`/users/unsubscribe?user_id=${userId}`);
+    }
 }
