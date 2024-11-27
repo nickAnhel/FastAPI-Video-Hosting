@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
 
 from app.schemas import Status
-from app.auth.dependencies import get_current_user, get_current_user_with_subscriptions
+from app.auth.dependencies import get_current_user, get_current_user_with_subscriptions, get_current_optional_user
 from app.users.dependencies import get_user_service
 from app.users.service import UserService
 from app.users.schemas import UserCreate, UserUpdate, UserGet, UserGetWithProfile, UserGetWithSubscriptions
@@ -35,9 +35,15 @@ async def get_users(
     order: UserOrder = UserOrder.ID,
     offset: int = 0,
     limit: int = 100,
+    user: UserGet | None = Depends(get_current_optional_user),
     user_service: UserService = Depends(get_user_service),
 ) -> list[UserGet]:
-    return await user_service.get_users(order=order, offset=offset, limit=limit)
+    return await user_service.get_users(
+        user=user,
+        order=order,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.get("/")

@@ -16,6 +16,7 @@ from app.users.schemas import UserGet, UserGetWithPassword, UserGetWithProfile
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/token", auto_error=False)
 
 
 async def authenticate_user(
@@ -54,10 +55,28 @@ def _get_token_payload(
         ) from exc
 
 
+def _get_token_payload_optional(
+    token: str,
+) -> dict[str, Any] | None:
+    try:
+        return decode_jwt(token)
+    except InvalidTokenError:
+        return None
+
+
 def _get_token_payload_from_header(
     token: str = Depends(oauth2_scheme),
 ) -> dict[str, Any]:
     return _get_token_payload(token)
+
+
+def _get_token_payload_from_header_optional(
+    token: str | None = Depends(oauth2_scheme_optional),
+) -> dict[str, Any] | None:
+    if not token:
+        return None
+
+    return _get_token_payload_optional(token)
 
 
 def _get_token_payload_from_cookie(
@@ -114,6 +133,27 @@ def get_current_user_closure(
 get_current_user = get_current_user_closure()
 get_current_user_with_profile = get_current_user_closure(include_profile=True)
 get_current_user_with_subscriptions = get_current_user_closure(include_subscriptions=True)
+
+
+async def get_current_optional_user(
+    token_payload: dict[str, Any] | None = Depends(_get_token_payload_from_header_optional),
+    user_service: UserService = Depends(get_user_service),
+) -> UserGet | None:
+    if not token_payload:
+        return None
+
+    _check_token_type(token_payload, ACCESS_TOKEN_TYPE)
+
+    try:
+        return await user_service.get_user(
+            id=token_payload.get("sub"),
+        )  # type: ignore
+
+    except UserNotFound as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization token",
+        ) from exc
 
 
 async def get_current_user_for_refresh(

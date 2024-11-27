@@ -108,17 +108,39 @@ class UserService:
 
     async def get_users(
         self,
+        user: UserGet | None = None,
         order: UserOrder = UserOrder.ID,
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserGet]:
         """Get users with pagination and sorting."""
         try:
-            users = await self._repository.get_multiple(
+            users = await self._repository.get_multi(
+                user_id=user.id if user else None,  # type: ignore
                 order=order,
                 offset=offset,
                 limit=limit,
             )
+
+            if user:
+                users_pydantic: list[UserGet] = []
+
+                for u in users:
+                    if u.id == user.id:
+                        continue
+
+                    users_pydantic.append(
+                        UserGet(
+                            id=u.id,
+                            username=u.username,
+                            email=u.email,
+                            subscribers_count=u.subscribers_count,
+                            is_subscribed=(user.id in [s.id for s in u.subscribers])
+                        )
+                    )
+
+                return users_pydantic
+
             return [UserGet.model_validate(user) for user in users]
 
         except CompileError as exc:

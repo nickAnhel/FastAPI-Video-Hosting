@@ -32,13 +32,17 @@ class UserRepository:
         result = await self.async_session.execute(query)
         return result.scalar_one()
 
-    async def get_multiple(
+    async def get_multi(
         self,
+        user_id: UUID | None = None,
         order: str = "id",
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserModel]:
         query = select(UserModel).order_by(order).offset(offset).limit(limit)
+
+        if user_id:
+            query  = query.options(selectinload(UserModel.subscribers))
 
         result = await self.async_session.execute(query)
         return list(result.scalars().all())

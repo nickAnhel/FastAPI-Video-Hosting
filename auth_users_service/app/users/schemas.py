@@ -19,6 +19,7 @@ class UserGet(BaseSchema):
     username: str
     email: EmailStr
     subscribers_count: int = Field(ge=0)
+    is_subscribed: bool | None = None
 
 
 class UserGetWithPassword(UserGet):
