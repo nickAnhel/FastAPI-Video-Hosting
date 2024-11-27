@@ -1,9 +1,11 @@
 import { useEffect, useContext, createContext } from 'react'
-import {observer} from "mobx-react-lite";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { observer } from "mobx-react-lite";
 import './App.css'
 
 import { Context } from './main'
+import useAlerts from './hooks/useAlerts';
+
 import Header from './components/Header/Header'
 import Login from './components/Login/Login'
 import Register from './components/Register/Register';
@@ -16,7 +18,8 @@ import InWork from './components/InWork/InWork';
 import Loader from "./components/Loader/Loader";
 import Alerts from './components/Alerts/Alerts';
 
-import useAlerts from './hooks/useAlerts';
+import Main from './pages/Main/Main';
+import Trending from './pages/Trending/Trending';
 
 
 export const AlertsContext = createContext(null);
@@ -29,7 +32,7 @@ function Layout() {
         <>
             <Header />
             <Outlet />
-            <Alerts alerts={ alertsContext.alerts }/>
+            <Alerts alerts={alertsContext.alerts} />
         </>
     )
 }
@@ -47,11 +50,11 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: "/",
-                        element: <InWork />
+                        element: <Main />
                     },
                     {
                         path: "/trending",
-                        element: <InWork />
+                        element: <Trending />
                     },
                     {
                         path: "/channels",

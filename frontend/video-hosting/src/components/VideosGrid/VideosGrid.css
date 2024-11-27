@@ -1,0 +1,35 @@
+.videos-grid {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    gap: 1rem;
+    padding-right: 1rem;
+    box-sizing: border-box;
+    color: #7e7e7e;
+}
+
+.videos-grid::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+
+.videos-grid::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}
+
+.videos-grid .videos {
+    width: calc(100% - 1rem);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.videos-grid .loader {
+    height: 1rem;
+    padding: 1rem 0;
+    width: calc(100% - 1rem);
+}

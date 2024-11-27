@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useState, useContext } from "react";
 import { observer } from "mobx-react-lite";
 import { Link } from "react-router-dom";
 import "./Header.css"
@@ -9,6 +9,8 @@ import Search from "../Search/Search";
 
 function Header() {
     const { store } = useContext(Context);
+
+    const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PP@${store.user.id}?${performance.now()}`);
 
     return (
         <div className="header">
@@ -27,8 +29,13 @@ function Header() {
                         <>
                             <img src="../../../../assets/create.svg" alt="Create Video" />
                             <img src="../../../../assets/notifications.svg" alt="Notifications" />
-                            <Link to="/me">
-                                <img src="../../../../assets/profile.svg" alt="Me" />
+                            <Link to="/me/profile">
+                                <img
+                                    // src="../../../../assets/profile.svg" alt="Me"
+                                    src={imgSrc}
+                                    onError={() => { setImgSrc("../../../../assets/profile.svg") }}
+                                    alt="Profile Picture"
+                                />
                             </Link>
                         </>
                         : <>
