@@ -1,6 +1,8 @@
+import io
 from typing import Literal
 from uuid import UUID
 from sqlalchemy.exc import IntegrityError, DBAPIError
+from PIL import Image
 
 from app.config import settings
 from app.videos.repository import VideoRepository
@@ -51,8 +53,14 @@ class VideoService:
         preview: bytes,
         video_model: VideoModel,
     ) -> None:
+        img = Image.open(preview)
+        img.thumbnail((1280, 720))
+        img_bytes = io.BytesIO()
+        img.save(img_bytes, "PNG")
+        img_bytes = img_bytes.getvalue()
+
         if not await upload_file_to_s3(
-            file=preview,
+            file=img_bytes,
             filename=settings.file_prefixes.preview + str(video_model.id),
         ):
             await self._repository.delete(id=video_model.id)
@@ -62,7 +70,7 @@ class VideoService:
             file=video,
             filename=settings.file_prefixes.video + str(video_model.id),
         ):
-            # Delete preview from S3 storage
+            await delete_files_from_s3(filenames=[settings.file_prefixes.preview + str(video_model.id)])
             await self._repository.delete(id=video_model.id)
             raise CantUploadVideoToS3()
 

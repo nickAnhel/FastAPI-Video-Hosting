@@ -10,6 +10,7 @@ import Loader from "../Loader/Loader";
 const ChannelItemList = forwardRef((props, ref) => {
     const { store } = useContext(Context);
     const alertsContext = useContext(AlertsContext);
+    const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PPm@${props.channel.id}?${performance.now()}`);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isSubscribed, setIsSubsctribed] = useState(props.channel.is_subscribed)
@@ -69,7 +70,8 @@ const ChannelItemList = forwardRef((props, ref) => {
             <div className="left">
                 <img
                     className="channel-photo"
-                    src={`${import.meta.env.VITE_STORAGE_URL}PP@${props.channel.id}`}
+                    src={imgSrc}
+                    onError={() => { setImgSrc("../../../../assets/profile.svg") }}
                     alt={props.channel.username}
                 />
                 <div className="info">

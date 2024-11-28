@@ -4,7 +4,7 @@ import "./VideoItemGrid.css"
 
 const VideoItemGrid = forwardRef((props, ref) => {
     const [userProfilePhotoSrc, setUserProfilePhotoSrc] = useState(
-        `${import.meta.env.VITE_STORAGE_URL}PP@${props.video.user_id}?${performance.now()}`
+        `${import.meta.env.VITE_STORAGE_URL}PPs@${props.video.user_id}?${performance.now()}`
     );
 
     return (
@@ -25,7 +25,6 @@ const VideoItemGrid = forwardRef((props, ref) => {
                     <div className="title">{props.video.title}</div>
                     <div className="creds">
                         {/* <div className="author">{ props.video.author }</div> */}
-                        <div className="author">TEMP</div>
                         <div className="views">{props.video.views} views</div>
                     </div>
                 </div>

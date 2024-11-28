@@ -1,5 +1,7 @@
+import io
 from uuid import UUID
 from sqlalchemy.exc import NoResultFound, DBAPIError, CompileError, IntegrityError
+from PIL import Image
 
 from app.database import async_session_maker
 from app.config import settings
@@ -137,7 +139,7 @@ class UserService:
                             username=u.username,
                             email=u.email,
                             subscribers_count=u.subscribers_count,
-                            is_subscribed=(user.id in [s.id for s in u.subscribers])
+                            is_subscribed=(user.id in [s.id for s in u.subscribers]),
                         )
                     )
 
@@ -175,22 +177,51 @@ class UserService:
         except IntegrityError as exc:
             raise UsernameOrEmailAlreadyExists(f"User with username {data.username} already exists") from exc
 
+    async def _delete_all_files_from_storage(
+        self,
+        user_id: UUID,
+    ) -> bool:
+        return await delete_files_from_s3(
+            filenames=[
+                settings.file_prefixes.profile_photo_small + str(user_id),
+                settings.file_prefixes.profile_photo_medium + str(user_id),
+            ],
+        )
+
     async def update_profile_photo(
         self,
         user_id: UUID,
         photo: bytes,
     ) -> bool:
         """Update user profile photo."""
-        await delete_files_from_s3(
-            filenames=[settings.file_prefixes.profile_photo + str(user_id)],
-        )
+        img_small = Image.open(photo)
+        img_medium = Image.open(photo)
+
+        img_small.thumbnail((80, 80))
+        img_medium.thumbnail((160, 160))
+
+        img_small_bytes = io.BytesIO()
+        img_medium_bytes = io.BytesIO()
+
+        img_small.save(img_small_bytes, "PNG")
+        img_small_bytes = img_small_bytes.getvalue()
+
+        img_medium.save(img_medium_bytes, "PNG")
+        img_medium_bytes = img_medium_bytes.getvalue()
+
+        await self._delete_all_files_from_storage(user_id)
 
         if not (
             await upload_file_to_s3(
-                file=photo,
-                filename=settings.file_prefixes.profile_photo + str(user_id),
+                file=img_small_bytes,
+                filename=settings.file_prefixes.profile_photo_small + str(user_id),
+            )
+            and await upload_file_to_s3(
+                file=img_medium_bytes,
+                filename=settings.file_prefixes.profile_photo_medium + str(user_id),
             )
         ):
+            await self._delete_all_files_from_storage(user_id)
             raise CantUploadFileToS3("Failed to upload file to S3")
 
         return True
@@ -200,11 +231,7 @@ class UserService:
         user_id: UUID,
     ) -> bool:
         """Delete user profile photo."""
-        if not (
-            await delete_files_from_s3(
-                filenames=[settings.file_prefixes.profile_photo + str(user_id)],
-            )
-        ):
+        if not (await self._delete_all_files_from_storage(user_id)):
             raise CantDeleteFileFromS3("Failed to delete file from S3")
 
         return True
@@ -216,7 +243,7 @@ class UserService:
     ) -> None:
         """Delete user by filters (username, email or id)."""
         if not await delete_files_from_s3(
-            filenames=[settings.file_prefixes.profile_photo + str(user_id)],
+            filenames=[settings.file_prefixes.profile_photo_small + str(user_id)],
         ):
             raise CantDeleteFileFromS3("Failed to delete file from S3")
 

@@ -21,7 +21,8 @@ class DBSettings(BaseModel):
 
 
 class FilePrefixes(BaseModel):
-    profile_photo: str = "PP@"
+    profile_photo_small: str = "PPs@"
+    profile_photo_medium: str = "PPm@"
 
 
 class Settings(BaseSettings):

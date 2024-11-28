@@ -10,7 +10,7 @@ import Search from "../Search/Search";
 function Header() {
     const { store } = useContext(Context);
 
-    const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PP@${store.user.id}?${performance.now()}`);
+    const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PPs@${store.user.id}?${performance.now()}`);
 
     return (
         <div className="header">
