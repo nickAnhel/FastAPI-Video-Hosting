@@ -19,7 +19,7 @@ function Profile() {
     const [isLoadingDelete, setIsLoadingDelete] = useState(false);
     const [isLoadingProfilePhotoUpdate, setIsLoadingProfilePhotoUpdate] = useState(false);
     const [isLoadingProfilePhotoDelete, setIsLoadingProfilePhotoDelete] = useState(false);
-    const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PPm@${store.user.id}?${performance.now()}`);
+    const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PPl@${store.user.id}?${performance.now()}`);
     const [isModalActive, setIsModalActive] = useState(false);
 
     const [username, setUsername] = useState("");

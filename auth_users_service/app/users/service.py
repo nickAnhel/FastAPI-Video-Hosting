@@ -185,6 +185,7 @@ class UserService:
             filenames=[
                 settings.file_prefixes.profile_photo_small + str(user_id),
                 settings.file_prefixes.profile_photo_medium + str(user_id),
+                settings.file_prefixes.profile_photo_large + str(user_id),
             ],
         )
 
@@ -196,18 +197,24 @@ class UserService:
         """Update user profile photo."""
         img_small = Image.open(photo)
         img_medium = Image.open(photo)
+        img_large = Image.open(photo)
 
         img_small.thumbnail((80, 80))
         img_medium.thumbnail((160, 160))
+        img_large.thumbnail((240, 240))
 
         img_small_bytes = io.BytesIO()
         img_medium_bytes = io.BytesIO()
+        img_large_bytes = io.BytesIO()
 
         img_small.save(img_small_bytes, "PNG")
         img_small_bytes = img_small_bytes.getvalue()
 
         img_medium.save(img_medium_bytes, "PNG")
         img_medium_bytes = img_medium_bytes.getvalue()
+
+        img_large.save(img_large_bytes, "PNG")
+        img_large_bytes = img_large_bytes.getvalue()
 
         await self._delete_all_files_from_storage(user_id)
 
@@ -219,6 +226,10 @@ class UserService:
             and await upload_file_to_s3(
                 file=img_medium_bytes,
                 filename=settings.file_prefixes.profile_photo_medium + str(user_id),
+            )
+            and await upload_file_to_s3(
+                file=img_large_bytes,
+                filename=settings.file_prefixes.profile_photo_large + str(user_id),
             )
         ):
             await self._delete_all_files_from_storage(user_id)
@@ -242,9 +253,7 @@ class UserService:
         user_id: UUID,
     ) -> None:
         """Delete user by filters (username, email or id)."""
-        if not await delete_files_from_s3(
-            filenames=[settings.file_prefixes.profile_photo_small + str(user_id)],
-        ):
+        if not await self._delete_all_files_from_storage(user_id=user_id):
             raise CantDeleteFileFromS3("Failed to delete file from S3")
 
         if not await delete_all_users_videos(token=token):

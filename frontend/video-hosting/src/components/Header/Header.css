@@ -24,7 +24,6 @@
     width: 2.3rem;
     height: 2.3rem;
     padding: 0.2rem;
-    object-fit: cover;
 }
 
 .logo {
@@ -46,6 +45,7 @@
     border-radius: 2rem;
     cursor: pointer;
     transition: all 0.1s linear;
+    object-fit: cover;
 }
 
 .right img:hover {
