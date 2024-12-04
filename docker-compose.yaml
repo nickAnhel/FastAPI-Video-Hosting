@@ -16,7 +16,7 @@ services:
       - ./server/.docker-env
 
   db:
-    container_name: videos_service_db
+    container_name: db
     image: postgres
     restart: on-failure
     ports:

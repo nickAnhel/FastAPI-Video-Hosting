@@ -59,11 +59,13 @@ from src.videos.exceptions import (
     VideoNotFound,
     VideoTitleAlreadyExists,
     VideoDataWrongFormat,
+    CantReactVideo,
 )
 from src.videos.exc_handlers import (
     video_not_found_handler,
     video_title_already_exists_handler,
     video_data_wrong_format_handler,
+    cant_react_video_handler,
 )
 
 from src.s3_storage.exceptions import (
@@ -106,6 +108,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(VideoNotFound, video_not_found_handler)  # type: ignore
     app.add_exception_handler(VideoTitleAlreadyExists, video_title_already_exists_handler)  # type: ignore
     app.add_exception_handler(VideoDataWrongFormat, video_data_wrong_format_handler)  # type: ignore
+    app.add_exception_handler(CantReactVideo, cant_react_video_handler)  # type: ignore
 
     app.add_exception_handler(CantUploadFileToStorage, cant_upload_file_handler)  # type: ignore
     app.add_exception_handler(CantDeleteFileFromStorage, cant_delete_file_handler)  # type: ignore

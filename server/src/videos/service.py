@@ -11,13 +11,14 @@ from src.s3_storage.utils import upload_file, delete_files
 from src.s3_storage.exceptions import CantUploadFileToStorage, CantDeleteFileFromStorage
 
 from src.videos.repository import VideoRepository
-from src.videos.schemas import VideoCreate, VideoGet
+from src.videos.schemas import VideoCreate, VideoGet, VideoLikesDislikes
 from src.videos.models import VideoModel
 from src.videos.enums import VideoOrder
 from src.videos.exceptions import (
     VideoNotFound,
     VideoTitleAlreadyExists,
     VideoDataWrongFormat,
+    CantReactVideo
 )
 
 
@@ -140,17 +141,73 @@ class VideoService:
         video = await self._repository.decrement(column=column, id=id)
         return self._check_video_exists(video)
 
-    async def increment_likes(self, id: UUID) -> VideoGet:
-        return await self._increment(column="likes", id=id)
+    async def like_video(
+        self,
+        video_id: UUID,
+        user_id: UUID,
+    ) -> VideoLikesDislikes:
+        try:
+            await self._repository.like(user_id=user_id, video_id=video_id)
+        except IntegrityError as exc:
+            raise CantReactVideo("Can't like video twice") from exc
 
-    async def decrement_likes(self, id: UUID) -> VideoGet:
-        return await self._decrement(column="likes", id=id)
+        await self._repository.increment("likes", id=video_id)
+        await self.undislike_video(video_id=video_id, user_id=user_id)
+        likes, dislikes = await self._repository.get_likes_and_dislikes(id=video_id)
+        return VideoLikesDislikes(
+            id=video_id,
+            likes=likes,
+            dislikes=dislikes,
+        )
 
-    async def increment_dislikes(self, id: UUID) -> VideoGet:
-        return await self._increment(column="dislikes", id=id)
+    async def unlike_video(
+        self,
+        video_id: UUID,
+        user_id: UUID,
+    ) -> VideoLikesDislikes:
+        if await self._repository.unlike(user_id=user_id, video_id=video_id) == 1:
+            await self._repository.decrement("likes", id=video_id)
 
-    async def decrement_dislikes(self, id: UUID) -> VideoGet:
-        return await self._decrement(column="dislikes", id=id)
+        likes, dislikes = await self._repository.get_likes_and_dislikes(id=video_id)
+        return VideoLikesDislikes(
+            id=video_id,
+            likes=likes,
+            dislikes=dislikes,
+        )
+
+    async def dislike_video(
+        self,
+        video_id: UUID,
+        user_id: UUID,
+    ) -> VideoLikesDislikes:
+        try:
+            await self._repository.dislike(user_id=user_id, video_id=video_id)
+        except IntegrityError as exc:
+            raise CantReactVideo("Can't dislike video twice") from exc
+
+        await self._repository.increment("dislikes", id=video_id)
+        await self.unlike_video(video_id=video_id, user_id=user_id)
+        likes, dislikes = await self._repository.get_likes_and_dislikes(id=video_id)
+        return VideoLikesDislikes(
+            id=video_id,
+            likes=likes,
+            dislikes=dislikes,
+        )
+
+    async def undislike_video(
+        self,
+        video_id: UUID,
+        user_id: UUID,
+    ) -> VideoLikesDislikes:
+        if await self._repository.undislike(user_id=user_id, video_id=video_id) == 1:
+            await self._repository.decrement("dislikes", id=video_id)
+
+        likes, dislikes = await self._repository.get_likes_and_dislikes(id=video_id)
+        return VideoLikesDislikes(
+            id=video_id,
+            likes=likes,
+            dislikes=dislikes,
+        )
 
     def _check_video_exists(self, video: VideoModel | None) -> VideoGet:
         if not video:

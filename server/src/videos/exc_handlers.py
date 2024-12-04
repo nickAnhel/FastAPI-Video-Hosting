@@ -5,6 +5,7 @@ from src.videos.exceptions import (
     VideoNotFound,
     VideoTitleAlreadyExists,
     VideoDataWrongFormat,
+    CantReactVideo,
 )
 
 
@@ -25,5 +26,12 @@ async def video_title_already_exists_handler(request: Request, exc: VideoTitleAl
 async def video_data_wrong_format_handler(request: Request, exc: VideoDataWrongFormat) -> HTTPException:
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
+        detail=str(exc),
+    )
+
+
+async def cant_react_video_handler(request: Request, exc: CantReactVideo) -> HTTPException:
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
         detail=str(exc),
     )

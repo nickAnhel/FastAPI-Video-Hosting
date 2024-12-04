@@ -10,6 +10,7 @@ from fastapi import (
     status,
 )
 
+from src.videos.schemas import VideoLikesDislikes
 from src.schemas import Status
 
 from src.auth.dependencies import get_current_user
@@ -100,3 +101,51 @@ async def delete_video_by_id(
         user_id=user.id,
     )
     return Status(detail="Video deleted successfully")
+
+
+@router.post("/like")
+async def like_video(
+    video_id: UUID,
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> VideoLikesDislikes:
+    return await video_service.like_video(
+        user_id=user.id,
+        video_id=video_id,
+    )
+
+
+@router.delete("/unlike")
+async def unlike_video(
+    video_id: UUID,
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> VideoLikesDislikes:
+    return await video_service.unlike_video(
+        user_id=user.id,
+        video_id=video_id,
+    )
+
+
+@router.post("/dislike")
+async def dislike_video(
+    video_id: UUID,
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> VideoLikesDislikes:
+    return await video_service.dislike_video(
+        user_id=user.id,
+        video_id=video_id,
+    )
+
+
+@router.delete("/undislike")
+async def undislike_video(
+    video_id: UUID,
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> VideoLikesDislikes:
+    return await video_service.undislike_video(
+        user_id=user.id,
+        video_id=video_id,
+    )

@@ -1,8 +1,13 @@
+import uuid
 from typing import Any, Literal
-from sqlalchemy import select, delete, update, desc
+from sqlalchemy import insert, select, delete, update, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.videos.models import VideoModel
+from src.videos.models import (
+    VideoModel,
+    LikesModel,
+    DislikesModel,
+)
 
 
 class VideoRepository:
@@ -106,3 +111,76 @@ class VideoRepository:
         **filters,
     ) -> VideoModel | None:
         return await self._update_integer_column(-1, column, **filters)
+
+    async def get_likes_and_dislikes(
+        self,
+        **filters,
+    ) -> tuple[int, int]:
+        query = (
+            select(VideoModel.likes, VideoModel.dislikes)
+            .filter_by(**filters)
+        )
+
+        res = await self._async_session.execute(query)
+        likes, dislikes = res.first()  # type: ignore
+        return likes, dislikes
+
+    async def like(
+        self,
+        user_id: uuid.UUID,
+        video_id: uuid.UUID,
+    ) -> None:
+        stmt = (
+            insert(LikesModel)
+            .values((user_id, video_id))
+        )
+
+        await self._async_session.execute(stmt)
+        await self._async_session.commit()
+
+    async def unlike(
+        self,
+        user_id: uuid.UUID,
+        video_id: uuid.UUID,
+    ) -> int:
+        stmt = (
+            delete(LikesModel)
+            .filter_by(
+                user_id=user_id,
+                video_id=video_id,
+            )
+        )
+
+        res = await self._async_session.execute(stmt)
+        await self._async_session.commit()
+        return res.rowcount
+
+    async def dislike(
+        self,
+        user_id: uuid.UUID,
+        video_id: uuid.UUID,
+    ) -> None:
+        stmt = (
+            insert(DislikesModel)
+            .values((user_id, video_id))
+        )
+
+        await self._async_session.execute(stmt)
+        await self._async_session.commit()
+
+    async def undislike(
+        self,
+        user_id: uuid.UUID,
+        video_id: uuid.UUID,
+    ) -> int:
+        stmt = (
+            delete(DislikesModel)
+            .filter_by(
+                user_id=user_id,
+                video_id=video_id,
+            )
+        )
+
+        res = await self._async_session.execute(stmt)
+        await self._async_session.commit()
+        return res.rowcount

@@ -17,3 +17,10 @@ class VideoDataWrongFormat(Exception):
 
     def __init__(self, message="Video data has wrong format"):
         super().__init__(message)
+
+
+class CantReactVideo(Exception):
+    """Raised when user also reacted video in the same way"""
+
+    def __init__(self, message="Can't react on the video"):
+        super().__init__(message)
