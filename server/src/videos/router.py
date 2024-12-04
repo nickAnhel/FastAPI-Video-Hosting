@@ -13,7 +13,7 @@ from fastapi import (
 from src.videos.schemas import VideoLikesDislikes
 from src.schemas import Status
 
-from src.auth.dependencies import get_current_user
+from src.auth.dependencies import get_current_user, get_current_optional_user
 from src.users.schemas import UserGet
 
 from src.videos.schemas import VideoGet, VideoCreate
@@ -84,9 +84,13 @@ async def get_videos(
 @router.get("/")
 async def get_video_by_id(
     video_id: UUID,
+    user: UserGet | None = Depends(get_current_optional_user),
     video_service: VideoService = Depends(get_video_service),
 ) -> VideoGet:
-    return await video_service.get_video(id=video_id)
+    return await video_service.get_video(
+        user=user,
+        id=video_id,
+    )
 
 
 @router.delete("/")
@@ -101,6 +105,35 @@ async def delete_video_by_id(
         user_id=user.id,
     )
     return Status(detail="Video deleted successfully")
+
+
+@router.patch("/add-view")
+async def add_view_to_video(
+    video_id: UUID,
+    video_service: VideoService = Depends(get_video_service),
+) -> VideoGet:
+    return await video_service.increment_views(video_id=video_id)
+
+
+@router.get("/history")
+async def get_watch_history(
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> list[VideoGet]:
+    return await video_service.get_watch_history(user_id=user.id)
+
+
+@router.patch("/history/remove")
+async def remove_video_from_watch_history(
+    video_id: UUID,
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> Status:
+    await video_service.remove_video_from_watch_history(
+        user_id=user.id,
+        video_id=video_id,
+    )
+    return Status(detail="Video successfully removed from watch history")
 
 
 @router.post("/like")

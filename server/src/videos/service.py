@@ -9,6 +9,7 @@ from src.exceptions import PermissionDenied
 
 from src.s3_storage.utils import upload_file, delete_files
 from src.s3_storage.exceptions import CantUploadFileToStorage, CantDeleteFileFromStorage
+from src.users.schemas import UserGet
 
 from src.videos.repository import VideoRepository
 from src.videos.schemas import VideoCreate, VideoGet, VideoLikesDislikes
@@ -83,11 +84,22 @@ class VideoService:
 
     async def get_video(
         self,
+        user: UserGet | None = None,
         **filters,
     ) -> VideoGet:
         video = await self._repository.get_single(**filters)
-        await self._increment(column="views", id=video.id)  # type: ignore
-        return self._check_video_exists(video)
+        video = self._check_video_exists(video)
+
+        if user:
+            try:
+                await self._repository.add_to_watch_history(
+                    user_id=user.id,
+                    video_id=video.id,
+                )
+            except IntegrityError:
+                pass
+
+        return video
 
     async def get_videos(
         self,
@@ -125,6 +137,23 @@ class VideoService:
 
         await self._repository.delete(id=id)
 
+    async def get_watch_history(
+        self,
+        user_id: UUID,
+    ) -> list[VideoGet]:
+        video_models = await self._repository.get_watch_history(user_id=user_id)
+        return [VideoGet.model_validate(v) for v in video_models]
+
+    async def remove_video_from_watch_history(
+        self,
+        user_id: UUID,
+        video_id: UUID,
+    ) -> None:
+        await self._repository.remove_from_watch_history(
+            user_id=user_id,
+            video_id=video_id,
+        )
+
     async def _increment(
         self,
         column: Literal["views", "likes", "dislikes"],
@@ -140,6 +169,12 @@ class VideoService:
     ) -> VideoGet:
         video = await self._repository.decrement(column=column, id=id)
         return self._check_video_exists(video)
+
+    async def increment_views(
+        self,
+        video_id: UUID,
+    ) -> VideoGet:
+        return await self._increment("views", id=video_id)
 
     async def like_video(
         self,

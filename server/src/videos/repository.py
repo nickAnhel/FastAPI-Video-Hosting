@@ -7,6 +7,7 @@ from src.videos.models import (
     VideoModel,
     LikesModel,
     DislikesModel,
+    WatchHistoryModel,
 )
 
 
@@ -69,6 +70,56 @@ class VideoRepository:
         **filters,
     ) -> int:
         stmt = delete(VideoModel).filter_by(**filters)
+        res = await self._async_session.execute(stmt)
+        await self._async_session.commit()
+        return res.rowcount
+
+    async def get_watch_history(
+        self,
+        user_id: uuid.UUID,
+    ) -> list[VideoModel]:
+        history_query = (
+            select(WatchHistoryModel.video_id)
+            .filter_by(user_id=user_id)
+            .cte()
+        )
+
+        query = (
+            select(VideoModel)
+            .join(history_query, VideoModel.id == history_query.c.video_id)
+        )
+
+        res = await self._async_session.execute(query)
+        return list(res.scalars().all())
+
+
+
+    async def add_to_watch_history(
+        self,
+        user_id: uuid.UUID,
+        video_id: uuid.UUID,
+    ) -> None:
+        stmt = (
+            insert(WatchHistoryModel)
+            .values((user_id, video_id))
+        )
+
+        await self._async_session.execute(stmt)
+        await self._async_session.commit()
+
+    async def remove_from_watch_history(
+        self,
+        user_id: uuid.UUID,
+        video_id: uuid.UUID,
+    ) -> int:
+        stmt = (
+            delete(WatchHistoryModel)
+            .filter_by(
+                user_id=user_id,
+                video_id=video_id,
+            )
+        )
+
         res = await self._async_session.execute(stmt)
         await self._async_session.commit()
         return res.rowcount
