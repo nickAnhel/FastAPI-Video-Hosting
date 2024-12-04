@@ -77,10 +77,17 @@ class VideoRepository:
     async def get_watch_history(
         self,
         user_id: uuid.UUID,
+        order: str = "id",
+        order_desc: bool = True,
+        offset: int = 0,
+        limit: int = 100,
     ) -> list[VideoModel]:
         history_query = (
             select(WatchHistoryModel.video_id)
             .filter_by(user_id=user_id)
+            .order_by(desc(order) if order_desc else order)
+            .offset(offset)
+            .limit(limit)
             .cte()
         )
 

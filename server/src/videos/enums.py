@@ -11,3 +11,11 @@ class VideoOrder(str, Enum):
 
     def __str__(self) -> str:
         return self.value
+
+
+class HistoryOrder(str, Enum):
+    ID = "id"
+    WATCHED_AT = "watched_at"
+
+    def __str__(self) -> str:
+        return self.value

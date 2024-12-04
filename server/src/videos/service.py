@@ -14,7 +14,7 @@ from src.users.schemas import UserGet
 from src.videos.repository import VideoRepository
 from src.videos.schemas import VideoCreate, VideoGet, VideoLikesDislikes
 from src.videos.models import VideoModel
-from src.videos.enums import VideoOrder
+from src.videos.enums import VideoOrder, HistoryOrder
 from src.videos.exceptions import (
     VideoNotFound,
     VideoTitleAlreadyExists,
@@ -140,8 +140,18 @@ class VideoService:
     async def get_watch_history(
         self,
         user_id: UUID,
+        order: HistoryOrder = HistoryOrder.WATCHED_AT,  # type: ignore
+        offset: int = 0,
+        desc: bool = False,
+        limit: int = 100,
     ) -> list[VideoGet]:
-        video_models = await self._repository.get_watch_history(user_id=user_id)
+        video_models = await self._repository.get_watch_history(
+            order=order,
+            order_desc=desc,
+            offset=offset,
+            limit=limit,
+            user_id=user_id
+        )
         return [VideoGet.model_validate(v) for v in video_models]
 
     async def remove_video_from_watch_history(

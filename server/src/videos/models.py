@@ -80,3 +80,4 @@ class WatchHistoryModel(Base):
         ForeignKey("videos.id", ondelete="CASCADE"),
         primary_key=True,
     )
+    watched_at: Mapped[datetime] = mapped_column(server_default=func.now())

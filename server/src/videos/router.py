@@ -19,7 +19,7 @@ from src.users.schemas import UserGet
 from src.videos.schemas import VideoGet, VideoCreate
 from src.videos.service import VideoService
 from src.videos.dependencies import get_video_service
-from src.videos.enums import VideoOrder
+from src.videos.enums import VideoOrder, HistoryOrder
 
 
 router = APIRouter(
@@ -117,10 +117,20 @@ async def add_view_to_video(
 
 @router.get("/history")
 async def get_watch_history(
+    order: HistoryOrder = HistoryOrder.WATCHED_AT,  # type: ignore
+    desc: bool = False,
+    offset: int = 0,
+    limit: int = 100,
     user: UserGet = Depends(get_current_user),
     video_service: VideoService = Depends(get_video_service),
 ) -> list[VideoGet]:
-    return await video_service.get_watch_history(user_id=user.id)
+    return await video_service.get_watch_history(
+        user_id=user.id,
+        order=order,
+        desc=desc,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.patch("/history/remove")
