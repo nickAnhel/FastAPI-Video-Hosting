@@ -11,12 +11,18 @@ class VideoCreate(BaseSchema):
     user_id: UUID
 
 
+class VideoAuthor(BaseSchema):
+    id: UUID
+    username: str
+
+
 class VideoGet(VideoCreate):
     id: UUID
     views: int
     likes: int
     dislikes: int
     created_at: datetime
+    user: VideoAuthor
 
 
 class VideoLikesDislikes(BaseSchema):

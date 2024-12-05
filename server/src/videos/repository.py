@@ -1,6 +1,7 @@
 import uuid
 from typing import Any, Literal
 from sqlalchemy import insert, select, delete, update, desc
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.videos.models import (
@@ -43,7 +44,11 @@ class VideoRepository:
         self,
         **filters,
     ) -> VideoModel | None:
-        query = select(VideoModel).filter_by(**filters)
+        query = (
+            select(VideoModel)
+            .filter_by(**filters)
+            .options(selectinload(VideoModel.user))
+        )
         video = await self._async_session.execute(query)
         return video.scalar_one_or_none()
 
@@ -61,6 +66,7 @@ class VideoRepository:
             .order_by(desc(order) if order_desc else order)
             .offset(offset)
             .limit(limit)
+            .options(selectinload(VideoModel.user))
         )
         videos = await self._async_session.execute(query)
         return list(videos.scalars().all())
@@ -94,6 +100,7 @@ class VideoRepository:
         query = (
             select(VideoModel)
             .join(history_query, VideoModel.id == history_query.c.video_id)
+            .options(selectinload(VideoModel.user))
         )
 
         res = await self._async_session.execute(query)
