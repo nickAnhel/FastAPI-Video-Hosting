@@ -54,6 +54,7 @@ class LikesModel(Base):
         ForeignKey("videos.id", ondelete="CASCADE"),
         primary_key=True,
     )
+    liked_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
 class DislikesModel(Base):

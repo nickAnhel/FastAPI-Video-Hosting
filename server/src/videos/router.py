@@ -19,7 +19,7 @@ from src.users.schemas import UserGet
 from src.videos.schemas import VideoGet, VideoCreate
 from src.videos.service import VideoService
 from src.videos.dependencies import get_video_service
-from src.videos.enums import VideoOrder, HistoryOrder
+from src.videos.enums import VideoOrder, HistoryOrder, LikedOrder
 
 
 router = APIRouter(
@@ -144,6 +144,24 @@ async def remove_video_from_watch_history(
         video_id=video_id,
     )
     return Status(detail="Video successfully removed from watch history")
+
+
+@router.get("/liked")
+async def get_liked_videos(
+    order: LikedOrder = LikedOrder.LIKED_AT,  # type: ignore
+    desc: bool = False,
+    offset: int = 0,
+    limit: int = 100,
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> list[VideoGet]:
+    return await video_service.get_liked_videos(
+        user_id=user.id,
+        order=order,
+        desc=desc,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.post("/like")

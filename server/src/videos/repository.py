@@ -106,8 +106,6 @@ class VideoRepository:
         res = await self._async_session.execute(query)
         return list(res.scalars().all())
 
-
-
     async def add_to_watch_history(
         self,
         user_id: uuid.UUID,
@@ -137,6 +135,33 @@ class VideoRepository:
         res = await self._async_session.execute(stmt)
         await self._async_session.commit()
         return res.rowcount
+
+    async def get_liked(
+        self,
+        user_id: uuid.UUID,
+        order: str = "id",
+        order_desc: bool = True,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> list[VideoModel]:
+        liked_query = (
+            select(LikesModel.video_id)
+            .filter_by(user_id=user_id)
+            .order_by(desc(order) if order_desc else order)
+            .offset(offset)
+            .limit(limit)
+            .cte()
+        )
+
+        query = (
+            select(VideoModel)
+            .join(liked_query, VideoModel.id == liked_query.c.video_id)
+            .options(selectinload(VideoModel.user))
+        )
+
+        res = await self._async_session.execute(query)
+        return list(res.scalars().all())
+
 
     async def _update_integer_column(
         self,

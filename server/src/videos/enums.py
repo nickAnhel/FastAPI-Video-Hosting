@@ -19,3 +19,11 @@ class HistoryOrder(str, Enum):
 
     def __str__(self) -> str:
         return self.value
+
+
+class LikedOrder(str, Enum):
+    ID = "id"
+    LIKED_AT = "liked_at"
+
+    def __str__(self) -> str:
+        return self.value
