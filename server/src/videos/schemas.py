@@ -34,3 +34,8 @@ class VideoLikesDislikes(BaseSchema):
 class VideoViews(BaseSchema):
     id: UUID
     views: int
+
+
+class VideoGetWithUserStatus(VideoGet):
+    is_liked: bool
+    is_disliked: bool

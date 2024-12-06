@@ -15,7 +15,7 @@ from src.schemas import Status
 from src.auth.dependencies import get_current_user, get_current_optional_user
 from src.users.schemas import UserGet
 
-from src.videos.schemas import VideoGet, VideoCreate, VideoLikesDislikes, VideoViews
+from src.videos.schemas import VideoGet, VideoCreate, VideoLikesDislikes, VideoViews, VideoGetWithUserStatus
 from src.videos.service import VideoService
 from src.videos.dependencies import get_video_service
 from src.videos.enums import VideoOrder, HistoryOrder, LikedOrder
@@ -85,7 +85,7 @@ async def get_video_by_id(
     video_id: UUID,
     user: UserGet | None = Depends(get_current_optional_user),
     video_service: VideoService = Depends(get_video_service),
-) -> VideoGet:
+) -> VideoGet | VideoGetWithUserStatus:
     return await video_service.get_video(
         user=user,
         id=video_id,

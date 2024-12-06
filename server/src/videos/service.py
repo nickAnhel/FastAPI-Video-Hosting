@@ -12,7 +12,7 @@ from src.s3_storage.exceptions import CantUploadFileToStorage, CantDeleteFileFro
 from src.users.schemas import UserGet
 
 from src.videos.repository import VideoRepository
-from src.videos.schemas import VideoCreate, VideoGet, VideoLikesDislikes, VideoViews
+from src.videos.schemas import VideoCreate, VideoGet, VideoLikesDislikes, VideoViews, VideoGetWithUserStatus
 from src.videos.models import VideoModel
 from src.videos.enums import VideoOrder, HistoryOrder, LikedOrder
 from src.videos.exceptions import VideoNotFound, VideoTitleAlreadyExists, VideoDataWrongFormat, CantReactVideo
@@ -81,11 +81,15 @@ class VideoService:
         self,
         user: UserGet | None = None,
         **filters,
-    ) -> VideoGet:
+) -> VideoGet | VideoGetWithUserStatus:
         video = await self._repository.get_single(**filters)
         video = self._check_video_exists(video)
 
         if user:
+            is_liked = await self._repository.is_liked(user_id=user.id, video_id=video.id)
+            is_disliked = await self._repository.is_disliked(user_id=user.id, video_id=video.id)
+            print(is_liked, is_disliked)
+
             try:
                 await self._repository.add_to_watch_history(
                     user_id=user.id,
@@ -93,6 +97,13 @@ class VideoService:
                 )
             except IntegrityError:
                 pass
+
+            return VideoGetWithUserStatus(
+                **video.model_dump(),
+                is_liked=is_liked,
+                is_disliked=is_disliked,
+            )
+
 
         return video
 

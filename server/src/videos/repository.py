@@ -275,3 +275,35 @@ class VideoRepository:
         res = await self._async_session.execute(stmt)
         await self._async_session.commit()
         return res.rowcount
+
+    async def is_liked(
+        self,
+        user_id: uuid.UUID,
+        video_id: uuid.UUID,
+    ) -> bool:
+        query = (
+            select(LikesModel)
+            .filter_by(
+                user_id=user_id,
+                video_id=video_id,
+            )
+        )
+
+        res = await self._async_session.execute(query)
+        return len(res.scalars().all()) == 1
+
+    async def is_disliked(
+        self,
+        user_id: uuid.UUID,
+        video_id: uuid.UUID,
+    ) -> bool:
+        query = (
+            select(DislikesModel)
+            .filter_by(
+                user_id=user_id,
+                video_id=video_id,
+            )
+        )
+
+        res = await self._async_session.execute(query)
+        return len(res.scalars().all()) == 1
