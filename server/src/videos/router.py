@@ -145,6 +145,17 @@ async def remove_video_from_watch_history(
     return Status(detail="Video successfully removed from watch history")
 
 
+@router.delete("/history/clear")
+async def clear_watch_history(
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> Status:
+    await video_service.clear_watch_history(
+        user_id=user.id,
+    )
+    return Status(detail="Watch history successfully cleared")
+
+
 @router.get("/liked")
 async def get_liked_videos(
     order: LikedOrder = LikedOrder.LIKED_AT,  # type: ignore

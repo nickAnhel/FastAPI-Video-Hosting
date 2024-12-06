@@ -2,10 +2,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
 
 from src.schemas import Status
-from src.auth.dependencies import get_current_user, get_current_user_with_subscriptions, get_current_optional_user
+from src.auth.dependencies import get_current_user, get_current_optional_user, get_current_user_with_profile
 from src.users.dependencies import get_user_service
 from src.users.service import UserService
-from src.users.schemas import UserCreate, UserUpdate, UserGet, UserGetWithProfile, UserGetWithSubscriptions
+from src.users.schemas import UserCreate, UserUpdate, UserGet, UserGetWithProfile
 from src.users.enums import UserOrder
 
 
@@ -25,8 +25,8 @@ async def create_user(
 
 @router.get("/me")
 async def get_current_user_info(
-    user: UserGetWithSubscriptions = Depends(get_current_user_with_subscriptions),
-) -> UserGetWithSubscriptions:
+    user: UserGetWithProfile = Depends(get_current_user_with_profile),
+) -> UserGetWithProfile:
     return user
 
 

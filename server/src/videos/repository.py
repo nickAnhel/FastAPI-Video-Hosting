@@ -136,6 +136,17 @@ class VideoRepository:
         await self._async_session.commit()
         return res.rowcount
 
+    async def clear_history(
+        self,
+        user_id: uuid.UUID,
+    ) -> None:
+        stmt = (
+            delete(WatchHistoryModel)
+            .filter_by(user_id=user_id)
+        )
+        await self._async_session.execute(stmt)
+        await self._async_session.commit()
+
     async def get_liked(
         self,
         user_id: uuid.UUID,

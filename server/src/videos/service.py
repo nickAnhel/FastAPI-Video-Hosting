@@ -166,6 +166,12 @@ class VideoService:
             video_id=video_id,
         )
 
+    async def clear_watch_history(
+        self,
+        user_id: UUID,
+    ) -> None:
+        await self._repository.clear_history(user_id=user_id)
+
     async def get_liked_videos(
         self,
         user_id: UUID,
