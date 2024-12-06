@@ -175,7 +175,7 @@ async def like_video(
     )
 
 
-@router.delete("/unlike")
+@router.delete("/like")
 async def unlike_video(
     video_id: UUID,
     user: UserGet = Depends(get_current_user),
@@ -199,7 +199,7 @@ async def dislike_video(
     )
 
 
-@router.delete("/undislike")
+@router.delete("/dislike")
 async def undislike_video(
     video_id: UUID,
     user: UserGet = Depends(get_current_user),
