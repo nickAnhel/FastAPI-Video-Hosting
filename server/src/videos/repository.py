@@ -182,6 +182,7 @@ class VideoRepository:
             .filter_by(**filters)
             .values({column: col + shift})
             .returning(VideoModel)
+            .options(selectinload(VideoModel.user))
         )
         video = await self._async_session.execute(stmt)
         await self._async_session.commit()
@@ -202,18 +203,18 @@ class VideoRepository:
     ) -> VideoModel | None:
         return await self._update_integer_column(-1, column, **filters)
 
-    async def get_likes_and_dislikes(
+    async def get_stats(
         self,
         **filters,
-    ) -> tuple[int, int]:
+    ) -> tuple[int, int, int]:
         query = (
-            select(VideoModel.likes, VideoModel.dislikes)
+            select(VideoModel.likes, VideoModel.dislikes, VideoModel.views)
             .filter_by(**filters)
         )
 
         res = await self._async_session.execute(query)
-        likes, dislikes = res.first()  # type: ignore
-        return likes, dislikes
+        likes, dislikes, views = res.first()  # type: ignore
+        return likes, dislikes, views
 
     async def like(
         self,

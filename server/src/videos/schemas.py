@@ -29,3 +29,8 @@ class VideoLikesDislikes(BaseSchema):
     id: UUID
     likes: int = Field(ge=0)
     dislikes: int = Field(ge=0)
+
+
+class VideoViews(BaseSchema):
+    id: UUID
+    views: int

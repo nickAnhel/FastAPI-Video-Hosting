@@ -12,15 +12,10 @@ from src.s3_storage.exceptions import CantUploadFileToStorage, CantDeleteFileFro
 from src.users.schemas import UserGet
 
 from src.videos.repository import VideoRepository
-from src.videos.schemas import VideoCreate, VideoGet, VideoLikesDislikes
+from src.videos.schemas import VideoCreate, VideoGet, VideoLikesDislikes, VideoViews
 from src.videos.models import VideoModel
 from src.videos.enums import VideoOrder, HistoryOrder, LikedOrder
-from src.videos.exceptions import (
-    VideoNotFound,
-    VideoTitleAlreadyExists,
-    VideoDataWrongFormat,
-    CantReactVideo
-)
+from src.videos.exceptions import VideoNotFound, VideoTitleAlreadyExists, VideoDataWrongFormat, CantReactVideo
 
 
 class VideoService:
@@ -146,11 +141,7 @@ class VideoService:
         limit: int = 100,
     ) -> list[VideoGet]:
         video_models = await self._repository.get_watch_history(
-            order=order,
-            order_desc=desc,
-            offset=offset,
-            limit=limit,
-            user_id=user_id
+            order=order, order_desc=desc, offset=offset, limit=limit, user_id=user_id
         )
         return [VideoGet.model_validate(v) for v in video_models]
 
@@ -173,11 +164,7 @@ class VideoService:
         limit: int = 100,
     ) -> list[VideoGet]:
         video_models = await self._repository.get_liked(
-            order=order,
-            order_desc=desc,
-            offset=offset,
-            limit=limit,
-            user_id=user_id
+            order=order, order_desc=desc, offset=offset, limit=limit, user_id=user_id
         )
         return [VideoGet.model_validate(v) for v in video_models]
 
@@ -200,8 +187,9 @@ class VideoService:
     async def increment_views(
         self,
         video_id: UUID,
-    ) -> VideoGet:
-        return await self._increment("views", id=video_id)
+    ) -> VideoViews:
+        await self._increment("views", id=video_id)
+        return await self.get_views(video_id=video_id)
 
     async def like_video(
         self,
@@ -215,11 +203,21 @@ class VideoService:
 
         await self._repository.increment("likes", id=video_id)
         await self.undislike_video(video_id=video_id, user_id=user_id)
-        likes, dislikes = await self._repository.get_likes_and_dislikes(id=video_id)
+        likes, dislikes, _ = await self._repository.get_stats(id=video_id)
         return VideoLikesDislikes(
             id=video_id,
             likes=likes,
             dislikes=dislikes,
+        )
+
+    async def get_views(
+        self,
+        video_id: UUID,
+    ) -> VideoViews:
+        _, _, views = await self._repository.get_stats(id=video_id)
+        return VideoViews(
+            id=video_id,
+            views=views,
         )
 
     async def unlike_video(
@@ -230,7 +228,7 @@ class VideoService:
         if await self._repository.unlike(user_id=user_id, video_id=video_id) == 1:
             await self._repository.decrement("likes", id=video_id)
 
-        likes, dislikes = await self._repository.get_likes_and_dislikes(id=video_id)
+        likes, dislikes, _ = await self._repository.get_stats(id=video_id)
         return VideoLikesDislikes(
             id=video_id,
             likes=likes,
@@ -249,7 +247,7 @@ class VideoService:
 
         await self._repository.increment("dislikes", id=video_id)
         await self.unlike_video(video_id=video_id, user_id=user_id)
-        likes, dislikes = await self._repository.get_likes_and_dislikes(id=video_id)
+        likes, dislikes, _ = await self._repository.get_stats(id=video_id)
         return VideoLikesDislikes(
             id=video_id,
             likes=likes,
@@ -264,7 +262,7 @@ class VideoService:
         if await self._repository.undislike(user_id=user_id, video_id=video_id) == 1:
             await self._repository.decrement("dislikes", id=video_id)
 
-        likes, dislikes = await self._repository.get_likes_and_dislikes(id=video_id)
+        likes, dislikes, _ = await self._repository.get_stats(id=video_id)
         return VideoLikesDislikes(
             id=video_id,
             likes=likes,
