@@ -1,7 +1,9 @@
 import uuid
+import datetime
 from typing import Any, Literal
 from sqlalchemy import insert, select, delete, update, desc
 from sqlalchemy.orm import selectinload
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.videos.models import (
@@ -112,12 +114,17 @@ class VideoRepository:
         video_id: uuid.UUID,
     ) -> None:
         stmt = (
-            insert(WatchHistoryModel)
+            pg_insert(WatchHistoryModel)
             .values((user_id, video_id))
+            .on_conflict_do_update(
+                index_elements=["video_id", "user_id"],
+                set_=dict(watched_at=datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None))
+            )
         )
 
         await self._async_session.execute(stmt)
         await self._async_session.commit()
+
 
     async def remove_from_watch_history(
         self,
@@ -143,6 +150,19 @@ class VideoRepository:
         stmt = (
             delete(WatchHistoryModel)
             .filter_by(user_id=user_id)
+        )
+        await self._async_session.execute(stmt)
+        await self._async_session.commit()
+
+    async def update_watched_at(
+        self,
+        video_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> None:
+        stmt = (
+            update(WatchHistoryModel)
+            .filter_by(video_id=video_id, user_id=user_id)
+            .values(watched_at=datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None))
         )
         await self._async_session.execute(stmt)
         await self._async_session.commit()

@@ -88,7 +88,6 @@ class VideoService:
         if user:
             is_liked = await self._repository.is_liked(user_id=user.id, video_id=video.id)
             is_disliked = await self._repository.is_disliked(user_id=user.id, video_id=video.id)
-            print(is_liked, is_disliked)
 
             try:
                 await self._repository.add_to_watch_history(
