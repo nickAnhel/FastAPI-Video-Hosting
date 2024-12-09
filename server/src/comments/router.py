@@ -31,6 +31,7 @@ async def create_comment(
 async def get_comments(
     video_id: UUID,
     order: CommentOrder = CommentOrder.ID,
+    desc: bool = True,
     offset: int = 0,
     limit: int = 100,
     comment_service: CommentService = Depends(get_comment_service),
@@ -38,6 +39,7 @@ async def get_comments(
     return await comment_service.get_comments(
         video_id=video_id,
         order=order,
+        desc=desc,
         offset=offset,
         limit=limit,
     )

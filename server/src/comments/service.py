@@ -32,12 +32,14 @@ class CommentService:
         self,
         video_id: UUID,
         order: CommentOrder = CommentOrder.ID,  # type: ignore
+        desc: bool = True,
         offset: int = 0,
         limit: int = 100,
     ) -> list[CommentGet]:
         comments = await self._repository.get_multi(
             order=order,
             offset=offset,
+            order_desc=desc,
             limit=limit,
             video_id=video_id,
         )

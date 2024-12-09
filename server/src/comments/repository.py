@@ -1,5 +1,5 @@
 from typing import Any
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -40,6 +40,7 @@ class CommentRepository:
     async def get_multi(
         self,
         order: CommentOrder = CommentOrder.ID,  # type: ignore
+        order_desc: bool = True,
         offset: int = 0,
         limit: int = 100,
         **filters,
@@ -47,7 +48,7 @@ class CommentRepository:
         query = (
             select(CommentModel)
             .filter_by(**filters)
-            .order_by(order)
+            .order_by(desc(order) if order_desc else order)
             .offset(offset)
             .limit(limit)
             .options(selectinload(CommentModel.user))

@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from src.schemas import Status
 from src.auth.dependencies import get_current_user, get_current_optional_user, get_current_user_with_profile
@@ -58,14 +58,10 @@ async def get_user_by_id(
 
 @router.delete("/")
 async def delete_user(
-    request: Request,
     user: UserGet = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
 ) -> Status:
-    await user_service.delete_user(
-        token=request.headers.get("Authorization").replace("Bearer ", ""),  # type: ignore
-        user_id=user.id,
-    )
+    await user_service.delete_user(user_id=user.id)
     return Status(detail="User deleted successfully")
 
 

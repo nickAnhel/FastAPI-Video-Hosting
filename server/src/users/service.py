@@ -222,7 +222,6 @@ class UserService:
 
     async def delete_user(
         self,
-        token: str,
         user_id: UUID,
     ) -> None:
         """Delete user by filters (username, email or id)."""
