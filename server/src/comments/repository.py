@@ -1,5 +1,5 @@
 from typing import Any
-from sqlalchemy import select, delete, desc
+from sqlalchemy import insert, select, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -15,13 +15,16 @@ class CommentRepository:
         self,
         data: dict[str, Any],
     ) -> CommentModel:
-        comment = CommentModel(**data)
-        self._async_session.add(comment)
+        stmt = (
+            insert(CommentModel)
+            .values(data)
+            .returning(CommentModel)
+            .options(selectinload(CommentModel.user))
+        )
 
+        res = await self._async_session.execute(stmt)
         await self._async_session.commit()
-        await self._async_session.refresh(comment)
-
-        return comment
+        return res.scalar_one()
 
     async def get_single(
         self,
