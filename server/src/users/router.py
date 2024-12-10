@@ -30,6 +30,20 @@ async def get_current_user_info(
     return user
 
 
+@router.get("/subscriptions")
+async def get_subscriptions(
+    user_id: UUID,
+    offset: int = 0,
+    limit: int = 100,
+    user_service: UserService = Depends(get_user_service),
+) -> list[UserGet]:
+    return await user_service.get_subscriptions(
+        user_id=user_id,
+        offset=offset,
+        limit=limit,
+    )
+
+
 @router.get("/list")
 async def get_users(
     order: UserOrder = UserOrder.ID,

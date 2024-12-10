@@ -263,3 +263,17 @@ class UserService:
             raise UserNotInSubscriptions(
                 f"User with id {subscriber_id} not found in subscribers of {user_id}"
             ) from exc
+
+    async def get_subscriptions(
+        self,
+        user_id: UUID,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> list[UserGet]:
+        try:
+            users = await self._repository.get_subscriptions(user_id=user_id)
+        except NoResultFound as exc:
+            raise UserNotFound(f"User with id {user_id} not found") from exc
+
+        users = users[offset:offset + limit]
+        return [UserGet.model_validate(user) for user in users]

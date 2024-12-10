@@ -103,3 +103,17 @@ class UserRepository:
         user.subscribers.remove(subscriber)
         user.subscribers_count -= 1
         await self.async_session.commit()
+
+    async def get_subscriptions(
+        self,
+        user_id: UUID,
+    ) -> list[UserModel]:
+        query = (
+            select(UserModel)
+            .filter_by(id=user_id)
+            .options(selectinload(UserModel.subscribed))
+        )
+
+        res = await self.async_session.execute(query)
+        user = res.scalar_one()
+        return user.subscribed
