@@ -275,5 +275,14 @@ class UserService:
         except NoResultFound as exc:
             raise UserNotFound(f"User with id {user_id} not found") from exc
 
-        users = users[offset:offset + limit]
-        return [UserGet.model_validate(user) for user in users]
+        users = users[offset : offset + limit]
+        return [
+            UserGet(
+                id=user.id,
+                username=user.username,
+                email=user.email,
+                subscribers_count=user.subscribers_count,
+                is_subscribed=True,
+            )
+            for user in users
+        ]
