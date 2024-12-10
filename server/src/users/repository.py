@@ -4,7 +4,7 @@ from sqlalchemy import select, update, delete, desc
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.users.models import UserModel
+from src.users.models import UserModel, UserSubscription
 
 
 class UserRepository:
@@ -108,12 +108,17 @@ class UserRepository:
         self,
         user_id: UUID,
     ) -> list[UserModel]:
+        subs_query = (
+            select(UserSubscription.subscribed_id)
+            .filter_by(subscriber_id=user_id)
+            .cte()
+        )
+
         query = (
             select(UserModel)
-            .filter_by(id=user_id)
-            .options(selectinload(UserModel.subscribed))
+            .join(subs_query, UserModel.id == subs_query.c.subscribed_id)
+            .options(selectinload(UserModel.subscribers))
         )
 
         res = await self.async_session.execute(query)
-        user = res.scalar_one()
-        return user.subscribed
+        return list(res.scalars().all())

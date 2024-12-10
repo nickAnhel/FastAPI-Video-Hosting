@@ -280,6 +280,7 @@ class UserService:
     async def get_subscriptions(
         self,
         user_id: UUID,
+        curr_user: UserGet | None = None,
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserGet]:
@@ -295,7 +296,7 @@ class UserService:
                 username=user.username,
                 email=user.email,
                 subscribers_count=user.subscribers_count,
-                is_subscribed=True,
+                is_subscribed=(curr_user and (curr_user.id in [u.id for u in user.subscribers])),
             )
             for user in users
         ]

@@ -35,9 +35,11 @@ async def get_subscriptions(
     user_id: UUID,
     offset: int = 0,
     limit: int = 100,
+    user: UserGet | None = Depends(get_current_optional_user),
     user_service: UserService = Depends(get_user_service),
 ) -> list[UserGet]:
     return await user_service.get_subscriptions(
+        curr_user=user,
         user_id=user_id,
         offset=offset,
         limit=limit,
