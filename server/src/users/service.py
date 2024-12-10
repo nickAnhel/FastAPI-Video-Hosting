@@ -59,6 +59,7 @@ class UserService:
 
     async def get_user(
         self,
+        curr_user: UserGet | None = None,
         include_password: bool = False,
         include_profile: bool = False,
         include_subscriptions: bool = False,
@@ -67,6 +68,18 @@ class UserService:
         """Get user by filters (username, email or id)."""
         try:
             user = await self._repository.get_single(**filters)
+
+            if curr_user:
+                return UserGetWithProfile(
+                    id=user.id,
+                    username=user.username,
+                    email=user.email,
+                    subscribers_count=user.subscribers_count,
+                    about=user.about,
+                    social_links=user.social_links,
+                    is_subscribed=(curr_user.id in [u.id for u in user.subscribers])
+                )
+
         except NoResultFound as exc:
             raise UserNotFound(f"User with filters {filters} not found") from exc
 

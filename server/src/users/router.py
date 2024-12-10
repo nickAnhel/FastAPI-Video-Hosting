@@ -65,9 +65,10 @@ async def get_users(
 @router.get("/")
 async def get_user_by_id(
     id: UUID,
+    user: UserGet | None = Depends(get_current_optional_user),
     user_service: UserService = Depends(get_user_service),
 ) -> UserGetWithProfile:
-    return await user_service.get_user(include_profile=True, id=id)  # type: ignore
+    return await user_service.get_user(curr_user=user, include_profile=True, id=id)  # type: ignore
 
 
 @router.delete("/")
