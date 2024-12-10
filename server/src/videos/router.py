@@ -70,9 +70,11 @@ async def get_videos(
     desc: bool = False,
     offset: int = 0,
     limit: int = 100,
+    user_id: UUID | None = None,
     video_service: VideoService = Depends(get_video_service),
 ) -> list[VideoGet]:
     return await video_service.get_videos(
+        user_id=user_id,
         order=order,
         desc=desc,
         offset=offset,
