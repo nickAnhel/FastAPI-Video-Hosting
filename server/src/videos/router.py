@@ -220,3 +220,21 @@ async def undislike_video(
         user_id=user.id,
         video_id=video_id,
     )
+
+
+@router.get("/subscriptions")
+async def get_subscriptions(
+    order: VideoOrder = VideoOrder.ID,  # type: ignore
+    desc: bool = False,
+    offset: int = 0,
+    limit: int = 100,
+    user: UserGet = Depends(get_current_user),
+    video_service: VideoService = Depends(get_video_service),
+) -> list[VideoGet]:
+    return await video_service.get_subscriptions(
+        user_id=user.id,
+        order=order,
+        desc=desc,
+        offset=offset,
+        limit=limit,
+    )

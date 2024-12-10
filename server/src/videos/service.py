@@ -81,7 +81,7 @@ class VideoService:
         self,
         user: UserGet | None = None,
         **filters,
-) -> VideoGet | VideoGetWithUserStatus:
+    ) -> VideoGet | VideoGetWithUserStatus:
         video = await self._repository.get_single(**filters)
         video = self._check_video_exists(video)
 
@@ -102,7 +102,6 @@ class VideoService:
                 is_liked=is_liked,
                 is_disliked=is_disliked,
             )
-
 
         return video
 
@@ -284,6 +283,24 @@ class VideoService:
             likes=likes,
             dislikes=dislikes,
         )
+
+    async def get_subscriptions(
+        self,
+        user_id: UUID,
+        order: VideoOrder = VideoOrder.ID,  # type: ignore
+        offset: int = 0,
+        desc: bool = False,
+        limit: int = 100,
+    ) -> list[VideoGet]:
+        videos = await self._repository.get_subscriptions(
+            user_id=user_id,
+            order=order,
+            order_desc=desc,
+            offset=offset,
+            limit=limit,
+        )
+
+        return [VideoGet.model_validate(video) for video in videos]
 
     def _check_video_exists(self, video: VideoModel | None) -> VideoGet:
         if not video:

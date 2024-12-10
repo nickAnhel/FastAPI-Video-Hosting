@@ -6,6 +6,8 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.users.models import UserSubscription
+
 from src.videos.models import (
     VideoModel,
     LikesModel,
@@ -338,3 +340,29 @@ class VideoRepository:
 
         res = await self._async_session.execute(query)
         return len(res.scalars().all()) == 1
+
+    async def get_subscriptions(
+        self,
+        user_id: uuid.UUID,
+        order: str = "id",
+        order_desc: bool = True,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> list[VideoModel]:
+        subs_query = (
+            select(UserSubscription.subscribed_id)
+            .filter_by(subscriber_id=user_id)
+            .cte()
+        )
+
+        query = (
+            select(VideoModel)
+            .join(subs_query, VideoModel.user_id == subs_query.c.subscribed_id)
+            .order_by(desc(order) if order_desc else order)
+            .offset(offset)
+            .limit(limit)
+            .options(selectinload(VideoModel.user))
+        )
+
+        res = await self._async_session.execute(query)
+        return list(res.scalars().all())
