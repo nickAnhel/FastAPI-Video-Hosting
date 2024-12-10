@@ -24,13 +24,16 @@ class VideoRepository:
         self,
         data: dict[str, Any],
     ) -> VideoModel:
-        video = VideoModel(**data)
+        stmt = (
+            insert(VideoModel)
+            .values(data)
+            .returning(VideoModel)
+            .options(selectinload(VideoModel.user))
+        )
 
-        self._async_session.add(video)
+        res = await self._async_session.execute(stmt)
         await self._async_session.commit()
-        await self._async_session.refresh(video)
-
-        return video
+        return res.scalar_one()
 
     async def search(
         self,
