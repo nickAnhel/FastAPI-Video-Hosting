@@ -1,5 +1,5 @@
 import { useEffect, useContext, createContext } from 'react'
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet, useParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import './App.css'
 
@@ -17,10 +17,17 @@ import NotFound from './components/NotFound/NotFound';
 import InWork from './components/InWork/InWork';
 import Loader from "./components/Loader/Loader";
 import Alerts from './components/Alerts/Alerts';
+import VideoDetails from './components/VideoDetails/VideoDetails';
+import Subscriptions from './components/Subscriptions/Subscriptions';
+import ChannelDetails from './components/ChannelDetails/ChannelDetails';
+import CreateVideo from './components/CreateVideo/CreateVideo';
 
 import Main from './pages/Main/Main';
 import Trending from './pages/Trending/Trending';
 import Channels from './pages/Channels/Channels';
+import History from './pages/History/History';
+import Liked from './pages/LIked/Liked';
+import SubscriptionsList from './pages/SubscriptionsList/SubscriptionsList';
 
 
 export const AlertsContext = createContext(null);
@@ -62,28 +69,30 @@ const router = createBrowserRouter([
                         element: <Channels />
                     },
                     {
-                        path: "/channels",
-                        element: <InWork />
-                    },
-                    {
                         path: "/subscriptions",
-                        element: <InWork />
+                        element: <Outlet />,
+                        children: [
+                            {
+                                path: "/subscriptions/",
+                                element: <Subscriptions />
+                            },
+                            {
+                                path: "/subscriptions/list",
+                                element: <SubscriptionsList />
+                            }
+                        ]
                     },
                     {
                         path: "/history",
-                        element: <InWork />
+                        element: <History />
                     },
                     {
                         path: "/playlists",
                         element: <InWork />
                     },
                     {
-                        path: "/watch-later",
-                        element: <InWork />
-                    },
-                    {
                         path: "/liked-videos",
-                        element: <InWork />
+                        element: <Liked />
                     },
                 ]
             },
@@ -108,6 +117,18 @@ const router = createBrowserRouter([
                         element: <Settings />,
                     },
                 ]
+            },
+            {
+                path: "/create",
+                element: <CreateVideo />,
+            },
+            {
+                path: "/videos/:id",
+                element: <VideoDetails />,
+            },
+            {
+                path: "/channels/:id",
+                element: <ChannelDetails />,
             },
         ]
     }

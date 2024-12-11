@@ -1,0 +1,16 @@
+.subcriptions {
+    width: calc(80% - 1rem);
+    height: calc(100vh - 6rem);
+    padding-left: 1rem;
+    overflow-y: auto;
+}
+
+.subcriptions::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+
+.subcriptions::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}

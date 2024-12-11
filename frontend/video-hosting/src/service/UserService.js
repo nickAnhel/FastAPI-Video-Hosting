@@ -6,6 +6,10 @@ export default class UserService {
         return api.get("/users/me");
     }
 
+    static async getUserById(userId) {
+        return api.get("/users/", { params: {id: userId} });
+    }
+
     static async updateMe(data) {
         return api.put("/users/", data);
     }
@@ -36,5 +40,12 @@ export default class UserService {
 
     static async unsubscribFromuser(userId) {
         return api.delete(`/users/unsubscribe?user_id=${userId}`);
+    }
+
+    static async getSubsctiptions(params) {
+        return api.get(
+            "/users/subscriptions",
+            { params }
+        );
     }
 }

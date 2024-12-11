@@ -1,0 +1,49 @@
+.comment-item-list {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.comment-item-list .comment-author-photo {
+    height: 3rem;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 3rem;
+}
+
+.comment-item-list .comment-data {
+    width: 100%;
+}
+
+.comment-item-list .comment-header {
+    display: flex;
+    align-items: flex-end;
+    gap: .5rem;
+}
+
+.comment-item-list .comment-date {
+    color: #7e7e7e;
+    font-size: .9rem;
+}
+
+.comment-item-list .comment-author-username {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.comment-item-list .comment-content {
+    font-size: 1.2rem;
+}
+
+.comment-item-list .comment-delete {
+    cursor: pointer;
+    transition: all .2s;
+    margin: auto;
+}
+
+.comment-item-list .comment-delete:hover {
+    opacity: .8;
+}

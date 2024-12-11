@@ -1,0 +1,12 @@
+.channel-item-row img.channel {
+    height: 4rem;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 3rem;
+    background-color: #474747;
+    transition: all .2s;
+}
+
+.channel-item-row img.channel:hover {
+    opacity: .8;
+}

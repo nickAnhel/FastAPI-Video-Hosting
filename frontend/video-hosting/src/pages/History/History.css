@@ -1,0 +1,34 @@
+.history-page {
+    width: 80%;
+    overflow-y: auto;
+    position: relative;
+}
+
+.history-page::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+
+.history-page::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}
+
+.history-page .clear {
+    position: absolute;
+    top: 0;
+    right: 5rem;
+    width: 6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 0;
+    background-color: #474747;
+    color: #b1b1b1;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}
+
+.history-page .clear:focus {
+    outline: none;
+}

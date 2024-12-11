@@ -8,7 +8,6 @@ export default class AuthService {
 
     static async login(username, password) {
         return api.post("/auth/token", `grand_type=password&username=${username}&password=${password}`)
-        // .then(res => res.data);
     }
 
     static async logout() {

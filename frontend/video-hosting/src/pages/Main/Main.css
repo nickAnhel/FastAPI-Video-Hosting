@@ -1,0 +1,14 @@
+.main-page {
+    width: 80%;
+    overflow-y: auto;
+}
+
+.main-page::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+
+.main-page::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}

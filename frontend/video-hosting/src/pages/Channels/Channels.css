@@ -1,0 +1,15 @@
+.channels-page {
+    height: calc(100vh - 6rem);
+    width: 80%;
+    overflow-y: auto;
+}
+
+.channels-page::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+
+.channels-page::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}

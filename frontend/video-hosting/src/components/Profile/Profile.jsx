@@ -46,7 +46,7 @@ function Profile() {
         setUsername(store.user.username);
         setAbout(store.user.about);
         setSocialLinks(store.user.social_links);
-    }, [store.user.social_links]);
+    }, []);
 
     const handleLinkChange = (index, event) => {
         const newLinks = [...socialLinks];

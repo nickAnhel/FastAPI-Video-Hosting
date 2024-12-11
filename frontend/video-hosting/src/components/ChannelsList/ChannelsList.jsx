@@ -61,12 +61,17 @@ function ChannelsList({ fetchChannels, filters }) {
         <div className="channels-list">
             <div className="channels">
                 {
+                    channels.length != 0 ?
                     channels.map((channel, index) => {
                         if (index + 1 == channels.length) {
                             return <ChannelItemList key={channel.id} channel={channel} ref={lastItem} />
                         }
                         return <ChannelItemList key={channel.id} channel={channel} />
                     })
+                    :
+                    <p>
+                        No channels
+                    </p>
                 }
             </div>
 

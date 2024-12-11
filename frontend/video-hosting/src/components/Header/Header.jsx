@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { observer } from "mobx-react-lite";
 import { Link } from "react-router-dom";
 import "./Header.css"
@@ -10,7 +10,11 @@ import Search from "../Search/Search";
 function Header() {
     const { store } = useContext(Context);
 
-    const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PPs@${store.user.id}?${performance.now()}`);
+    const [imgSrc, setImgSrc] = useState();
+
+    useEffect(() => {
+        setImgSrc(`${import.meta.env.VITE_STORAGE_URL}PPs@${store.user.id}?${performance.now()}`);
+    }, [store.user?.id])
 
     return (
         <div className="header">
@@ -27,7 +31,9 @@ function Header() {
                     store.isAuthenticated
                         ?
                         <>
-                            <img src="../../../../assets/create.svg" alt="Create Video" />
+                            <Link to="/create">
+                                <img src="../../../../assets/create.svg" alt="Create Video" />
+                            </Link>
                             <img src="../../../../assets/notifications.svg" alt="Notifications" />
                             <Link to="/me/profile">
                                 <img

@@ -36,10 +36,6 @@ function Sidebar() {
                 <img src="../../../../assets/playlists.svg" alt="Main" />
                 <div>Playlists</div>
             </NavLink>
-            <NavLink to="/watch-later" className="item">
-                <img src="../../../../assets/watch-later.svg" alt="Main" />
-                <div>Watch Later</div>
-            </NavLink>
             <NavLink to="/liked-videos" className="item">
                 <img src="../../../../assets/liked-videos.svg" alt="Main" />
                 <div>Liked Videos</div>

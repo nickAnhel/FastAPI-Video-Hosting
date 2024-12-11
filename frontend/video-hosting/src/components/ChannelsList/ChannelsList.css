@@ -1,20 +1,9 @@
 .channels-list {
-    width: 80%;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     gap: 1rem;
     box-sizing: border-box;
-}
-
-.channels-list::-webkit-scrollbar {
-    width: 0.3rem;
-    background: transparent;
-}
-
-.channels-list::-webkit-scrollbar-thumb {
-    background-color: #7e7e7e;
-    border-radius: 1rem;
 }
 
 .channels-list .channels {
@@ -23,6 +12,11 @@
     gap: 1rem;
     flex-direction: column;
     align-items: center;
+}
+
+.channels-list p {
+    color: #7e7e7e;
+    font-size: 1.2rem;
 }
 
 .channels-list .loader {

@@ -1,4 +1,5 @@
 import { useState, useContext, forwardRef } from "react";
+import { Link } from "react-router-dom";
 import "./ChannelItemList.css"
 
 import { Context } from "../../main";
@@ -66,7 +67,7 @@ const ChannelItemList = forwardRef((props, ref) => {
     }
 
     return (
-        <div className="channel-item-list" ref={ref}>
+        <Link className="channel-item-list" ref={ref} to={`/channels/${props.channel.id}`}>
             <div className="left">
                 <img
                     className="channel-photo"
@@ -81,26 +82,35 @@ const ChannelItemList = forwardRef((props, ref) => {
             </div>
             <div className="right">
                 {
+
                     isSubscribed ?
                         <button
                             className="btn unsubscribe"
-                            onClick={handleUnsubscribe}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleUnsubscribe();
+                            }}
+                            disabled={!store.isAuthenticated}
                         >
                             {isLoading ? <Loader /> : "Unsubscribe"}
                         </button>
                         :
                         <button
                             className="btn"
-                            onClick={handleSubscribe}
-                            disabled={!store.isAuthenticated}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleSubscribe();
+                            }}
+                            disabled={!store.isAuthenticated || store.user.id == props.channel.id}
                         >
                             {isLoading ? <Loader /> : "Subscribe"}
                         </button>
 
+
                 }
 
             </div>
-        </div>
+        </Link>
     )
 })
 

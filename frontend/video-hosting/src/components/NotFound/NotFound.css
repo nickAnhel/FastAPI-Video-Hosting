@@ -17,3 +17,7 @@
     color: #7e7e7e;
     font-size: 1.5rem;
 }
+
+.not-found a {
+    text-decoration: underline;
+}

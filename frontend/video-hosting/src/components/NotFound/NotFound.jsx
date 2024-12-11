@@ -6,7 +6,7 @@ function NotFound() {
     return (
         <div className="not-found">
             <h1>404</h1>
-            <p>Page not found. <Link>Return to main page</Link></p>
+            <p>Page not found. <Link to={"/"}>Return to main page</Link></p>
         </div>
     );
 }
