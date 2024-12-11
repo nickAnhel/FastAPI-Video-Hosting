@@ -14,6 +14,7 @@ class VideoCreate(BaseSchema):
 class VideoAuthor(BaseSchema):
     id: UUID
     username: str
+    subscribers_count: int
 
 
 class VideoGet(VideoCreate):
