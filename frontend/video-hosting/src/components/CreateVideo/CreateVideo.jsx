@@ -35,6 +35,12 @@ function CreateVideo() {
     }
 
     const handlePublish = async () => {
+        alertsContext.addAlert({
+            text: "Video is publishing. Do not leave this page!",
+            time: 5000,
+            type: "success"
+        })
+
         const videoData = {
             video: video,
             preview: preview,
