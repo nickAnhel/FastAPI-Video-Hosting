@@ -14,6 +14,7 @@ from src.settings.models import *
 from src.videos.models import *
 from src.comments.models import *
 from src.playlists.models import *
+from src.admin.models import *
 
 
 # this is the Alembic Config object, which provides

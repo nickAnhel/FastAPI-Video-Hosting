@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
 from src.setup_app import register_routes, register_exception_handlers
+from src.admin.admin import create_admin
 
 app = FastAPI(
     title=settings.project_title,
@@ -12,6 +13,7 @@ app = FastAPI(
     openapi_url="/openapi.json",
     docs_url="/docs",
 )
+admin = create_admin(app)
 
 
 app.add_middleware(

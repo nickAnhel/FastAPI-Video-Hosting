@@ -19,3 +19,10 @@ class CommentModel(Base):
     video: Mapped["VideoModel"] = relationship(back_populates="comments")  # type: ignore
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+    @property
+    def content_ellipsis(self) -> str:
+        if len(self.content) < 100:
+            return self.content
+
+        return " ".join(self.content.split()[:5]) + "..."

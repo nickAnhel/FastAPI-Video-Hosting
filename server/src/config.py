@@ -31,6 +31,11 @@ class FilePrefixes(BaseModel):
     preview: str = "VP@"
 
 
+class AdminSettings(BaseModel):
+    admin_secret_key: str | None = os.environ.get("ADMIN_SECRET_KEY")
+    admin_sesion_expire_minutes: int = int(os.environ.get("ADMIN_SESSION_EXPIRE_MINUTES"))  # type: ignore
+
+
 class Settings(BaseSettings):
     project_title: str
     version: str
@@ -40,6 +45,7 @@ class Settings(BaseSettings):
     db_settings: DBSettings = DBSettings()
     file_prefixes: FilePrefixes = FilePrefixes()
     storage_settings: StorageSettings = StorageSettings()
+    admin_settings: AdminSettings = AdminSettings()
 
 
 settings = Settings(

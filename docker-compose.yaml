@@ -14,6 +14,8 @@ services:
       - ./server/:/project/
     env_file:
       - ./server/.docker-env
+    depends_on:
+      - db
 
   db:
     container_name: db
