@@ -21,6 +21,7 @@ import VideoDetails from './components/VideoDetails/VideoDetails';
 import Subscriptions from './components/Subscriptions/Subscriptions';
 import ChannelDetails from './components/ChannelDetails/ChannelDetails';
 import CreateVideo from './components/CreateVideo/CreateVideo';
+import PlaylistDetails from './components/PlaylistDetails/PlaylistDetails';
 
 import Main from './pages/Main/Main';
 import Trending from './pages/Trending/Trending';
@@ -28,6 +29,7 @@ import Channels from './pages/Channels/Channels';
 import History from './pages/History/History';
 import Liked from './pages/LIked/Liked';
 import SubscriptionsList from './pages/SubscriptionsList/SubscriptionsList';
+import Playlists from './pages/Playlists/Playlists';
 
 
 export const AlertsContext = createContext(null);
@@ -88,7 +90,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "/playlists",
-                        element: <InWork />
+                        element: <Playlists />
                     },
                     {
                         path: "/liked-videos",
@@ -129,6 +131,10 @@ const router = createBrowserRouter([
             {
                 path: "/channels/:id",
                 element: <ChannelDetails />,
+            },
+            {
+                path: "/playlists/:id",
+                element: <PlaylistDetails />,
             },
         ]
     }

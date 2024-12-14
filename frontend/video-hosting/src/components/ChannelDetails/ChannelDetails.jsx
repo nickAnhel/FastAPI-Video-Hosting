@@ -9,10 +9,10 @@ import VideoService from "../../service/VideoService";
 
 import Loader from "../Loader/Loader";
 import NotFound from "../NotFound/NotFound";
-import InWork from "../InWork/InWork";
 import VideosGrid from "../VideosGrid/VideosGrid";
 import ChannelsList from "../ChannelsList/ChannelsList";
 import SocialLink from "../SocialLink/SocialLink";
+import PlaylistsList from "../PlaylistsList/PlaylistsList";
 
 
 function ChannelDetails() {
@@ -193,7 +193,7 @@ function ChannelDetails() {
                 }
                 {
                     tab == 2 &&
-                    <div></div>
+                    <PlaylistsList filters={ {owner_id: channel.id} }/>
                 }
                 {
                     tab == 3 &&

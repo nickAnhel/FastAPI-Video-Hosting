@@ -1,7 +1,6 @@
 .subcriptions {
-    width: calc(80% - 1rem);
+    width: 80%;
     height: calc(100vh - 6rem);
-    padding-left: 1rem;
     overflow-y: auto;
 }
 

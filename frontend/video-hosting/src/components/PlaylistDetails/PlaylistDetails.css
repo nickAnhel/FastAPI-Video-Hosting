@@ -1,0 +1,43 @@
+.playlist-details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    overflow-y: auto;
+}
+
+.playlist-details::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+
+.playlist-details::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}
+
+.playlist-details .playlist-info {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background-color: #303030;
+    border-radius: 1rem;
+    box-sizing: border-box;
+}
+
+.playlist-details .playlist-title {
+    margin: 0;
+    line-height: 2.5rem;
+}
+
+.playlist-details .playlist-desc {
+    color: #7e7e7e;
+    font-size: 1.1rem;
+}
+
+.playlist-details .playlist-videos-count {
+    color: #7e7e7e;
+    margin-top: 1rem;
+}

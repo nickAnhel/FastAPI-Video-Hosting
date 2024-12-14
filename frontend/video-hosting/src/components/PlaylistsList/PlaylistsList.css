@@ -1,4 +1,4 @@
-.videos-list {
+.playlists-list {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -6,7 +6,7 @@
     box-sizing: border-box;
 }
 
-.videos-list .videos {
+.playlists-list .playlists {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -14,13 +14,13 @@
     justify-content: flex-start;
 }
 
-.videos-list .loader {
+.playlists-list .loader {
     height: 1rem;
     padding: 1rem 0;
     width: calc(100% - 1rem);
 }
 
-.videos-list .hint {
+.playlists-list .hint {
     font-size: 1.2rem;
     margin: 1rem 0;
 }

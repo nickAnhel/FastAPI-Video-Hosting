@@ -82,4 +82,11 @@ export default class VideoService {
             { params }
         )
     }
+
+    static async getPlaylistVideos(params) {
+        return api.get(
+            "/videos/playlist",
+            { params }
+        )
+    }
 }
