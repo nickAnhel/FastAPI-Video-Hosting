@@ -14,6 +14,8 @@ from src.schemas import Status
 
 from src.auth.dependencies import get_current_user, get_current_optional_user
 from src.users.schemas import UserGet
+from src.playlists.dependencies import get_playlists_service
+from src.playlists.service import PlaylistService
 
 from src.videos.schemas import VideoGet, VideoCreate, VideoLikesDislikes, VideoViews, VideoGetWithUserStatus
 from src.videos.service import VideoService
@@ -239,4 +241,22 @@ async def get_subscriptions(
         desc=desc,
         offset=offset,
         limit=limit,
+    )
+
+
+@router.get("/playlist")
+async def get_playlist_videos(
+    playlist_id: UUID,
+    offset: int = 0,
+    limit: int = 100,
+    user: UserGet | None = Depends(get_current_optional_user),
+    video_service: VideoService = Depends(get_video_service),
+    playlist_service: PlaylistService = Depends(get_playlists_service),
+) -> list[VideoGet]:
+    playlist = await playlist_service.get_playlist_by_id(playlist_id=playlist_id, user=user)
+
+    return await video_service.get_playlist_videos(
+        playlist_id=playlist.id,
+        limit=limit,
+        offset=offset,
     )

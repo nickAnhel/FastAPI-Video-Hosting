@@ -302,6 +302,19 @@ class VideoService:
 
         return [VideoGet.model_validate(video) for video in videos]
 
+    async def get_playlist_videos(
+        self,
+        playlist_id: UUID,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> list[VideoGet]:
+        videos = await self._repository.get_playlist_videos(
+            playlist_id=playlist_id,
+            offset=offset,
+            limit=limit,
+        )
+        return [VideoGet.model_validate(video) for video in videos]
+
     def _check_video_exists(self, video: VideoModel | None) -> VideoGet:
         if not video:
             raise VideoNotFound()

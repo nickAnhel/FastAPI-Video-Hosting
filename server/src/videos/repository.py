@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.users.models import UserSubscription
+from src.playlists.models import PlaylistVideoM2M
 
 from src.videos.models import (
     VideoModel,
@@ -364,6 +365,29 @@ class VideoRepository:
             .order_by(desc(order) if order_desc else order)
             .offset(offset)
             .limit(limit)
+            .options(selectinload(VideoModel.user))
+        )
+
+        res = await self._async_session.execute(query)
+        return list(res.scalars().all())
+
+    async def get_playlist_videos(
+        self,
+        playlist_id: uuid.UUID,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> list[VideoModel]:
+        playlist_query = (
+            select(PlaylistVideoM2M.video_id)
+            .filter_by(playlist_id=playlist_id)
+            .offset(offset)
+            .limit(limit)
+            .cte()
+        )
+
+        query = (
+            select(VideoModel)
+            .join(playlist_query, VideoModel.id == playlist_query.c.video_id)
             .options(selectinload(VideoModel.user))
         )
 
