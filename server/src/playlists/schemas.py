@@ -1,24 +1,14 @@
+from typing import Any, Self
 from uuid import UUID
-
 from pydantic import Field
 
-# from pydantic import field_validator
-
 from src.schemas import BaseSchema
-from src.videos.schemas import VideoGet
 
 
 class PlaylistCreate(BaseSchema):
-    title: str
-    description: str
+    title: str = Field(max_length=50)
+    description: str = Field(max_length=255)
     private: bool = False
-
-    # @field_validator("title")
-    # @classmethod
-    # def validate_title(cls, v):
-    #     if v in ["Watch History", "Liked Videos", "Disliked Videos"]:
-    #         raise ValueError("Playlist title cannot be named Watch History, Liked Videos or Disliked Videos")
-    #     return v
 
 
 class PlaylistGet(BaseSchema):
@@ -27,7 +17,21 @@ class PlaylistGet(BaseSchema):
     title: str
     description: str
     private: bool = False
+    videos_count: int
 
 
-class PlaylistGetWithVideos(PlaylistGet):
-    videos: list[VideoGet] = Field(default_factory=list)
+class Video(BaseSchema):
+    id: UUID
+    title: str
+
+
+class PlaylistGetWithFirstVideo(PlaylistGet):
+    videos: list[Video] = Field(default_factory=list)
+
+    @classmethod
+    def model_validate(
+        cls, obj: Any, *, strict: bool | None = None, from_attributes: bool | None = None, context: Any | None = None
+    ) -> Self:
+        if obj.videos:
+            obj.videos = [obj.videos[-1]]
+        return super().model_validate(obj, strict=strict, from_attributes=from_attributes, context=context)

@@ -7,7 +7,7 @@ from src.exceptions import PermissionDenied
 from src.users.schemas import UserGet
 
 from src.playlists.repository import PlaylistRepository
-from src.playlists.schemas import PlaylistCreate, PlaylistGet, PlaylistGetWithVideos
+from src.playlists.schemas import PlaylistCreate, PlaylistGet, PlaylistGetWithFirstVideo
 from src.playlists.enums import PlaylistOrder
 from src.playlists.models import PlaylistModel
 from src.playlists.exceptions import (
@@ -43,7 +43,7 @@ class PlaylistService:
         self,
         playlist_id: UUID,
         user: UserGet | None = None,
-    ) -> PlaylistGetWithVideos:
+    ) -> PlaylistGetWithFirstVideo:
         playlist = await self._check_playlist_exists(playlist_id=playlist_id)
 
         if playlist.private and not user:
@@ -52,7 +52,7 @@ class PlaylistService:
         if playlist.private and user:
             await self._check_user_permissions(playlist=playlist, user_id=user.id)
 
-        return PlaylistGetWithVideos.model_validate(playlist)
+        return PlaylistGetWithFirstVideo.model_validate(playlist)
 
     async def get_playlists(
         self,
@@ -61,7 +61,7 @@ class PlaylistService:
         limit: int = 100,
         owner_id: UUID | None = None,
         user: UserGet | None = None,
-    ) -> list[PlaylistGet]:
+    ) -> list[PlaylistGetWithFirstVideo]:
         params = {"order": order, "offset": offset, "limit": limit}
 
         if owner_id:
@@ -72,7 +72,7 @@ class PlaylistService:
             playlist for playlist in playlists if not playlist.private or (user and playlist.user_id == user.id)
         ]
 
-        return [PlaylistGet.model_validate(playlist) for playlist in playlists]
+        return [PlaylistGetWithFirstVideo.model_validate(playlist) for playlist in playlists]
 
     async def delete_playlist_by_id(
         self,

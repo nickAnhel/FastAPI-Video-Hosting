@@ -5,7 +5,7 @@ from src.schemas import Status
 from src.auth.dependencies import get_current_user, get_current_optional_user
 from src.users.schemas import UserGet
 
-from src.playlists.schemas import PlaylistCreate, PlaylistGet, PlaylistGetWithVideos
+from src.playlists.schemas import PlaylistCreate, PlaylistGet, PlaylistGetWithFirstVideo
 from src.playlists.dependencies import get_playlists_service
 from src.playlists.service import PlaylistService
 from src.playlists.enums import PlaylistOrder
@@ -34,7 +34,7 @@ async def get_playlists(
     owner_id: UUID | None = None,
     user: UserGet = Depends(get_current_optional_user),
     playlist_service: PlaylistService = Depends(get_playlists_service),
-) -> list[PlaylistGet]:
+) -> list[PlaylistGetWithFirstVideo]:
     return await playlist_service.get_playlists(
         order=order,
         offset=offset,
@@ -49,7 +49,7 @@ async def get_playlist_by_id(
     playlist_id: UUID,
     user: UserGet = Depends(get_current_optional_user),
     playlist_service: PlaylistService = Depends(get_playlists_service),
-) -> PlaylistGetWithVideos:
+) -> PlaylistGetWithFirstVideo:
     return await playlist_service.get_playlist_by_id(playlist_id=playlist_id, user=user)
 
 
