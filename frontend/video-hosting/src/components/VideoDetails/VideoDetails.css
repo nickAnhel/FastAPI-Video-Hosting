@@ -25,11 +25,10 @@
 }
 
 .video-details video {
-    width: 75%;
+    width: 70%;
     aspect-ratio: 16/9;
     border-radius: 1.5rem;
     background-color: #1a1a1a;
-    /* object-fit: cover; */
 }
 
 .video-details video:focus {
@@ -37,7 +36,7 @@
 }
 
 .video-details .video-data {
-    width: calc(25% - 1rem);
+    width: calc(30% - 1rem);
     height: 100%;
     background-color: #303030;
     padding: 1rem;
@@ -57,6 +56,12 @@
 .video-details .video-info {
     display: flex;
     flex-direction: column;
+}
+
+.video-details .video-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .video-details .video-title {
@@ -93,11 +98,15 @@
     background: transparent;
     border: 1px solid #fff;
     padding: .5rem 1rem;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     text-align: center;
     color: #fff;
     transition: all .2s;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
 }
 
 .video-details .action:hover {
@@ -121,6 +130,11 @@
 
 .video-details .active {
     background-color: #7e7e7e;
+}
+
+.video-details .action-icon {
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .video-details .video-author {
@@ -147,4 +161,60 @@
 
 .video-details .video-author-subs-count {
     color: #7e7e7e;
+}
+
+.video-details .modal {
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: 0.1s;
+    pointer-events: none;
+}
+
+.video-details .modal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.video-details .modal-content {
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #242424;
+    transform: scale(0.8);
+    transition: 0.1s;
+}
+
+.video-details .modal-content.active {
+    transform: scale(1);
+}
+
+.video-details .delete-video {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding: 1rem;
+}
+
+.video-details h2 {
+    margin: 0;
+}
+
+.video-details .btn {
+    width: 100%;
+}
+
+.video-details .delete {
+    color: rgb(218, 0, 0);
+    background-color: #5c2626;
+}
+
+.video-details .delete:focus {
+    outline: none;
 }

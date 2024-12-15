@@ -3,9 +3,10 @@ import { useParams } from "react-router-dom";
 import "./ChannelDetails.css"
 
 import { Context } from "../../main";
-import { AlertsContext } from "../../App";
+import { AddVideoModalContext, AlertsContext, OptionsContext, ShareModalContext } from "../../App";
 import UserService from "../../service/UserService";
 import VideoService from "../../service/VideoService";
+import PlaylistService from "../../service/PlaylistService";
 
 import Loader from "../Loader/Loader";
 import NotFound from "../NotFound/NotFound";
@@ -18,8 +19,12 @@ import PlaylistsList from "../PlaylistsList/PlaylistsList";
 function ChannelDetails() {
     const { store } = useContext(Context)
     const alertsContext = useContext(AlertsContext);
+    const optionsContext = useContext(OptionsContext);
+    const shareModalContext = useContext(ShareModalContext);
+    const addVideoContext = useContext(AddVideoModalContext);
     const params = useParams();
 
+    const [refresh, setRefresh] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingSub, setIsLoadingSub] = useState(false);
     const [isError, setIsError] = useState(false);
@@ -33,6 +38,77 @@ function ChannelDetails() {
     const [tab, setTab] = useState(1);
 
     const [imgSrc, setImgSrc] = useState(null);
+
+    const handleShare = (itemId, page) => {
+        shareModalContext.setIsActive(true);
+        shareModalContext.setLink(`${import.meta.env.VITE_HOST}/${page}/${itemId}`);
+    }
+
+    const handleAddToPlaylist = (itemId) => {
+        addVideoContext.setActive(true);
+        addVideoContext.setVideoId(itemId);
+    }
+
+    const handleDeletePlaylist = async (itemId) => {
+        try {
+            await PlaylistService.deletePlylistById(itemId);
+            setRefresh((prev) => !prev);
+            alertsContext.addAlert({
+                text: "Playlist deleted successfully",
+                time: 2000,
+                type: "success"
+            })
+        } catch (e) {
+            console.log(e);
+            alertsContext.addAlert({
+                text: "Failed to delete playlist",
+                time: 2000,
+                type: "error"
+            })
+        }
+    }
+
+    useEffect(() => {
+        let options = []
+
+        if (store.isAuthenticated && tab == 1) {
+            options = [
+                {
+                    text: "Add to playlist",
+                    iconSrc: "../../../assets/playlists.svg",
+                    actionHandler: handleAddToPlaylist,
+                },
+                {
+                    text: "Share",
+                    iconSrc: "../../../assets/share.svg",
+                    actionHandler: handleShare,
+                    params: "videos",
+                },
+            ]
+
+        } else if (store.isAuthenticated && tab == 2) {
+            options = [
+                {
+                    text: "Share",
+                    iconSrc: "../../../assets/share.svg",
+                    actionHandler: handleShare,
+                    params: "playlists",
+                }
+            ]
+            if (store.user.id == channelId) {
+                options = [
+                    {
+                        text: "Delete playlist",
+                        iconSrc: "../../../assets/delete.svg",
+                        actionHandler: handleDeletePlaylist,
+                    },
+                    ...options,
+                ]
+            }
+        }
+
+        optionsContext.setOptions(options)
+    }, [channelId, tab])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -147,26 +223,26 @@ function ChannelDetails() {
                 </div>
 
                 <div className="subscribe-btn">
-                {
-                    store.user.id != channel.id && (
-                        isSubscribed ?
-                            <button
-                                className="btn unsubscribe"
-                                onClick={handleUnsubscribe}
-                            >
-                                {isLoadingSub ? <Loader /> : "Unsubscribe"}
-                            </button>
-                            :
-                            <button
-                                className="btn"
-                                onClick={handleSubscribe}
-                                disabled={!store.isAuthenticated}
-                            >
-                                {isLoadingSub ? <Loader /> : "Subscribe"}
-                            </button>
-                    )
+                    {
+                        store.user.id != channel.id && (
+                            isSubscribed ?
+                                <button
+                                    className="btn unsubscribe"
+                                    onClick={handleUnsubscribe}
+                                >
+                                    {isLoadingSub ? <Loader /> : "Unsubscribe"}
+                                </button>
+                                :
+                                <button
+                                    className="btn"
+                                    onClick={handleSubscribe}
+                                    disabled={!store.isAuthenticated}
+                                >
+                                    {isLoadingSub ? <Loader /> : "Subscribe"}
+                                </button>
+                        )
 
-                }
+                    }
                 </div>
 
             </div>
@@ -189,11 +265,11 @@ function ChannelDetails() {
             <div className="content">
                 {
                     tab == 1 &&
-                    <VideosGrid fetchVideos={VideoService.getVideos} filters={{ user_id: channel.id }} />
+                    <VideosGrid fetchVideos={VideoService.getVideos} filters={{ user_id: channel.id, order: "created_at", desc: true }} />
                 }
                 {
                     tab == 2 &&
-                    <PlaylistsList filters={ {owner_id: channel.id} }/>
+                    <PlaylistsList filters={{ owner_id: channel.id }} refresh={refresh} />
                 }
                 {
                     tab == 3 &&

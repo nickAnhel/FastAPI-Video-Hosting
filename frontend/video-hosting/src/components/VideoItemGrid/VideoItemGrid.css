@@ -9,6 +9,7 @@
     box-sizing: border-box;
     transition: all .2s;
     color: #7e7e7e;
+    position: relative;
 }
 
 .video-item-grid:hover {
@@ -37,7 +38,7 @@
 }
 
 .video-item-grid .info {
-    width: calc(90% - 0.7rem);
+    width: calc(90% - 4rem);
     box-sizing: border-box;
 }
 
@@ -54,10 +55,10 @@
     overflow: hidden !important;
 
     width: 100%;
-    height: 2rem;
+    height: 1.5rem;
     color: #fff;
     font-weight: 600;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 
 .video-item-grid .creds {

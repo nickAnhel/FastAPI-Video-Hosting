@@ -1,0 +1,42 @@
+.options {
+    position: relative;
+    display: flex;
+
+}
+
+.options .options-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    padding: .5rem;
+    transition: background-color 0.2s;
+    box-sizing: border-box;
+}
+
+.options .options-btn:hover {
+    background-color: #3b3b3b;
+    cursor: pointer;
+}
+
+.options .options-menu {
+    width: 16rem;
+    position: absolute;
+    right: 0;
+    background-color: #333;
+    border-radius: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.options .active {
+    opacity: 1;
+    pointer-events: all;
+}

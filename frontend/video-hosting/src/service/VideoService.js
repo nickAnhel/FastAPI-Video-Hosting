@@ -21,6 +21,10 @@ export default class VideoService {
         );
     }
 
+    static async deleteVideo(videoId) {
+        return api.delete(`/videos/?video_id=${videoId}`)
+    }
+
     static async getHistory(params) {
         return api.get(
             "/videos/history",
@@ -30,6 +34,10 @@ export default class VideoService {
 
     static async clearHistory() {
         return api.delete("/videos/history/clear")
+    }
+
+    static async removeVideoFromHistory(videoId) {
+        return api.patch(`/videos/history/remove?video_id=${videoId}`)
     }
 
     static async getLiked(params) {

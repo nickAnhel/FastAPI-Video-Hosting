@@ -9,12 +9,17 @@ import Loader from "../Loader/Loader";
 const VIDEOS_IN_PORTION = 9;
 
 
-function VideosGrid({ fetchVideos, filters }) {
+function VideosGrid({ fetchVideos, filters, refresh }) {
     const lastItem = createRef();
     const observerLoader = useRef();
 
     const [videos, setVideos] = useState([]);
     const [offset, setOffset] = useState(0);
+
+    useEffect(() => {
+        setVideos([]);
+        setOffset(0);
+    }, [refresh])
 
     const { isLoading, isError, isSuccess, error } = useQuery(
         async () => {
@@ -27,7 +32,7 @@ function VideosGrid({ fetchVideos, filters }) {
             return res.data;
         },
         {
-            keys: [offset],
+            keys: [offset, refresh],
             onSuccess: (fetchedVideos) => {
                 setVideos((prevVideos) => [...prevVideos, ...fetchedVideos]);
             }

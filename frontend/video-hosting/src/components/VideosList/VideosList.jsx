@@ -9,7 +9,7 @@ import Loader from "../Loader/Loader";
 const VIDEOS_IN_PORTION = 9;
 
 
-function VideosList({ fetchVideos, filters, clear }) {
+function VideosList({ fetchVideos, filters, refresh }) {
     const lastItem = createRef();
     const observerLoader = useRef();
 
@@ -17,8 +17,9 @@ function VideosList({ fetchVideos, filters, clear }) {
     const [offset, setOffset] = useState(0);
 
     useEffect(() => {
+        setOffset(0);
         setVideos([]);
-    }, [clear])
+    }, [refresh])
 
     const { isLoading, isError, isSuccess, error } = useQuery(
         async () => {
@@ -31,7 +32,7 @@ function VideosList({ fetchVideos, filters, clear }) {
             return res.data;
         },
         {
-            keys: [offset],
+            keys: [offset, refresh],
             onSuccess: (fetchedVideos) => {
                 setVideos((prevVideos) => [...prevVideos, ...fetchedVideos]);
             }

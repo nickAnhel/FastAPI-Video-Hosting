@@ -31,13 +31,23 @@
 }
 
 .playlist-item-list .info {
-    max-width: calc(50% - 3rem);
+    width: 50%;
+    max-width: 50%;
     display: flex;
     flex-direction: column;
+    gap: .5rem;
+}
+
+.playlist-item-list .title-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
     gap: 1rem;
 }
 
 .playlist-item-list .title {
+    display: flex;
+    align-self: center;
     font-size: 1.5rem;
     color: #fff;
     font-weight: 600;

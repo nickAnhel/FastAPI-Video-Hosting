@@ -2,7 +2,6 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     gap: 1rem;
     box-sizing: border-box;
     color: #7e7e7e;

@@ -5,6 +5,9 @@ import './App.css'
 
 import { Context } from './main'
 import useAlerts from './hooks/useAlerts';
+import useOptions from './hooks/useOptions';
+import useShareModal from './hooks/useShareModal';
+import useAddVideoModal from './hooks/useAddVideoModal';
 
 import Header from './components/Header/Header'
 import Login from './components/Login/Login'
@@ -22,6 +25,8 @@ import Subscriptions from './components/Subscriptions/Subscriptions';
 import ChannelDetails from './components/ChannelDetails/ChannelDetails';
 import CreateVideo from './components/CreateVideo/CreateVideo';
 import PlaylistDetails from './components/PlaylistDetails/PlaylistDetails';
+import ShareModal from './components/ShareModal/ShareModal';
+import AddVideoToPlaylistModal from "./components/AddVideoToPlaylistModal/AddVideoToPlaylistModal"
 
 import Main from './pages/Main/Main';
 import Trending from './pages/Trending/Trending';
@@ -33,6 +38,9 @@ import Playlists from './pages/Playlists/Playlists';
 
 
 export const AlertsContext = createContext(null);
+export const OptionsContext = createContext(null);
+export const ShareModalContext = createContext(null);
+export const AddVideoModalContext = createContext(null);
 
 
 function Layout() {
@@ -43,6 +51,8 @@ function Layout() {
             <Header />
             <Outlet />
             <Alerts alerts={alertsContext.alerts} />
+            <ShareModal />
+            <AddVideoToPlaylistModal />
         </>
     )
 }
@@ -142,9 +152,12 @@ const router = createBrowserRouter([
 
 
 function App() {
-    const { store } = useContext(Context)
+    const { store } = useContext(Context);
 
     const { alerts, addAlert, removeAlert } = useAlerts();
+    const { options, setOptions } = useOptions();
+    const { isActive, link, setIsActive, setLink } = useShareModal();
+    const { active, videoId, setActive, setVideoId } = useAddVideoModal();
 
     useEffect(() => {
         if (localStorage.getItem('token')) {
@@ -157,7 +170,13 @@ function App() {
     }
     return (
         <AlertsContext.Provider value={{ alerts, addAlert, removeAlert }}>
-            <RouterProvider router={router} />
+            <OptionsContext.Provider value={{ options, setOptions }}>
+                <ShareModalContext.Provider value={{ isActive, link, setIsActive, setLink }}>
+                    <AddVideoModalContext.Provider value={{ active, videoId, setActive, setVideoId }}>
+                        <RouterProvider router={router} />
+                    </AddVideoModalContext.Provider>
+                </ShareModalContext.Provider>
+            </OptionsContext.Provider>
         </AlertsContext.Provider>
     )
 }

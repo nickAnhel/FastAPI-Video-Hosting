@@ -2,6 +2,8 @@ import { useState, forwardRef } from "react";
 import { Link } from "react-router-dom";
 import "./VideoItemList.css"
 
+import Options from "../Options/Options";
+
 
 const VideoItemList = forwardRef((props, ref) => {
     const [userProfilePhotoSrc, setUserProfilePhotoSrc] = useState(
@@ -21,7 +23,11 @@ const VideoItemList = forwardRef((props, ref) => {
                 alt={props.video.title}
             />
             <div className="info">
-                <div className="title">{props.video.title}</div>
+                <div className="title-wrapper">
+                    <div className="title">{props.video.title}</div>
+                    <Options itemId={props.video.id} />
+                </div>
+
                 <Link className="author" to={`/channels/${props.video.user_id}`}>
                     <img
                         className="channel"

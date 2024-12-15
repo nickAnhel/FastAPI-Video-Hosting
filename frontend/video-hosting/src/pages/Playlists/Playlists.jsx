@@ -1,18 +1,20 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import "./Playlists.css"
 
 import { Context } from "../../main";
-import { AlertsContext } from "../../App";
+import { AlertsContext, OptionsContext, ShareModalContext } from "../../App";
 import PlaylistService from "../../service/PlaylistService";
 import Unauthorized from "../../components/Unauthorized/Unauthorized";
 import PlaylistsList from "../../components/PlaylistsList/PlaylistsList";
 import Loader from "../../components/Loader/Loader";
-import Modal from "../../components/Modal/Model";
+import Modal from "../../components/Modal/Modal";
 
 
 function Playlists() {
     const { store } = useContext(Context);
     const alertsContext = useContext(AlertsContext);
+    const optionsContext = useContext(OptionsContext);
+    const shareModalContext = useContext(ShareModalContext);
 
     const [refresh, setRefresh] = useState(false);
     const [isModalActive, setIsModalActive] = useState(false);
@@ -21,6 +23,54 @@ function Playlists() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [isPrivate, setIsPrivate] = useState(false);
+
+    const handleShare = (itemId, page) => {
+        shareModalContext.setIsActive(true);
+        shareModalContext.setLink(`${import.meta.env.VITE_HOST}/${page}/${itemId}`);
+    }
+
+    const handleDeletePlaylist = async (itemId) => {
+        try {
+            await PlaylistService.deletePlylistById(itemId);
+            setRefresh((prev) => !prev)
+            alertsContext.addAlert({
+                text: "Playlist deleted successfully",
+                time: 2000,
+                type: "success"
+            })
+        } catch (e) {
+            console.log(e);
+            alertsContext.addAlert({
+                text: "Failed to delete playlist",
+                time: 2000,
+                type: "error"
+            })
+        }
+    }
+
+    useEffect(() => {
+        let options = [
+            {
+                text: "Share",
+                iconSrc: "../../../assets/share.svg",
+                actionHandler: handleShare,
+                params: "playlists",
+            }
+        ]
+
+        if (store.isAuthenticated) {
+            options = [
+                {
+                    text: "Delete playlist",
+                    iconSrc: "../../../assets/delete.svg",
+                    actionHandler: handleDeletePlaylist,
+                },
+                ...options,
+            ]
+        }
+
+        optionsContext.setOptions(options)
+    }, [store.isAuthenticated])
 
     const handleCreate = async () => {
         setIsLoading(true);

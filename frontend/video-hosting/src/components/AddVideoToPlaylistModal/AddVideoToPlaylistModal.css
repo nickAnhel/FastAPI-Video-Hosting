@@ -1,0 +1,50 @@
+.playlists-to-add {
+    min-width: 25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    align-items: center;
+    padding: 1rem;
+    font-size: 1.2rem;
+}
+
+.playlists-to-add .playlist-items  {
+    width: 100%;
+    max-height: 13rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding-right: .5rem;
+    align-items: center;
+    font-size: 1.2rem;
+    box-sizing: border-box;
+}
+
+.playlist-items::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+.playlist-items::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}
+
+.playlists-to-add h2 {
+    margin-top: 0;
+    margin-bottom: .5rem;
+}
+
+.playlists-to-add .playlist-item {
+    width: 100%;
+    background-color: #474747;
+    padding: .5rem 1rem;
+    border-radius: .5rem;
+    transition: .2s;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.playlists-to-add .playlist-item:hover {
+    opacity: .6;
+}

@@ -1,8 +1,13 @@
+import { useContext } from "react";
 import { NavLink } from "react-router-dom"
 import "./Sidebar.css"
 
+import { Context } from "../../main";
+
 
 function Sidebar() {
+    const { store } = useContext(Context);
+
     return (
         <div className="sidebar">
             <NavLink to="/" className={({ isActive }) => isActive ? "item active" : "item"}>
@@ -19,27 +24,32 @@ function Sidebar() {
                 <div>Channels</div>
             </NavLink>
 
-            <hr />
+            {
+                store.isAuthenticated &&
+                <>
+                    <hr />
 
-            <NavLink to="/subscriptions" className="item">
-                <img src="../../../../assets/subscriptions.svg" alt="Main" />
-                <div>Subscriptions</div>
-            </NavLink>
+                    <NavLink to="/subscriptions" className="item">
+                        <img src="../../../../assets/subscriptions.svg" alt="Main" />
+                        <div>Subscriptions</div>
+                    </NavLink>
 
-            <hr />
+                    <hr />
 
-            <NavLink to="/history" className="item">
-                <img src="../../../../assets/history.svg" alt="Main" />
-                <div>History</div>
-            </NavLink>
-            <NavLink to="/playlists" className="item">
-                <img src="../../../../assets/playlists.svg" alt="Main" />
-                <div>Playlists</div>
-            </NavLink>
-            <NavLink to="/liked-videos" className="item">
-                <img src="../../../../assets/liked-videos.svg" alt="Main" />
-                <div>Liked Videos</div>
-            </NavLink>
+                    <NavLink to="/history" className="item">
+                        <img src="../../../../assets/history.svg" alt="Main" />
+                        <div>History</div>
+                    </NavLink>
+                    <NavLink to="/playlists" className="item">
+                        <img src="../../../../assets/playlists.svg" alt="Main" />
+                        <div>Playlists</div>
+                    </NavLink>
+                    <NavLink to="/liked-videos" className="item">
+                        <img src="../../../../assets/liked-videos.svg" alt="Main" />
+                        <div>Liked Videos</div>
+                    </NavLink>
+                </>
+            }
         </div>
     )
 }

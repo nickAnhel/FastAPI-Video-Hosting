@@ -1,0 +1,24 @@
+.option {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    font-size: 1.1rem;
+    line-height: 2rem;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+    border-radius: 0.5rem;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.option img {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.option:hover {
+    background-color: #444;
+}

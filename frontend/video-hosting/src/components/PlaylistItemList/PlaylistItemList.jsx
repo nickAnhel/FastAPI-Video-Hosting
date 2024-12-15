@@ -1,9 +1,14 @@
-import { useState, forwardRef } from "react";
+import { useState, forwardRef, useContext } from "react";
 import { Link } from "react-router-dom";
 import "./PlaylistItemList.css"
 
+import { Context } from "../../main";
+import Options from "../Options/Options";
+
 
 const PlaylistItemList = forwardRef((props, ref) => {
+    const { store } = useContext(Context);
+
     const [firstVideoImgSrc, setFirstVideoImgSrc] = useState(
         props.playlist.videos.length ?
         `${import.meta.env.VITE_STORAGE_URL}VP@${props.playlist.videos[0]?.id}`:
@@ -22,9 +27,14 @@ const PlaylistItemList = forwardRef((props, ref) => {
             />
 
             <div className="info">
-                <div className="title">{props.playlist.title}</div>
+                <div className="title-wrapper">
+                    <div className="title">{props.playlist.title}</div>
+                    <Options itemId={props.playlist.id} />
+                </div>
+
                 <div className="desc">{props.playlist.description}</div>
             </div>
+
         </Link>
     )
 })

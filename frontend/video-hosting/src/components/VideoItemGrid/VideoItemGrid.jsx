@@ -2,6 +2,8 @@ import { useState, forwardRef } from "react";
 import { Link } from "react-router-dom";
 import "./VideoItemGrid.css"
 
+import Options from "../Options/Options";
+
 
 const VideoItemGrid = forwardRef((props, ref) => {
     const [userProfilePhotoSrc, setUserProfilePhotoSrc] = useState(
@@ -37,6 +39,7 @@ const VideoItemGrid = forwardRef((props, ref) => {
                         <div>{formatCreatedAt(props.video.created_at)}</div>
                     </div>
                 </div>
+                <Options itemId={props.video.id} />
             </div>
         </Link>
     )

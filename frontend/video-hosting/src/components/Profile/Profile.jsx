@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css"
 
-import Modal from "../Modal/Model";
+import Modal from "../Modal/Modal";
 import Loader from "../Loader/Loader";
 import UserService from "../../service/UserService";
 import { Context } from "../../main";

@@ -1,18 +1,28 @@
 import { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "./VideoDetails.css"
 
 import { Context } from "../../main";
+import { AddVideoModalContext, AlertsContext, OptionsContext, ShareModalContext } from "../../App";
 import VideoService from "../../service/VideoService";
+import Modal from "../Modal/Modal";
 import Loader from "../Loader/Loader";
 import NotFound from "../NotFound/NotFound";
 import CommentsList from "../CommentsList/CommentsList";
-import ChannelItemList from "../ChannelItemList/ChannelItemList";
+import Options from "../Options/Options";
 
 
 function VideoDetails() {
     const { store } = useContext(Context);
+    const alertsContext = useContext(AlertsContext);
+    const optionsContext = useContext(OptionsContext);
+    const shareModalContext = useContext(ShareModalContext);
+    const addVideoContext = useContext(AddVideoModalContext);
+    const navigate = useNavigate();
+
+    const [isDeleteModalActive, setIsDeleteModalActive] = useState(false);
+    const [isLoadingDelete, setIsLoadingDelete] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
@@ -26,6 +36,78 @@ function VideoDetails() {
     const videoId = params.id;
 
     const [imgSrc, setImgSrc] = useState();
+
+    const handleShare = (itemId, page) => {
+        shareModalContext.setIsActive(true);
+        shareModalContext.setLink(`${import.meta.env.VITE_HOST}/${page}/${itemId}`);
+    }
+
+    const handleAddToPlaylist = (itemId) => {
+        addVideoContext.setActive(true);
+        addVideoContext.setVideoId(itemId);
+    }
+
+    const handleDeleteVideo = async (videoId) => {
+        setIsLoadingDelete(true);
+
+        try {
+            await VideoService.deleteVideo(videoId);
+            alertsContext.addAlert({
+                text: "Successfully deleted video",
+                time: 2000,
+                type: "success"
+            })
+            navigate("/");
+        } catch (e) {
+            console.log(e);
+            alertsContext.addAlert({
+                text: "Failed to delete video",
+                time: 2000,
+                type: "error"
+            })
+        }
+
+        setIsLoadingDelete(false);
+    }
+
+    const handleDeleteVideoOption = () => {
+        setIsDeleteModalActive(true);
+    }
+
+    useEffect(() => {
+        let options = [
+            {
+                text: "Share",
+                iconSrc: "../../../assets/share.svg",
+                actionHandler: handleShare,
+                params: "videos",
+            }
+        ]
+
+        if (store.isAuthenticated) {
+            options = [
+                {
+                    text: "Add to playlist",
+                    iconSrc: "../../../assets/playlists.svg",
+                    actionHandler: handleAddToPlaylist,
+                },
+                ...options
+            ]
+
+            if (store.user.id == video.user_id) {
+                options = [
+                    ...options,
+                    {
+                        text: "Delete video",
+                        iconSrc: "../../../assets/delete.svg",
+                        actionHandler: handleDeleteVideoOption,
+                    }
+                ]
+            }
+        }
+
+        optionsContext.setOptions(options)
+    }, [video])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -116,7 +198,6 @@ function VideoDetails() {
             <div className="video">
                 <video
                     src={`${import.meta.env.VITE_STORAGE_URL}VV@${videoId}`}
-                    // poster={`${import.meta.env.VITE_STORAGE_URL}VP@${videoId}`}
                     controls
                     loop
                 ></video>
@@ -124,7 +205,11 @@ function VideoDetails() {
                 <div className="video-data">
                     <div className="video-header">
                         <div className="video-info">
-                            <div className="video-title">{video.title}</div>
+                            <div className="video-title-wrapper">
+                                <div className="video-title">{video.title}</div>
+                                <Options itemId={video.id} />
+                            </div>
+
                             <div className="video-stats">
                                 <div>{video.views} views</div>
                                 <div>{new Date(video.created_at).toLocaleDateString()}</div>
@@ -143,7 +228,7 @@ function VideoDetails() {
                             />
                             <div className="video-author-info">
                                 <div className="video-author-username">{user.username}</div>
-                                <div className="video-author-subs-count">{ user.subscribers_count } subscriber{ user.subscribers_count == 1 ? "" : "s" }</div>
+                                <div className="video-author-subs-count">{user.subscribers_count} subscriber{user.subscribers_count == 1 ? "" : "s"}</div>
                             </div>
 
                         </Link>
@@ -156,14 +241,24 @@ function VideoDetails() {
                                 onClick={handleLike}
                                 disabled={!store.isAuthenticated}
                             >
-                                {video.likes} Like{video.likes == 1 ? "" : "s"}
+                                <img
+                                    className="action-icon"
+                                    src="../../../../assets/like.svg"
+                                    alt="Like"
+                                />
+                                {video.likes}
                             </button>
                             <button
-                                className={isDisliked ? "active action right" : "action right" }
+                                className={isDisliked ? "active action right" : "action right"}
                                 onClick={handleDislike}
                                 disabled={!store.isAuthenticated}
                             >
-                                {video.dislikes} Dislike{video.dislikes == 1 ? "" : "s"}
+                                <img
+                                    className="action-icon"
+                                    src="../../../../assets/dislike.svg"
+                                    alt="Like"
+                                />
+                                {video.dislikes}
                             </button>
                         </div>
                     </div>
@@ -172,6 +267,18 @@ function VideoDetails() {
             </div>
 
             <CommentsList videoId={video.id} />
+
+            <Modal active={isDeleteModalActive} setActive={setIsDeleteModalActive}>
+                <div className="delete-video">
+                    <h2>Are you sure want to delete this video?</h2>
+                    <button
+                        className="btn delete"
+                        onClick={(e) => handleDeleteVideo(video.id)}
+                    >
+                        { isLoadingDelete ? <Loader /> : "Delete video" }
+                    </button>
+                </div>
+            </Modal>
         </div>
     )
 }

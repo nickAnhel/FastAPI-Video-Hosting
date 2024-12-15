@@ -1,0 +1,39 @@
+.share {
+    display: flex;
+    align-items: center;
+    background-color: #3b3b3b;
+    padding: 1rem;
+    border-radius: 1rem;
+    gap: 1rem;
+}
+
+.share .share-link {
+    font-size: 1.5rem;
+    color: #cecece;
+}
+
+.share .copy-btn {
+    width: 6rem;
+    font-size: 1.1rem;
+    padding: .5rem 1rem;
+    border: 0;
+    background-color: #7e7e7e;
+    color: #fff;
+    border-radius: 3rem;
+    transition: all .2s;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.share .copy-btn:hover {
+    opacity: .6;
+}
+
+.share .copy-btn:focus {
+    outline: none;
+}
+
+.share .copied {
+    background-color: #474747;
+    color: #7e7e7e;
+}
