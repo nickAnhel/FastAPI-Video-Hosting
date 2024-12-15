@@ -74,6 +74,23 @@ class PlaylistService:
 
         return [PlaylistGetWithFirstVideo.model_validate(playlist) for playlist in playlists]
 
+    async def get_user_playlists_exclude_video(
+        self,
+        video_id: UUID,
+        user_id: UUID,
+    ) -> list[PlaylistGet]:
+        playlists = await self._repository.get_user_playlists_exclude_video(
+            video_id=video_id,
+            user_id=user_id,
+        )
+
+        playlists = [
+            playlist for playlist in playlists
+            if video_id not in [video.id for video in playlist.videos]
+        ]
+
+        return [PlaylistGet.model_validate(playlist) for playlist in playlists]
+
     async def delete_playlist_by_id(
         self,
         playlist_id: UUID,

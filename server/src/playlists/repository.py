@@ -67,6 +67,22 @@ class PlaylistRepository:
             playlists = await session.execute(query)
             return list(playlists.scalars().all())
 
+    async def get_user_playlists_exclude_video(
+        self,
+        video_id: UUID,
+        user_id: UUID,
+    ) -> list[PlaylistModel]:
+        async with async_session_maker() as session:
+            query = (
+                select(PlaylistModel)
+                .filter_by(user_id=user_id)
+                .options(selectinload(PlaylistModel.videos))
+            )
+
+            res = await session.execute(query)
+            return list(res.scalars().all())
+
+
     async def delete(
         self,
         **filters,

@@ -44,6 +44,18 @@ async def get_playlists(
     )
 
 
+@router.get("/exclude-video")
+async def get_user_playlists_exclude_video(
+    video_id: UUID,
+    user: UserGet = Depends(get_current_optional_user),
+    playlist_service: PlaylistService = Depends(get_playlists_service),
+) -> list[PlaylistGet]:
+    return await playlist_service.get_user_playlists_exclude_video(
+        video_id=video_id,
+        user_id=user.id,
+    )
+
+
 @router.get("/")
 async def get_playlist_by_id(
     playlist_id: UUID,
