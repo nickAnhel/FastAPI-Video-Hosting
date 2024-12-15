@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.users.models import UserSubscription
-from src.playlists.models import PlaylistVideoM2M
+from src.playlists.models import PlaylistModel, PlaylistVideoM2M
 
 from src.videos.models import (
     VideoModel,
@@ -81,10 +81,32 @@ class VideoRepository:
 
     async def delete(
         self,
-        **filters,
+        video_id: uuid.UUID,
     ) -> int:
-        stmt = delete(VideoModel).filter_by(**filters)
-        res = await self._async_session.execute(stmt)
+        video_query = (
+            select(VideoModel)
+            .filter_by(id=video_id)
+            .options(selectinload(VideoModel.playlists))
+        )
+
+        res = await self._async_session.execute(video_query)
+        video = res.scalar_one()
+
+        update_videos_count_stmt = (
+            update(PlaylistModel)
+            .filter(
+                PlaylistModel.id.in_([p.id for p in video.playlists])
+            )
+            .values(videos_count=PlaylistModel.videos_count - 1)
+        )
+
+        delete_video_stmt = (
+            delete(VideoModel)
+            .filter_by(id=video_id)
+        )
+
+        await self._async_session.execute(update_videos_count_stmt)
+        res = await self._async_session.execute(delete_video_stmt)
         await self._async_session.commit()
         return res.rowcount
 

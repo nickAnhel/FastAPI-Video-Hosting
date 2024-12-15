@@ -59,7 +59,7 @@ class VideoService:
             file=img_bytes,
             filename=settings.file_prefixes.preview + str(video_model.id),
         ):
-            await self._repository.delete(id=video_model.id)
+            await self._repository.delete(video_id=video_model.id)
             raise CantUploadFileToStorage("Failed to upload preview")
 
         if not await upload_file(
@@ -67,7 +67,7 @@ class VideoService:
             filename=settings.file_prefixes.video + str(video_model.id),
         ):
             await delete_files(filenames=[settings.file_prefixes.preview + str(video_model.id)])
-            await self._repository.delete(id=video_model.id)
+            await self._repository.delete(video_id=video_model.id)
             raise CantUploadFileToStorage("Failed to upload video file")
 
     async def search_videos(
@@ -139,7 +139,7 @@ class VideoService:
         ):
             raise CantDeleteFileFromStorage("Failed to delete files from storage")
 
-        await self._repository.delete(id=id)
+        await self._repository.delete(video_id=id)
 
     async def get_watch_history(
         self,

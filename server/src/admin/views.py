@@ -1,7 +1,10 @@
 from fastapi import Request
 from sqladmin import ModelView
+from sqlalchemy import select, update
+from sqlalchemy.orm import selectinload
 
 from src.config import settings
+from src.database import async_session_maker
 from src.s3_storage.utils import delete_files
 from src.users.models import UserModel
 from src.settings.models import SettingsModel
@@ -44,6 +47,27 @@ class VideoAdmin(ModelView, model=VideoModel):
                 settings.file_prefixes.preview + str(model.id),
             ]
         ):
+            async with async_session_maker() as session:
+                video_query = (
+                    select(VideoModel)
+                    .filter_by(id=model.id)
+                    .options(selectinload(VideoModel.playlists))
+                )
+
+                res = await session.execute(video_query)
+                video = res.scalar_one()
+
+                update_videos_count_stmt = (
+                    update(PlaylistModel)
+                    .filter(
+                        PlaylistModel.id.in_([p.id for p in video.playlists])
+                    )
+                    .values(videos_count=PlaylistModel.videos_count - 1)
+                )
+
+                await session.execute(update_videos_count_stmt)
+                await session.commit()
+
             return await super().on_model_delete(model, request)
 
 
