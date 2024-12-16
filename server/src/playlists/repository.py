@@ -67,6 +67,26 @@ class PlaylistRepository:
             playlists = await session.execute(query)
             return list(playlists.scalars().all())
 
+    async def search(
+        self,
+        search_query: str,
+        order: str = "id",
+        offset: int = 0,
+        limit: int = 100,
+    ) -> list[PlaylistModel]:
+        async with async_session_maker() as session:
+            query = (
+                select(PlaylistModel)
+                .order_by(order)
+                .offset(offset)
+                .limit(limit)
+                .where(PlaylistModel.title.ilike(f"%{search_query}%"))
+                .options(selectinload(PlaylistModel.videos))
+            )
+
+            playlists = await session.execute(query)
+            return list(playlists.scalars().all())
+
     async def get_user_playlists_exclude_video(
         self,
         video_id: UUID,

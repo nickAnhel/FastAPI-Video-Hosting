@@ -55,6 +55,29 @@ class UserRepository:
         result = await self.async_session.execute(query)
         return list(result.scalars().all())
 
+    async def search(
+        self,
+        search_query: str,
+        user_id: UUID | None = None,
+        order: str = "id",
+        order_desc: bool = False,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> list[UserModel]:
+        query = (
+            select(UserModel)
+            .order_by(desc(order) if order_desc else order)
+            .offset(offset)
+            .limit(limit)
+            .where(UserModel.username.ilike(f"%{search_query}%"))
+        )
+
+        if user_id:
+            query  = query.options(selectinload(UserModel.subscribers))
+
+        result = await self.async_session.execute(query)
+        return list(result.scalars().all())
+
     async def update(
         self,
         data: dict[str, Any],

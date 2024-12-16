@@ -73,8 +73,18 @@ class VideoService:
     async def search_videos(
         self,
         query: str,
+        order: VideoOrder = VideoOrder.ID,  # type: ignore
+        offset: int = 0,
+        desc: bool = False,
+        limit: int = 100,
     ) -> list[VideoGet]:
-        videos = await self._repository.search(search_query=query)
+        videos = await self._repository.search(
+            search_query=query,
+            order=order,
+            order_desc=desc,
+            offset=offset,
+            limit=limit,
+        )
         return [VideoGet.model_validate(video) for video in videos]
 
     async def get_video(

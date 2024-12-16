@@ -39,14 +39,22 @@ class VideoRepository:
     async def search(
         self,
         search_query: str,
+        order: str = "id",
+        order_desc: bool = True,
+        offset: int = 0,
+        limit: int = 100,
     ) -> list[VideoModel]:
         query = (
             select(VideoModel)
-            .filter(VideoModel.title.contains(search_query))
+            .order_by(desc(order) if order_desc else order)
+            .offset(offset)
+            .limit(limit)
+            .where(VideoModel.title.ilike(f"%{search_query}%"))
+            .options(selectinload(VideoModel.user))
         )
+
         res = await self._async_session.execute(query)
-        videos = list(res.scalars().all())
-        return videos
+        return list(res.scalars().all())
 
     async def get_single(
         self,

@@ -61,9 +61,19 @@ async def create_video(
 @router.get("/search")
 async def search_videos(
     query: Annotated[str, Query(max_length=50)],
+    order: VideoOrder = VideoOrder.ID,  # type: ignore
+    desc: bool = False,
+    offset: int = 0,
+    limit: int = 100,
     video_service: VideoService = Depends(get_video_service),
 ) -> list[VideoGet]:
-    return await video_service.search_videos(query=query)
+    return await video_service.search_videos(
+        query=query,
+        order=order,
+        desc=desc,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.get("/list")

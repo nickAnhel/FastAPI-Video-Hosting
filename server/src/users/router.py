@@ -1,5 +1,6 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, Query, status
 
 from src.schemas import Status
 from src.auth.dependencies import get_current_user, get_current_optional_user, get_current_user_with_profile
@@ -60,6 +61,26 @@ async def get_users(
     user_service: UserService = Depends(get_user_service),
 ) -> list[UserGet]:
     return await user_service.get_users(
+        user=user,
+        order=order,
+        desc=desc,
+        offset=offset,
+        limit=limit,
+    )
+
+
+@router.get("/search")
+async def search_users(
+    query: Annotated[str, Query(max_length=50)],
+    order: UserOrder = UserOrder.ID,
+    desc: bool = False,
+    offset: int = 0,
+    limit: int = 100,
+    user: UserGet | None = Depends(get_current_optional_user),
+    user_service: UserService = Depends(get_user_service),
+) -> list[UserGet]:
+    return await user_service.search_users(
+        query=query,
         user=user,
         order=order,
         desc=desc,

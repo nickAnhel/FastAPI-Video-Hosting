@@ -74,6 +74,27 @@ class PlaylistService:
 
         return [PlaylistGetWithFirstVideo.model_validate(playlist) for playlist in playlists]
 
+    async def search_playlists(
+        self,
+        query: str,
+        order: PlaylistOrder = PlaylistOrder.ID,
+        offset: int = 0,
+        limit: int = 100,
+        user: UserGet | None = None,
+    ) -> list[PlaylistGetWithFirstVideo]:
+        playlists = await self._repository.search(
+            search_query=query,
+            order=order,
+            offset=offset,
+            limit=limit,
+        )
+
+        playlists = [
+            playlist for playlist in playlists if not playlist.private or (user and playlist.user_id == user.id)
+        ]
+
+        return [PlaylistGetWithFirstVideo.model_validate(playlist) for playlist in playlists]
+
     async def get_user_playlists_exclude_video(
         self,
         video_id: UUID,

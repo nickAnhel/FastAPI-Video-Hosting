@@ -139,6 +139,52 @@ class UserService:
         except DBAPIError as exc:
             raise WrongLimitOrOffset("Limit and offset must be positive integers or 0") from exc
 
+    async def search_users(
+        self,
+        query: str,
+        user: UserGet | None = None,
+        order: UserOrder = UserOrder.ID,
+        desc: bool = False,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> list[UserGet]:
+        try:
+            users = await self._repository.search(
+                search_query=query,
+                user_id=user.id if user else None,  # type: ignore
+                order=order,
+                order_desc=desc,
+                offset=offset,
+                limit=limit,
+            )
+
+            if user:
+                users_pydantic: list[UserGet] = []
+
+                for u in users:
+                    if u.id == user.id:
+                        continue
+
+                    users_pydantic.append(
+                        UserGet(
+                            id=u.id,
+                            username=u.username,
+                            email=u.email,
+                            subscribers_count=u.subscribers_count,
+                            is_subscribed=(user.id in [s.id for s in u.subscribers]),
+                        )
+                    )
+
+                return users_pydantic
+
+            return [UserGet.model_validate(user) for user in users]
+
+        except CompileError as exc:
+            raise WrongValueOfOrder(f"Wrong value of order: {order}") from exc
+
+        except DBAPIError as exc:
+            raise WrongLimitOrOffset("Limit and offset must be positive integers or 0") from exc
+
     async def update_user(
         self,
         user_id: UUID,
