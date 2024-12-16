@@ -137,13 +137,13 @@ class VideoRepository:
     async def get_watch_history(
         self,
         user_id: uuid.UUID,
-        order: str = "id",
+        order: str = "watched_at",
         order_desc: bool = True,
         offset: int = 0,
         limit: int = 100,
     ) -> list[VideoModel]:
         history_query = (
-            select(WatchHistoryModel.video_id)
+            select(WatchHistoryModel.video_id, WatchHistoryModel.watched_at)
             .filter_by(user_id=user_id)
             .order_by(desc(order) if order_desc else order)
             .offset(offset)
@@ -154,6 +154,7 @@ class VideoRepository:
         query = (
             select(VideoModel)
             .join(history_query, VideoModel.id == history_query.c.video_id)
+            .order_by(desc(history_query.c.watched_at) if order_desc else history_query.c.watched_at)
             .options(selectinload(VideoModel.user))
         )
 
@@ -170,7 +171,7 @@ class VideoRepository:
             .values((user_id, video_id))
             .on_conflict_do_update(
                 index_elements=["video_id", "user_id"],
-                set_=dict(watched_at=datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None))
+                set_=dict(watched_at=datetime.datetime.now(tz=datetime.timezone.utc))
             )
         )
 
