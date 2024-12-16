@@ -110,6 +110,30 @@ class VideoRepository:
         await self._async_session.commit()
         return res.rowcount
 
+    async def delete_multi(
+        self,
+        user_id: uuid.UUID,
+    ) -> None:
+        videos_query = (
+            select(VideoModel)
+            .filter_by(user_id=user_id)
+            .options(selectinload(VideoModel.playlists))
+        )
+
+        res = await self._async_session.execute(videos_query)
+        videos = res.scalars().all()
+
+        for video in videos:
+            await self.delete(video_id=video.id)
+
+        # stmt = (
+        #     delete(VideoModel)
+        #     .filter_by(user_id=user_id)
+        # )
+
+        # await self._async_session.execute(stmt)
+        # await self._async_session.commit()
+
     async def get_watch_history(
         self,
         user_id: uuid.UUID,

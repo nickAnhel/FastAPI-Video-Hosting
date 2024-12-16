@@ -141,6 +141,20 @@ class VideoService:
 
         await self._repository.delete(video_id=id)
 
+    async def delete_user_videos(
+        self,
+        user_id: UUID,
+    ) -> None:
+        videos = await self._repository.get_multi(user_id=user_id)
+        filenames = []
+
+        for v in videos:
+            filenames.append(settings.file_prefixes.video + str(v.id))
+            filenames.append(settings.file_prefixes.preview + str(v.id))
+
+        await delete_files(filenames)
+        await self._repository.delete_multi(user_id=user_id)
+
     async def get_watch_history(
         self,
         user_id: UUID,

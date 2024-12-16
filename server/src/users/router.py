@@ -3,6 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from src.schemas import Status
 from src.auth.dependencies import get_current_user, get_current_optional_user, get_current_user_with_profile
+
+from src.videos.dependencies import get_video_service
+from src.videos.service import VideoService
+
 from src.users.dependencies import get_user_service
 from src.users.service import UserService
 from src.users.schemas import UserCreate, UserUpdate, UserGet, UserGetWithProfile
@@ -77,7 +81,9 @@ async def get_user_by_id(
 async def delete_user(
     user: UserGet = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
+    video_service: VideoService = Depends(get_video_service),
 ) -> Status:
+    await video_service.delete_user_videos(user_id=user.id)
     await user_service.delete_user(user_id=user.id)
     return Status(detail="User deleted successfully")
 

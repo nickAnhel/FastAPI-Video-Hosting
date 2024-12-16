@@ -4,6 +4,8 @@ from sqlalchemy import select, update, delete, desc
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# from src.videos.models import VideoModel
+
 from src.users.models import UserModel, UserSubscription
 
 
@@ -74,8 +76,45 @@ class UserRepository:
         self,
         **filters,
     ) -> int:
-        stmt = delete(UserModel).filter_by(**filters)
-        res = await self.async_session.execute(stmt)
+        user_query = (
+            select(UserModel)
+            .filter_by(**filters)
+            .options(selectinload(UserModel.subscribed))
+            # .options(selectinload(UserModel.liked_videos))
+            # .options(selectinload(UserModel.disliked_videos))
+        )
+
+        res = await self.async_session.execute(user_query)
+        user = res.scalar_one()
+
+        # update_liked_stmt = (
+        #     update(VideoModel)
+        #     .where(VideoModel.id.in_([v.id for v in user.liked_videos]))
+        #     .values(likes=VideoModel.likes - 1)
+        # )
+
+        # update_disliked_stmt = (
+        #     update(VideoModel)
+        #     .where(VideoModel.id.in_([v.id for v in user.disliked_videos]))
+        #     .values(dislikes=VideoModel.dislikes - 1)
+        # )
+
+        update_subs_count_stmt = (
+            update(UserModel)
+            .where(UserModel.id.in_([u.id for u in user.subscribed]))
+            .values(subscribers_count=UserModel.subscribers_count - 1)
+        )
+
+        delete_user_stmt = (
+            delete(UserModel)
+            .filter_by(**filters)
+        )
+
+        # await self.async_session.execute(update_liked_stmt)
+        # await self.async_session.execute(update_disliked_stmt)
+        await self.async_session.execute(update_subs_count_stmt)
+        res = await self.async_session.execute(delete_user_stmt)
+
         await self.async_session.commit()
         return res.rowcount != 0
 
