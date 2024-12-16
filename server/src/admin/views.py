@@ -19,15 +19,17 @@ class UserAdmin(ModelView, model=UserModel):
     column_list = ["id", "username", "email", "is_active", "is_admin"]
     column_searchable_list = ["id", "username"]
 
-    async def on_model_delete(self, model: UserModel, request: Request) -> None:
-        if await delete_files(
-            [
-                settings.file_prefixes.profile_photo_small + str(model.id),
-                settings.file_prefixes.profile_photo_medium + str(model.id),
-                settings.file_prefixes.profile_photo_large + str(model.id),
-            ]
-        ):
-            return await super().on_model_delete(model, request)
+    can_delete = False
+
+    # async def on_model_delete(self, model: UserModel, request: Request) -> None:
+    #     if await delete_files(
+    #         [
+    #             settings.file_prefixes.profile_photo_small + str(model.id),
+    #             settings.file_prefixes.profile_photo_medium + str(model.id),
+    #             settings.file_prefixes.profile_photo_large + str(model.id),
+    #         ]
+    #     ):
+    #         return await super().on_model_delete(model, request)
 
 
 class SettingsAdmin(ModelView, model=SettingsModel):
