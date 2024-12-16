@@ -141,11 +141,15 @@ function PlaylistDetails() {
             <div className="playlist-info">
                 <div className="title-wrapper">
                     <h2 className="playlist-title">{playlist.title}</h2>
-                    <img
-                        src="../../../assets/delete.svg"
-                        alt="Delete playlist"
-                        onClick={handleDelete}
-                    />
+
+                    {
+                        store.isAuthenticated && store.user.id == playlist.user_id &&
+                        <img
+                            src="../../../assets/delete.svg"
+                            alt="Delete playlist"
+                            onClick={handleDelete}
+                        />
+                    }
                 </div>
                 <div className="playlist-desc">{playlist.description}</div>
                 <div className="playlist-videos-count">{playlist.videos_count} video{playlist.videos_count == 1 ? "" : "s"}</div>

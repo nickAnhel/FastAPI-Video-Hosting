@@ -21,6 +21,13 @@ export default class VideoService {
         );
     }
 
+    static async searchVideos(params) {
+        return api.get(
+            "/videos/search",
+            { params },
+        )
+    }
+
     static async deleteVideo(videoId) {
         return api.delete(`/videos/?video_id=${videoId}`)
     }

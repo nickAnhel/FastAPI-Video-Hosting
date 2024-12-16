@@ -8,12 +8,16 @@ import ChannelItemList from "../ChannelItemList/ChannelItemList";
 const CHANNELS_IN_PORTION = 10;
 
 
-function ChannelsList({ fetchChannels, filters }) {
+function ChannelsList({ fetchChannels, filters, refresh }) {
     const lastItem = createRef();
     const observerLoader = useRef();
 
     const [channels, setChannels] = useState([]);
     const [offset, setOffset] = useState(0);
+
+    useEffect(() => {
+        setChannels([]);
+    }, [refresh])
 
     const { isLoading, isError, isSuccess, error } = useQuery(
         async () => {
@@ -26,7 +30,7 @@ function ChannelsList({ fetchChannels, filters }) {
             return res.data;
         },
         {
-            keys: [offset],
+            keys: [offset, refresh],
             onSuccess: (fetchedChannels) => {
                 setChannels((prevChannels) => [...prevChannels, ...fetchedChannels]);
             }
@@ -69,9 +73,7 @@ function ChannelsList({ fetchChannels, filters }) {
                         return <ChannelItemList key={channel.id} channel={channel} />
                     })
                     :
-                    <p>
-                        No channels
-                    </p>
+                    !isLoading && <p>No channels</p>
                 }
             </div>
 

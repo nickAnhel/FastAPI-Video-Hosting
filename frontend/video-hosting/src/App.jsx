@@ -27,6 +27,7 @@ import CreateVideo from './components/CreateVideo/CreateVideo';
 import PlaylistDetails from './components/PlaylistDetails/PlaylistDetails';
 import ShareModal from './components/ShareModal/ShareModal';
 import AddVideoToPlaylistModal from "./components/AddVideoToPlaylistModal/AddVideoToPlaylistModal"
+import SearchResults from './components/SearchResults/SearchResults';
 
 import Main from './pages/Main/Main';
 import Trending from './pages/Trending/Trending';
@@ -145,6 +146,10 @@ const router = createBrowserRouter([
             {
                 path: "/playlists/:id",
                 element: <PlaylistDetails />,
+            },
+            {
+                path: "/search",
+                element: <SearchResults />,
             },
         ]
     }

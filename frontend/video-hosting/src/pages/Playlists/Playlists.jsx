@@ -112,7 +112,7 @@ function Playlists() {
 
     return (
         <div className="playlists-page">
-            <PlaylistsList filters={{ owner_id: store.user.id }} refresh={refresh} />
+            <PlaylistsList fetchedPlaylists={PlaylistService.getPlaylists} filters={{ owner_id: store.user.id }} refresh={refresh} />
             <button
                 className="create-playlist-btn"
                 onClick={(e) => setIsModalActive(true)}

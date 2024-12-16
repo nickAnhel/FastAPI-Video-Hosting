@@ -10,7 +10,7 @@ import PlaylistItemList from "../PlaylistItemList/PlaylistItemList";
 const PLAYLISTS_IN_PORTION = 9;
 
 
-function PlaylistsList({ filters, refresh }) {
+function PlaylistsList({ fetchedPlaylists, filters, refresh }) {
     const lastItem = createRef();
     const observerLoader = useRef();
 
@@ -28,7 +28,7 @@ function PlaylistsList({ filters, refresh }) {
                 offset: offset,
                 limit: PLAYLISTS_IN_PORTION,
             }
-            const res = await PlaylistService.getPlaylists(params);
+            const res = await fetchedPlaylists(params);
             return res.data;
         },
         {

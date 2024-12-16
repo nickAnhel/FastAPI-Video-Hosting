@@ -34,6 +34,13 @@ export default class UserService {
         return api.get("/users/list", { params });
     }
 
+    static async searchUsers(params) {
+        return api.get(
+            "/users/search",
+            { params },
+        )
+    }
+
     static async subscribeToUser(userId) {
         return api.post(`/users/subscribe?user_id=${userId}`);
     }

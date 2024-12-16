@@ -71,13 +71,8 @@ function ChannelDetails() {
     useEffect(() => {
         let options = []
 
-        if (store.isAuthenticated && tab == 1) {
+        if (tab == 1) {
             options = [
-                {
-                    text: "Add to playlist",
-                    iconSrc: "../../../assets/playlists.svg",
-                    actionHandler: handleAddToPlaylist,
-                },
                 {
                     text: "Share",
                     iconSrc: "../../../assets/share.svg",
@@ -86,7 +81,19 @@ function ChannelDetails() {
                 },
             ]
 
-        } else if (store.isAuthenticated && tab == 2) {
+            if (store.isAuthenticated) {
+                options = [
+                    {
+                        text: "Add to playlist",
+                        iconSrc: "../../../assets/playlists.svg",
+                        actionHandler: handleAddToPlaylist,
+                    },
+                    ...options
+                ]
+
+            }
+
+        } else if (tab == 2) {
             options = [
                 {
                     text: "Share",
@@ -95,7 +102,8 @@ function ChannelDetails() {
                     params: "playlists",
                 }
             ]
-            if (store.user.id == channelId) {
+
+            if (store.isAuthenticated && store.user.id == channelId) {
                 options = [
                     {
                         text: "Delete playlist",
@@ -269,7 +277,7 @@ function ChannelDetails() {
                 }
                 {
                     tab == 2 &&
-                    <PlaylistsList filters={{ owner_id: channel.id }} refresh={refresh} />
+                    <PlaylistsList fetchedPlaylists={PlaylistService.getPlaylists} filters={{ owner_id: channel.id }} refresh={refresh} />
                 }
                 {
                     tab == 3 &&

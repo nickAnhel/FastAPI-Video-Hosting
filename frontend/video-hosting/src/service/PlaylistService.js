@@ -9,6 +9,13 @@ export default class PlaylistService {
         );
     }
 
+    static async searchPlaylists(params) {
+        return api.get(
+            "/playlists/search",
+            { params },
+        )
+    }
+
     static async getPlaylistById(playlistId) {
         return api.get(
             "/playlists/",

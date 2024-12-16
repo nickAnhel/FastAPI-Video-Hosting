@@ -1,0 +1,15 @@
+.search-results {
+    display: flex;
+    overflow-y: auto;
+    padding: 0 10%;
+}
+
+.search-results::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}
