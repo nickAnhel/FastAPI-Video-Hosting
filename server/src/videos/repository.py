@@ -207,19 +207,6 @@ class VideoRepository:
         await self._async_session.execute(stmt)
         await self._async_session.commit()
 
-    async def update_watched_at(
-        self,
-        video_id: uuid.UUID,
-        user_id: uuid.UUID,
-    ) -> None:
-        stmt = (
-            update(WatchHistoryModel)
-            .filter_by(video_id=video_id, user_id=user_id)
-            .values(watched_at=datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None))
-        )
-        await self._async_session.execute(stmt)
-        await self._async_session.commit()
-
     async def get_liked(
         self,
         user_id: uuid.UUID,
@@ -229,7 +216,7 @@ class VideoRepository:
         limit: int = 100,
     ) -> list[VideoModel]:
         liked_query = (
-            select(LikesModel.video_id)
+            select(LikesModel.video_id, LikesModel.liked_at)
             .filter_by(user_id=user_id)
             .order_by(desc(order) if order_desc else order)
             .offset(offset)
@@ -240,6 +227,7 @@ class VideoRepository:
         query = (
             select(VideoModel)
             .join(liked_query, VideoModel.id == liked_query.c.video_id)
+            .order_by(desc(order) if order_desc else order)
             .options(selectinload(VideoModel.user))
         )
 
