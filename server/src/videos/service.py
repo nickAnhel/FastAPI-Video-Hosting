@@ -164,7 +164,11 @@ class VideoService:
         limit: int = 100,
     ) -> list[VideoGet]:
         video_models = await self._repository.get_watch_history(
-            order=order, order_desc=desc, offset=offset, limit=limit, user_id=user_id
+            order=order,
+            order_desc=desc,
+            offset=offset,
+            limit=limit,
+            user_id=user_id,
         )
         return [VideoGet.model_validate(v) for v in video_models]
 

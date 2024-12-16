@@ -1,6 +1,7 @@
 import uuid
-from datetime import datetime
-from sqlalchemy import ForeignKey, String, func
+import datetime
+from functools import partial
+from sqlalchemy import ForeignKey, String, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import Base
@@ -40,7 +41,10 @@ class VideoModel(Base):
         secondary="user_video_history",
     )
 
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        default=partial(datetime.datetime.now, tz=datetime.timezone.utc),
+    )
 
 
 class LikesModel(Base):
@@ -54,7 +58,10 @@ class LikesModel(Base):
         ForeignKey("videos.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    liked_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    liked_at: Mapped[datetime.datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        default=partial(datetime.datetime.now, tz=datetime.timezone.utc),
+    )
 
 
 class DislikesModel(Base):
@@ -81,4 +88,7 @@ class WatchHistoryModel(Base):
         ForeignKey("videos.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    watched_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    watched_at: Mapped[datetime.datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        default=partial(datetime.datetime.now, tz=datetime.timezone.utc),
+    )
