@@ -20,13 +20,15 @@ function Me() {
                     to="/me/profile"
                     className={({ isActive }) => isActive ? "page active" : "page"}
                 >
-                    Profile
+                    <img src="../../../../assets/manage-profile.svg" alt="Profile" />
+                    <div>Profile</div>
                 </NavLink>
                 <NavLink
                     to="/me/settings"
                     className={({ isActive }) => isActive ? "page active" : "page"}
                 >
-                    Settings
+                    <img src="../../../../assets/settings.svg" alt="Settings" />
+                    <div>Settings</div>
                 </NavLink>
             </div>
             <div className="page-content">

@@ -11,6 +11,7 @@
 }
 
 .pages {
+    padding-top: .5rem;
     width: 20%;
     height: 100%;
     display: flex;
@@ -20,6 +21,9 @@
 }
 
 .page {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     text-decoration: none;
     vertical-align: middle;
     color: #fff;
@@ -34,4 +38,9 @@
 .page:hover {
     background-color: #474747;
     transition: all 0.2s linear;
+}
+
+.page img {
+    width: 1.7rem;
+    height: 1.7rem;
 }
