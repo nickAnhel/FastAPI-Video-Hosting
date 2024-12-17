@@ -20,15 +20,15 @@ function SearchResults() {
         <div className="search-results">
             {
                 searchScope == "videos" &&
-                <VideosList fetchVideos={VideoService.searchVideos} filters={{desc: true, query: searchQuery}} refresh={searchQuery} />
+                <VideosList fetchVideos={VideoService.searchVideos} filters={{query: searchQuery}} refresh={searchQuery} />
             }
             {
                 searchScope == "playlists" &&
-                <PlaylistsList fetchedPlaylists={PlaylistService.searchPlaylists} filters={{desc: true, query: searchQuery}} refresh={searchQuery} />
+                <PlaylistsList fetchedPlaylists={PlaylistService.searchPlaylists} filters={{query: searchQuery}} refresh={searchQuery} />
             }
             {
                 searchScope == "channels" &&
-                <ChannelsList fetchChannels={UserService.searchUsers} filters={{desc: true, query: searchQuery}} refresh={searchQuery} />
+                <ChannelsList fetchChannels={UserService.searchUsers} filters={{query: searchQuery}} refresh={searchQuery} />
             }
         </div>
     )

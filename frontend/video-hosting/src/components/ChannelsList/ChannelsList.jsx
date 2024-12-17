@@ -16,6 +16,7 @@ function ChannelsList({ fetchChannels, filters, refresh }) {
     const [offset, setOffset] = useState(0);
 
     useEffect(() => {
+        setOffset(0);
         setChannels([]);
     }, [refresh])
 

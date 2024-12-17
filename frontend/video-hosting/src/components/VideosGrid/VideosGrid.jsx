@@ -6,7 +6,7 @@ import VideoItemGrid from "../VideoItemGrid/VideoItemGrid";
 import Loader from "../Loader/Loader";
 
 
-const VIDEOS_IN_PORTION = 9;
+const VIDEOS_IN_PORTION = 5;
 
 
 function VideosGrid({ fetchVideos, filters, refresh }) {
@@ -41,7 +41,7 @@ function VideosGrid({ fetchVideos, filters, refresh }) {
     );
 
     const actionInSight = (entries) => {
-        if (entries[0].isIntersecting && offset < VIDEOS_IN_PORTION * 5) {
+        if (entries[0].isIntersecting && offset < VIDEOS_IN_PORTION * 10) {
             setOffset((prev) => prev + VIDEOS_IN_PORTION);
         }
     };

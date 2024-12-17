@@ -31,7 +31,7 @@
     width: 60%;
     display: flex;
     flex-direction: column;
-    gap: 0.7rem;
+    gap: 0.5rem;
     box-sizing: border-box;
 }
 
@@ -47,10 +47,10 @@
     overflow: hidden !important;
 
     max-width: 100%;
-    height: 2.5rem;
+    height: 2rem;
     color: #fff;
     font-weight: 600;
-    font-size: 1.6rem;
+    font-size: 1.3rem;
 }
 
 .video-item-list .description {
