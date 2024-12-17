@@ -143,8 +143,6 @@ class UserService:
         self,
         query: str,
         user: UserGet | None = None,
-        order: UserOrder = UserOrder.ID,
-        desc: bool = False,
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserGet]:
@@ -152,12 +150,10 @@ class UserService:
             users = await self._repository.search(
                 search_query=query,
                 user_id=user.id if user else None,  # type: ignore
-                order=order,
-                order_desc=desc,
                 offset=offset,
                 limit=limit,
             )
-
+            print(users)
             if user:
                 users_pydantic: list[UserGet] = []
 
@@ -178,9 +174,6 @@ class UserService:
                 return users_pydantic
 
             return [UserGet.model_validate(user) for user in users]
-
-        except CompileError as exc:
-            raise WrongValueOfOrder(f"Wrong value of order: {order}") from exc
 
         except DBAPIError as exc:
             raise WrongLimitOrOffset("Limit and offset must be positive integers or 0") from exc

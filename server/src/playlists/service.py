@@ -77,14 +77,12 @@ class PlaylistService:
     async def search_playlists(
         self,
         query: str,
-        order: PlaylistOrder = PlaylistOrder.ID,
         offset: int = 0,
         limit: int = 100,
         user: UserGet | None = None,
     ) -> list[PlaylistGetWithFirstVideo]:
         playlists = await self._repository.search(
             search_query=query,
-            order=order,
             offset=offset,
             limit=limit,
         )

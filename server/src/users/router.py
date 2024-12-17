@@ -72,8 +72,6 @@ async def get_users(
 @router.get("/search")
 async def search_users(
     query: Annotated[str, Query(max_length=50)],
-    order: UserOrder = UserOrder.ID,
-    desc: bool = False,
     offset: int = 0,
     limit: int = 100,
     user: UserGet | None = Depends(get_current_optional_user),
@@ -82,8 +80,6 @@ async def search_users(
     return await user_service.search_users(
         query=query,
         user=user,
-        order=order,
-        desc=desc,
         offset=offset,
         limit=limit,
     )

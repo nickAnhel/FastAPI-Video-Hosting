@@ -1,6 +1,6 @@
 from typing import Any
 from uuid import UUID
-from sqlalchemy import select, update, delete, desc
+from sqlalchemy import select, update, delete, desc, func, or_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,14 +11,14 @@ from src.users.models import UserModel, UserSubscription
 
 class UserRepository:
     def __init__(self, async_session: AsyncSession) -> None:
-        self.async_session = async_session
+        self._async_session = async_session
 
     async def create(
         self,
         data: dict[str, Any],
     ) -> UserModel:
         user = UserModel(**data)
-        self.async_session.add(user)
+        self._async_session.add(user)
         return user
 
     async def get_single(
@@ -31,7 +31,7 @@ class UserRepository:
             .options(selectinload(UserModel.subscribers))
             .options(selectinload(UserModel.subscribed))
         )
-        result = await self.async_session.execute(query)
+        result = await self._async_session.execute(query)
         return result.scalar_one()
 
     async def get_multi(
@@ -52,31 +52,39 @@ class UserRepository:
         if user_id:
             query  = query.options(selectinload(UserModel.subscribers))
 
-        result = await self.async_session.execute(query)
+        result = await self._async_session.execute(query)
         return list(result.scalars().all())
 
     async def search(
         self,
         search_query: str,
         user_id: UUID | None = None,
-        order: str = "id",
-        order_desc: bool = False,
         offset: int = 0,
         limit: int = 100,
     ) -> list[UserModel]:
+        columns = func.coalesce(UserModel.username, '').concat(func.coalesce(UserModel.about, ''))
+        columns = columns.self_group()
+
         query = (
             select(UserModel)
-            .order_by(desc(order) if order_desc else order)
+            .where(
+                or_(
+                    columns.bool_op("%")(search_query),
+                    columns.ilike(f"%{search_query}%"),
+                )
+            )
+            .order_by(
+                func.similarity(columns, search_query).desc(),
+            )
             .offset(offset)
             .limit(limit)
-            .where(UserModel.username.ilike(f"%{search_query}%"))
         )
 
         if user_id:
             query  = query.options(selectinload(UserModel.subscribers))
 
-        result = await self.async_session.execute(query)
-        return list(result.scalars().all())
+        res = await self._async_session.execute(query)
+        return list(res.scalars().all())
 
     async def update(
         self,
@@ -90,8 +98,8 @@ class UserRepository:
             .returning(UserModel)
         )
 
-        result = await self.async_session.execute(stmt)
-        await self.async_session.commit()
+        result = await self._async_session.execute(stmt)
+        await self._async_session.commit()
 
         return result.scalar_one()
 
@@ -107,7 +115,7 @@ class UserRepository:
             # .options(selectinload(UserModel.disliked_videos))
         )
 
-        res = await self.async_session.execute(user_query)
+        res = await self._async_session.execute(user_query)
         user = res.scalar_one()
 
         # update_liked_stmt = (
@@ -135,10 +143,10 @@ class UserRepository:
 
         # await self.async_session.execute(update_liked_stmt)
         # await self.async_session.execute(update_disliked_stmt)
-        await self.async_session.execute(update_subs_count_stmt)
-        res = await self.async_session.execute(delete_user_stmt)
+        await self._async_session.execute(update_subs_count_stmt)
+        res = await self._async_session.execute(delete_user_stmt)
 
-        await self.async_session.commit()
+        await self._async_session.commit()
         return res.rowcount != 0
 
     async def subscribe(
@@ -152,7 +160,7 @@ class UserRepository:
         if subscriber not in user.subscribers:
             user.subscribers.append(subscriber)
             user.subscribers_count += 1
-            await self.async_session.commit()
+            await self._async_session.commit()
 
     async def unsubscribe(
         self,
@@ -164,7 +172,7 @@ class UserRepository:
 
         user.subscribers.remove(subscriber)
         user.subscribers_count -= 1
-        await self.async_session.commit()
+        await self._async_session.commit()
 
     async def get_subscriptions(
         self,
@@ -182,5 +190,5 @@ class UserRepository:
             .options(selectinload(UserModel.subscribers))
         )
 
-        res = await self.async_session.execute(query)
+        res = await self._async_session.execute(query)
         return list(res.scalars().all())

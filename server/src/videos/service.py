@@ -80,8 +80,6 @@ class VideoService:
     ) -> list[VideoGet]:
         videos = await self._repository.search(
             search_query=query,
-            order=order,
-            order_desc=desc,
             offset=offset,
             limit=limit,
         )

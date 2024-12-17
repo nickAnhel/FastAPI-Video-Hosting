@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import Any, Self
-from sqlalchemy import insert, select, delete, update
+from sqlalchemy import insert, select, delete, update, func, or_
 from sqlalchemy.orm import selectinload
 
 from src.database import async_session_maker
@@ -70,17 +70,26 @@ class PlaylistRepository:
     async def search(
         self,
         search_query: str,
-        order: str = "id",
         offset: int = 0,
         limit: int = 100,
     ) -> list[PlaylistModel]:
         async with async_session_maker() as session:
+            columns = func.coalesce(PlaylistModel.title, '').concat(func.coalesce(PlaylistModel.description, ''))
+            columns = columns.self_group()
+
             query = (
                 select(PlaylistModel)
-                .order_by(order)
+                .where(
+                    or_(
+                        columns.bool_op("%")(search_query),
+                        columns.ilike(f"%{search_query}%"),
+                    )
+                )
+                .order_by(
+                    func.similarity(columns, search_query).desc(),
+                )
                 .offset(offset)
                 .limit(limit)
-                .where(PlaylistModel.title.ilike(f"%{search_query}%"))
                 .options(selectinload(PlaylistModel.videos))
             )
 

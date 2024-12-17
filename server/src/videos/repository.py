@@ -1,7 +1,7 @@
 import uuid
 import datetime
 from typing import Any, Literal
-from sqlalchemy import insert, select, delete, update, desc
+from sqlalchemy import insert, select, delete, update, desc, func, or_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,17 +39,25 @@ class VideoRepository:
     async def search(
         self,
         search_query: str,
-        order: str = "id",
-        order_desc: bool = True,
         offset: int = 0,
         limit: int = 100,
     ) -> list[VideoModel]:
+        columns = func.coalesce(VideoModel.title, '').concat(func.coalesce(VideoModel.description, ''))
+        columns = columns.self_group()
+
         query = (
             select(VideoModel)
-            .order_by(desc(order) if order_desc else order)
+            .where(
+                or_(
+                    columns.bool_op("%")(search_query),
+                    columns.ilike(f"%{search_query}%")
+                )
+            )
+            .order_by(
+                func.similarity(columns, search_query).desc(),
+            )
             .offset(offset)
             .limit(limit)
-            .where(VideoModel.title.ilike(f"%{search_query}%"))
             .options(selectinload(VideoModel.user))
         )
 

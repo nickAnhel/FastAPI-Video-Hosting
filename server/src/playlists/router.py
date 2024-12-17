@@ -47,7 +47,6 @@ async def get_playlists(
 @router.get("/search")
 async def search_playlists(
     query: Annotated[str, Query(max_length=50)],
-    order: PlaylistOrder = PlaylistOrder.ID,
     offset: int = 0,
     limit: int = 100,
     user: UserGet = Depends(get_current_optional_user),
@@ -56,7 +55,6 @@ async def search_playlists(
     return await playlist_service.search_playlists(
         query=query,
         user=user,
-        order=order,
         offset=offset,
         limit=limit,
     )
