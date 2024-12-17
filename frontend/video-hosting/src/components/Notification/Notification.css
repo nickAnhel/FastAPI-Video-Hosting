@@ -1,0 +1,42 @@
+.notification {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 1.1rem;
+    padding: .5rem;
+    box-sizing: border-box;
+    border-radius: .5rem;
+    cursor: pointer;
+    transition: all .2s;
+    line-height: 1.5rem;
+}
+
+.notification:hover {
+    opacity: .8;
+}
+
+.notification img {
+    padding: 0;
+    aspect-ratio: 1/1;
+}
+
+.notification .notification-text {
+    width: 100%;
+}
+
+.notification img.channel {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.notification img.notification-delete {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+}
+
+.notification .notification-delete:hover {
+    background: transparent;
+    opacity: .6;
+}

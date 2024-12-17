@@ -1,0 +1,93 @@
+.notifications {
+    position: relative;
+    display: flex;
+}
+
+.notifications .notifications-menu {
+    height: 40rem;
+    width: 35rem;
+    position: absolute;
+    right: 0;
+    top: 3rem;
+    background-color: #333;
+    border-radius: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    padding: 1rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.notifications .active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.notifications .notifications-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1.3rem;
+    border-bottom: 1px solid #7e7e7e;
+
+}
+
+.notifications .notifications-header h3 {
+    margin: 0;
+}
+
+.notifications .settings-link-img {
+    width: 1.8rem;
+    height: 1.8rem;
+}
+
+.notifications .settings-link-img:hover {
+    background: transparent;
+    opacity: .6;
+}
+
+.notifications .notifications-list {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    overflow-y: auto;
+}
+
+.notifications .notifications-list::-webkit-scrollbar {
+    width: 0.3rem;
+    background: transparent;
+}
+
+.notifications .notifications-list::-webkit-scrollbar-thumb {
+    background-color: #7e7e7e;
+    border-radius: 1rem;
+}
+
+.notifications .hint {
+    font-size: 1.3rem;
+    margin: auto;
+    /* color: #6b6b6b; */
+    color: #fff;
+}
+
+.notifications .notifications-btn {
+    position: relative;
+}
+
+.notifications .notifications-count {
+    position: absolute;
+    top: -.2rem;
+    left: 1.5rem;
+    font-size: .7rem;
+    padding: 0 .4rem;
+    font-weight: 600;
+    background-color: #636363;
+    color: #e8eaed;
+    border-radius: 1rem;
+}

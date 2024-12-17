@@ -5,6 +5,7 @@ import "./Header.css"
 
 import { Context } from "../../main";
 import Search from "../Search/Search";
+import Notifications from "../Notifications/Notifications";
 
 
 function Header() {
@@ -34,7 +35,9 @@ function Header() {
                             <Link to="/create">
                                 <img src="../../../../assets/create.svg" alt="Create Video" />
                             </Link>
-                            <img src="../../../../assets/notifications.svg" alt="Notifications" />
+
+                            <Notifications />
+
                             <Link to="/me/profile">
                                 <img
                                     // src="../../../../assets/profile.svg" alt="Me"

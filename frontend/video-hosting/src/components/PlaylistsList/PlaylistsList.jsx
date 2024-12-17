@@ -2,7 +2,6 @@ import { useState, createRef, useRef, useEffect } from "react";
 import { useQuery } from "@siberiacancode/reactuse";
 import "./PlaylistsList.css"
 
-import PlaylistService from "../../service/PlaylistService";
 import Loader from "../Loader/Loader";
 import PlaylistItemList from "../PlaylistItemList/PlaylistItemList";
 
@@ -18,6 +17,7 @@ function PlaylistsList({ fetchedPlaylists, filters, refresh }) {
     const [offset, setOffset] = useState(0);
 
     useEffect(() => {
+        setOffset(0);
         setPlaylists([]);
     }, [refresh])
 
