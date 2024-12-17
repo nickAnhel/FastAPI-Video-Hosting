@@ -12,10 +12,12 @@ from fastapi import (
 
 from src.schemas import Status
 
-from src.auth.dependencies import get_current_user, get_current_optional_user
-from src.users.schemas import UserGet
+from src.auth.dependencies import get_current_user, get_current_optional_user, get_current_user_with_subscriptions
+from src.users.schemas import UserGet, UserGetWithSubscriptions
 from src.playlists.dependencies import get_playlists_service
 from src.playlists.service import PlaylistService
+from src.notifications.dependencies import get_notifications_service
+from src.notifications.service import NotificationsService
 
 from src.videos.schemas import VideoGet, VideoCreate, VideoLikesDislikes, VideoViews, VideoGetWithUserStatus
 from src.videos.service import VideoService
@@ -35,8 +37,9 @@ async def create_video(
     preview: UploadFile,
     title: str = Form(...),
     description: str = Form(...),
-    user: UserGet = Depends(get_current_user),
+    user: UserGetWithSubscriptions = Depends(get_current_user_with_subscriptions),
     video_service: VideoService = Depends(get_video_service),
+    notifications_service: NotificationsService = Depends(get_notifications_service),
 ) -> VideoGet:
     if video.content_type != "video/mp4":
         raise HTTPException(
@@ -51,11 +54,19 @@ async def create_video(
         )
 
     data = VideoCreate(title=title, description=description, user_id=user.id)
-    return await video_service.create_video(
+
+    created_video = await video_service.create_video(
         video=video.file,  # type: ignore
         preview=preview.file,  # type: ignore
         data=data,
     )
+
+    await notifications_service.send_notification_to_user_subs(
+        user=user,
+        video_id=created_video.id
+    )
+
+    return created_video
 
 
 @router.get("/search")

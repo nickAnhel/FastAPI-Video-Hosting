@@ -7,6 +7,7 @@ from src.settings.router import router as settings_router
 from src.comments.router import router as comments_router
 from src.playlists.router import router as playlists_router
 from src.videos.router import router as videos_router
+from src.notifications.router import router as notifications_router
 
 # Exception handlers
 from src.exceptions import (
@@ -77,6 +78,13 @@ from src.s3_storage.exc_handlers import (
     cant_delete_file_handler,
 )
 
+from src.notifications.exceptions import (
+    NotificationNotFound,
+)
+from src.notifications.exc_handlers import (
+    notification_not_found_handler
+)
+
 
 def register_routes(app: FastAPI) -> None:
     app.include_router(auth_router)
@@ -85,6 +93,7 @@ def register_routes(app: FastAPI) -> None:
     app.include_router(videos_router)
     app.include_router(comments_router)
     app.include_router(playlists_router)
+    app.include_router(notifications_router)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -112,3 +121,5 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     app.add_exception_handler(CantUploadFileToStorage, cant_upload_file_handler)  # type: ignore
     app.add_exception_handler(CantDeleteFileFromStorage, cant_delete_file_handler)  # type: ignore
+
+    app.add_exception_handler(NotificationNotFound, notification_not_found_handler)  # type: ignore

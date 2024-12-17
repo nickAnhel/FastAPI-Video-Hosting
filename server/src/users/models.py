@@ -66,3 +66,14 @@ class UserModel(Base):
         back_populates="watched_users",
         secondary="user_video_history",
     )
+
+    notifications: Mapped["NotificationModel"] = relationship(
+        "NotificationModel",
+        back_populates="user",
+        foreign_keys="[NotificationModel.user_id]",
+    )
+    notificated: Mapped["NotificationModel"] = relationship(
+        "NotificationModel",
+        back_populates="channel",
+        foreign_keys="[NotificationModel.channel_id]",
+    )

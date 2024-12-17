@@ -41,6 +41,8 @@ class VideoModel(Base):
         secondary="user_video_history",
     )
 
+    notificated: Mapped["NotificationModel"] = relationship(back_populates="video")
+
     created_at: Mapped[datetime.datetime] = mapped_column(
         TIMESTAMP(timezone=True),
         default=partial(datetime.datetime.now, tz=datetime.timezone.utc),
