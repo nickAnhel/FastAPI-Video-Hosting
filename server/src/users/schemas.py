@@ -45,7 +45,7 @@ class UserGetWithSettings(UserGetWithTelegramChatId):
 
 class UserGetWithSubscriptions(UserGetWithProfile):
     subscribers: list[UserGetWithSettings]
-    subscribed: list[UserGetWithSettings]
+    subscribed: list[UserGet]
 
 
 class UserUpdate(BaseSchema):

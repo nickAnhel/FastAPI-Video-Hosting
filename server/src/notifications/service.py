@@ -26,11 +26,13 @@ class NotificationsService:
         user: UserGetWithSubscriptions,
         video: VideoGet,
     ) -> None:
-        await self._repository.create_multi(
-            users_ids=[u.id for u in user.subscribers],
-            channel_id=user.id,
-            video_id=video.id,
-        )
+        if user.subscribers:
+            await self._repository.create_multi(
+                users_ids=[u.id for u in user.subscribers],
+                channel_id=user.id,
+                video_id=video.id,
+            )
+
 
         for u in user.subscribers:
             if u.settings.enable_email_notifications:
