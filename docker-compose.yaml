@@ -16,6 +16,7 @@ services:
       - ./server/.docker-env
     depends_on:
       - db
+      - notifications
 
   db:
     container_name: db
@@ -27,6 +28,58 @@ services:
       - ./.postgres-env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  notifications:
+    container_name: notifications
+    restart: on-failure
+    command: bash -c "python3 ./src/main.py"
+    build:
+      context: ./notifications
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./notifications/:/project/
+    env_file:
+      - ./notifications/.docker-env
+    depends_on:
+      - rabbitmq
+
+  celery:
+    container_name: celery
+    build:
+      context: ./notifications
+    restart: on-failure
+    command: bash -c " cd src && celery --app=tasks:app worker --loglevel=info"
+    env_file:
+      - ./notifications/.docker-env
+    volumes:
+      - ./notifications/:/project/
+
+  flower:
+    container_name: flower
+    build:
+      context: ./notifications
+    restart: on-failure
+    command: bash -c " cd src && celery --app=tasks:app flower"
+    env_file:
+      - ./notifications/.docker-env
+    ports:
+      - 5555:5555
+    depends_on:
+      - celery
+
+  notifications_bot:
+    container_name: notifications_bot
+    restart: on-failure
+    command: bash -c "python3 ./src/main.py"
+    build:
+      context: ./notifications_bot
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./notifications_bot/:/project/
+    env_file:
+      - ./notifications_bot/.docker-env
+    depends_on:
+      - db
 
   frontend:
     container_name: frontend
@@ -46,14 +99,27 @@ services:
       - server
 
   pgadmin:
-    image: dpage/pgadmin4
     container_name: pgadmin
+    image: dpage/pgadmin4
     ports:
       - 5050:80
     env_file:
       - ./.postgres-env
     depends_on:
       - db
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:4-management
+    restart: on-failure
+    hostname: rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    env_file:
+      - ./.rabbit-env
 
 volumes:
   postgres_data:

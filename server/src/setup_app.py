@@ -25,6 +25,7 @@ from src.users.exc_handlers import (
     cant_unsubscribe_from_user_handler,
     wrong_value_of_order_handler,
     wrong_limit_or_offset_handler,
+    failed_to_docode_token_handler,
 )
 from src.users.exceptions import (
     UserNotFound,
@@ -34,6 +35,7 @@ from src.users.exceptions import (
     CantUnsubscribeFromUser,
     WrongValueOfOrder,
     WrongLimitOrOffset,
+    FailedToDecodeToken,
 )
 
 from src.comments.exc_handlers import (
@@ -85,6 +87,15 @@ from src.notifications.exc_handlers import (
     notification_not_found_handler
 )
 
+from src.settings.exceptions import (
+    EmailNotVerified,
+    TelegramNotVerified,
+)
+from src.settings.exc_handlers import (
+    email_not_verified_handler,
+    telegram_not_verified_handler,
+)
+
 
 def register_routes(app: FastAPI) -> None:
     app.include_router(auth_router)
@@ -106,6 +117,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(CantUnsubscribeFromUser, cant_unsubscribe_from_user_handler)  # type: ignore
     app.add_exception_handler(WrongValueOfOrder, wrong_value_of_order_handler)  # type: ignore
     app.add_exception_handler(WrongLimitOrOffset, wrong_limit_or_offset_handler)  # type: ignore
+    app.add_exception_handler(FailedToDecodeToken, failed_to_docode_token_handler)  # type: ignore
 
     app.add_exception_handler(CommentNotFound, comment_not_found_handler)  # type: ignore
     app.add_exception_handler(CommentContentWrongFormat, comment_content_wrong_format_handler)  # type: ignore
@@ -123,3 +135,6 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(CantDeleteFileFromStorage, cant_delete_file_handler)  # type: ignore
 
     app.add_exception_handler(NotificationNotFound, notification_not_found_handler)  # type: ignore
+
+    app.add_exception_handler(EmailNotVerified, email_not_verified_handler)  # type: ignore
+    app.add_exception_handler(TelegramNotVerified, telegram_not_verified_handler)  # type: ignore

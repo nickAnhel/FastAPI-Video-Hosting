@@ -36,6 +36,28 @@ class AdminSettings(BaseModel):
     admin_sesion_expire_minutes: int = int(os.environ.get("ADMIN_SESSION_EXPIRE_MINUTES"))  # type: ignore
 
 
+class RabbitMQSettings(BaseModel):
+    user: str = os.environ.setdefault("RABBITMQ_USER", "")
+    password: str = os.environ.setdefault("RABBITMQ_PASS", "")
+    host: str = os.environ.setdefault("RABBITMQ_HOST", "")
+    port: int = int(os.environ.setdefault("RABBITMQ_PORT", ""))
+    queue: str = os.environ.setdefault("RABBITMQ_QUEUE", "")
+
+    @property
+    def url(self) -> str:
+        return f"amqp://{self.user}:{self.password}@{self.host}:{self.port}"
+
+
+class URLSettings(BaseModel):
+    backend_host: str = os.environ.setdefault("BACKEND_HOST", "")
+    frontend_host: str = os.environ.setdefault("FRONTEND_HOST", "")
+
+
+class VerificationSettings(BaseModel):
+    secret_key: str = os.environ.setdefault("VERIFICATION_SECRET_KEY", "")
+    salt: str = os.environ.setdefault("VERIFICATION_SALT", "")
+
+
 class Settings(BaseSettings):
     project_title: str
     version: str
@@ -46,6 +68,9 @@ class Settings(BaseSettings):
     file_prefixes: FilePrefixes = FilePrefixes()
     storage_settings: StorageSettings = StorageSettings()
     admin_settings: AdminSettings = AdminSettings()
+    rabbitmq_settings: RabbitMQSettings = RabbitMQSettings()
+    url_settings: URLSettings = URLSettings()
+    verification_settings: VerificationSettings = VerificationSettings()
 
 
 settings = Settings(

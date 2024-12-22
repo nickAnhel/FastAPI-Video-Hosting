@@ -10,6 +10,7 @@ from src.users.exceptions import (
     CantUnsubscribeFromUser,
     WrongValueOfOrder,
     WrongLimitOrOffset,
+    FailedToDecodeToken,
 )
 
 
@@ -60,5 +61,11 @@ async def wrong_value_of_order_handler(request: Request, exc: WrongValueOfOrder)
 async def wrong_limit_or_offset_handler(request: Request, exc: WrongLimitOrOffset) -> HTTPException:
     raise HTTPException(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail=str(exc),
+    )
+
+async def failed_to_docode_token_handler(request: Request, exc: FailedToDecodeToken) -> HTTPException:
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
         detail=str(exc),
     )

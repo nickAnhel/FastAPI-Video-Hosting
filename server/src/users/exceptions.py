@@ -45,3 +45,10 @@ class WrongLimitOrOffset(Exception):
 
     def __init__(self, message="Wrong limit or offset"):
         super().__init__(message)
+
+
+class FailedToDecodeToken(Exception):
+    """Wrong limit or offset exception."""
+
+    def __init__(self, message="Failed to decode token"):
+        super().__init__(message)

@@ -3,8 +3,10 @@
 .env
 .docker-env
 .postgres-env
+.rabbit-env
 .pylintrc
 __pycache__
 certs/
 solutions.md
 node_modules
+rabbitmq/

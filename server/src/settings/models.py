@@ -19,4 +19,4 @@ class SettingsModel(Base):
     user: Mapped["UserModel"] = relationship(back_populates="settings")  # type: ignore
 
     enable_telegram_notifications: Mapped[bool] = mapped_column(default=False)
-    enable_email_notifications: Mapped[bool] = mapped_column(default=True)
+    enable_email_notifications: Mapped[bool] = mapped_column(default=False)

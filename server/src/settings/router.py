@@ -27,4 +27,4 @@ async def update_settings(
     user: UserGet = Depends(get_current_user),
     service: SettingsService = Depends(get_settings_service),
 ) -> SettingsGet:
-    return await service.udpate(user_id=user.id, data=data)
+    return await service.udpate(user=user, data=data)

@@ -1,7 +1,9 @@
 from uuid import UUID
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, Query, status
+from fastapi.responses import RedirectResponse
 
+from src.config import settings
 from src.schemas import Status
 from src.auth.dependencies import get_current_user, get_current_optional_user, get_current_user_with_profile
 
@@ -26,6 +28,32 @@ async def create_user(
     users_service: UserService = Depends(get_user_service),
 ) -> UserGetWithProfile:
     return await users_service.create_user(data)
+
+
+@router.get("/email/send-verification")
+async def send_email_verification(
+    user: UserGet = Depends(get_current_user),
+    users_service: UserService = Depends(get_user_service),
+) -> None:
+    await users_service.send_email_verification(user=user)
+
+
+@router.get("/email/verify/{token}")
+async def verify_email(
+    token: str,
+    users_service: UserService = Depends(get_user_service),
+) -> RedirectResponse:
+    await users_service.verify_email(token=token)
+    return RedirectResponse(f"{settings.url_settings.frontend_host}/me/profile")
+
+
+@router.get("/telegram/verify/{token}")
+async def verify_telegram(
+    token: str,
+    users_service: UserService = Depends(get_user_service),
+) -> RedirectResponse:
+    await users_service.verify_telegram(token=token)
+    return RedirectResponse(f"{settings.url_settings.frontend_host}/me/profile")
 
 
 @router.get("/me")
@@ -131,7 +159,7 @@ async def update_user(
     user: UserGet = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
 ) -> UserGetWithProfile:
-    return await user_service.update_user(user_id=user.id, data=data)
+    return await user_service.update_user(curr_user=user, data=data)
 
 
 @router.put("/photo")

@@ -41,7 +41,7 @@ class UserSettingsUOW:
             await self._session.commit()
         except IntegrityError as exc:
             await self._session.rollback()
-            raise UsernameOrEmailAlreadyExists("Username or email already exists") from exc
+            raise UsernameOrEmailAlreadyExists("Username, email or telegram already exists") from exc
         finally:
             await self._session.close()
             self._session = None  # type: ignore

@@ -61,10 +61,7 @@ async def create_video(
         data=data,
     )
 
-    await notifications_service.send_notification_to_user_subs(
-        user=user,
-        video_id=created_video.id
-    )
+    await notifications_service.send_notification_to_user_subs(user=user, video=created_video)
 
     return created_video
 

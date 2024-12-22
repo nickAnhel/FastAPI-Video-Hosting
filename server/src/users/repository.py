@@ -28,8 +28,11 @@ class UserRepository:
         query = (
             select(UserModel)
             .filter_by(**filters)
-            .options(selectinload(UserModel.subscribers))
             .options(selectinload(UserModel.subscribed))
+            .options(
+                selectinload(UserModel.subscribers)
+                .options(selectinload(UserModel.settings))
+            )
         )
         result = await self._async_session.execute(query)
         return result.scalar_one()

@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import Field
+from pydantic import BaseModel, Field, EmailStr
 
 from src.schemas import BaseSchema
 

@@ -1,10 +1,13 @@
 import io
+from pathlib import Path
 from uuid import UUID
 from sqlalchemy.exc import NoResultFound, DBAPIError, CompileError, IntegrityError
 from PIL import Image
+from jinja2 import Template
 
 from src.config import settings
 from src.database import async_session_maker
+from src.schemas import Email
 
 from src.s3_storage.utils import upload_file, delete_files
 from src.s3_storage.exceptions import (
@@ -12,10 +15,17 @@ from src.s3_storage.exceptions import (
     CantDeleteFileFromStorage,
 )
 
+from src.settings.schemas import SettingsUpdate
+
 from src.users.uow import UserSettingsUOW
 from src.users.repository import UserRepository
-from src.users.utils import get_password_hash
 from src.users.enums import UserOrder
+from src.users.utils import (
+    get_password_hash,
+    send_verification_email,
+    create_url_safe_token,
+    decode_url_safe_token,
+)
 from src.users.exceptions import (
     UserNotFound,
     UsernameOrEmailAlreadyExists,
@@ -33,6 +43,9 @@ from src.users.schemas import (
     UserGetWithPassword,
     UserGetWithSubscriptions,
 )
+
+
+BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class UserService:
@@ -55,7 +68,64 @@ class UserService:
             await uow.refresh(user)
             await uow.settings_repo.create(user_id=user.id)  # type: ignore
 
-        return UserGetWithProfile.model_validate(user)
+        user_data = UserGetWithProfile.model_validate(user)
+
+        await self.send_email_verification(user=user_data)
+
+        return user_data
+
+    async def send_email_verification(
+        self,
+        user: UserGet,
+    ) -> None:
+        verify_token = create_url_safe_token(data={"email": user.email})
+        verify_link = f"{settings.url_settings.backend_host}/users/email/verify/{verify_token}"
+
+        with open(BASE_DIR / "templates" / "verify.html", "r", encoding="utf-8") as file:
+            template = Template(file.read())
+
+        email_body = template.render(verify_link=verify_link)
+        message = Email(
+            email=user.email,
+            subject="ТипоTube Verify email",
+            content=email_body,
+        )
+
+        await send_verification_email(message)
+
+    async def verify_email(
+        self,
+        token: str,
+    ) -> None:
+        token_data = decode_url_safe_token(token)
+        email = token_data.get("email")
+
+        try:
+            await self._repository.update(
+                data={"is_verified_email": True},
+                email=email,
+            )
+        except NoResultFound as exc:
+            raise UserNotFound(f"User with email {email} not found") from exc
+
+    async def verify_telegram(
+        self,
+        token: str,
+    ) -> None:
+        token_data = decode_url_safe_token(token)
+        telegram_username = token_data.get("telegram_username")
+        chat_id = int(token_data.get("chat_id"))  # type: ignore
+
+        try:
+            await self._repository.update(
+                data={
+                    "is_verified_telegram": True,
+                    "telegram_chat_id": chat_id,
+                },
+                telegram_username=telegram_username,
+            )
+        except NoResultFound as exc:
+            raise UserNotFound(f"User with telegram {telegram_username!r} not found") from exc
 
     async def get_user(
         self,
@@ -74,10 +144,13 @@ class UserService:
                     id=user.id,
                     username=user.username,
                     email=user.email,
+                    telegram_username=user.telegram_username,
+                    is_verified_email=user.is_verified_email,
+                    is_verified_telegram=user.is_verified_telegram,
                     subscribers_count=user.subscribers_count,
                     about=user.about,
                     social_links=user.social_links,
-                    is_subscribed=(curr_user.id in [u.id for u in user.subscribers])
+                    is_subscribed=(curr_user.id in [u.id for u in user.subscribers]),
                 )
 
         except NoResultFound as exc:
@@ -124,6 +197,9 @@ class UserService:
                             id=u.id,
                             username=u.username,
                             email=u.email,
+                            telegram_username=u.telegram_username,
+                            is_verified_email=u.is_verified_email,
+                            is_verified_telegram=u.is_verified_telegram,
                             subscribers_count=u.subscribers_count,
                             is_subscribed=(user.id in [s.id for s in u.subscribers]),
                         )
@@ -166,6 +242,9 @@ class UserService:
                             id=u.id,
                             username=u.username,
                             email=u.email,
+                            telegram_username=u.telegram_username,
+                            is_verified_email=u.is_verified_email,
+                            is_verified_telegram=u.is_verified_telegram,
                             subscribers_count=u.subscribers_count,
                             is_subscribed=(user.id in [s.id for s in u.subscribers]),
                         )
@@ -180,24 +259,35 @@ class UserService:
 
     async def update_user(
         self,
-        user_id: UUID,
+        curr_user: UserGet,
         data: UserUpdate,
     ) -> UserGetWithProfile:
         """Update user by id."""
         try:
-            user_data = data.model_dump(exclude_none=True)
+            user_data = data.model_dump()
 
             if "social_links" in user_data:
                 user_data["social_links"] = [str(link) for link in user_data["social_links"]]
 
+            if user_data["telegram_username"] != curr_user.telegram_username:
+                user_data["is_verified_telegram"] = False
+
+                async with self._uow.start() as uow:
+                    await uow.settings_repo.update(SettingsUpdate(enable_telegram_notifications=False), user_id=curr_user.id)
+                    user = await uow.user_repo.update(
+                        data=user_data,
+                        id=curr_user.id,
+                    )
+                    return UserGetWithProfile.model_validate(user)
+
             user = await self._repository.update(
                 data=user_data,
-                id=user_id,
+                id=curr_user.id,
             )
             return UserGetWithProfile.model_validate(user)
 
         except NoResultFound as exc:
-            raise UserNotFound(f"User with id {user_id} not found") from exc
+            raise UserNotFound(f"User with id {curr_user.id} not found") from exc
 
         except IntegrityError as exc:
             raise UsernameOrEmailAlreadyExists(f"User with username {data.username} already exists") from exc
@@ -334,6 +424,9 @@ class UserService:
                 id=user.id,
                 username=user.username,
                 email=user.email,
+                telegram_username=user.telegram_username,
+                is_verified_email=user.is_verified_email,
+                is_verified_telegram=user.is_verified_telegram,
                 subscribers_count=user.subscribers_count,
                 is_subscribed=(curr_user and (curr_user.id in [u.id for u in user.subscribers])),
             )

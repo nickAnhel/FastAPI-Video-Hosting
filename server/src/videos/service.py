@@ -57,7 +57,7 @@ class VideoService:
 
         if not await upload_file(
             file=img_bytes,
-            filename=settings.file_prefixes.preview + str(video_model.id),
+            filename=settings.file_prefixes.preview + str(video_model.id) + ".jpg",
         ):
             await self._repository.delete(video_id=video_model.id)
             raise CantUploadFileToStorage("Failed to upload preview")

@@ -10,23 +10,26 @@ class SMTPSettings(BaseModel):
     password: str = os.environ.setdefault("SMTP_PASSWORD", "")
 
 
+class RabbitMQSettings(BaseModel):
+    user: str = os.environ.setdefault("RABBITMQ_USER", "")
+    password: str = os.environ.setdefault("RABBITMQ_PASS", "")
+    host: str = os.environ.setdefault("RABBITMQ_HOST", "")
+    port: int = int(os.environ.setdefault("RABBITMQ_PORT", ""))
+    queue: str = os.environ.setdefault("RABBITMQ_QUEUE", "")
+
+    @property
+    def url(self) -> str:
+        return f"amqp://{self.user}:{self.password}@{self.host}:{self.port}"
+
+
 class TelegramSettings(BaseModel):
     token: str = os.environ.setdefault("TELEGRAM_TOKEN", "")
 
 
 class Settings(BaseSettings):
-    project_title: str
-    version: str
-    debug: bool
-    description: str
-
     smtp: SMTPSettings = SMTPSettings()
+    rabbitmq: RabbitMQSettings = RabbitMQSettings()
     telegram: TelegramSettings = TelegramSettings()
 
 
-settings = Settings(
-    project_title="Notifications Service API",
-    version="0.1.0",
-    debug=True,
-    description="API for notifications service",
-)
+settings = Settings()
