@@ -21,8 +21,8 @@ function Header() {
         <div className="header">
             <div className="left">
                 <Link to="/" className="logo-link">
-                    <img src="../../../../assets/logo.svg" alt="Logo" />
-                    <div className="logo">ТипоTube</div>
+                    <img src="../../../../assets/logo.png" alt="Logo" />
+                    {/* <div className="logo">ТипоTube</div> */}
                 </Link>
             </div>
 
