@@ -11,7 +11,7 @@ const PlaylistItemList = forwardRef((props, ref) => {
 
     const [firstVideoImgSrc, setFirstVideoImgSrc] = useState(
         props.playlist.videos.length ?
-        `${import.meta.env.VITE_STORAGE_URL}VP@${props.playlist.videos[0]?.id}`:
+        `${import.meta.env.VITE_STORAGE_URL}VP@${props.playlist.videos[0]?.id}.jpg`:
         "../../../../assets/playlist.svg"
     )
 

@@ -59,34 +59,61 @@ function Settings() {
                 </div>
 
                 <div className="section-body">
-                    <label className="check-item" htmlFor="email-switch">
+                    <label
+                        className={store.user.is_verified_email ? "check-item" : "disabled check-item"}
+                        htmlFor="email-switch"
+                    >
                         <input
                             className="check"
                             type="checkbox"
                             id="email-switch"
                             checked={emailNotifications}
                             onChange={(e) => setEmailNotifications(e.target.checked)}
+                            disabled={!store.user.is_verified_email}
                         />
-                        <div className="toggle">
+                        <div
+                            className={store.user.is_verified_email ? "toggle" : "disabled toggle"}
+                        >
                             <span className="circle" />
                         </div>
+
                         <span className={emailNotifications ? "checked check-label" : "check-label"}>Enable email notifications</span>
+
+                        {
+                            !store.user.is_verified_email &&
+                            <span className="error">Please verify your email</span>
+                        }
                     </label>
 
 
-                    <label className="check-item" htmlFor="telegram-switch">
+                    <label
+                        className={store.user.is_verified_telegram ? "check-item" : "disabled check-item"}
+                        htmlFor="telegram-switch"
+                    >
                         <input
                             className="check"
                             type="checkbox"
                             id="telegram-switch"
                             checked={telegramNotifications}
                             onChange={(e) => setTelegramNotifications(e.target.checked)}
+                            disabled={!store.user.is_verified_telegram}
                         />
-                        <div className="toggle">
+                        <div
+                            className={store.user.is_verified_telegram ? "toggle" : "disabled toggle"}
+                        >
                             <span className="circle" />
                         </div>
                         <span className={telegramNotifications ? "checked check-label" : "check-label"}>Enable telegram notifications</span>
+
+                        {
+                            store.user.telegram_username != null ?
+                                !store.user.is_verified_telegram ?
+                                    <span className="error">Please verify your telegram</span>
+                                    : null
+                                : <span className="error">Please enter and verify your telegram</span>
+                        }
                     </label>
+
                 </div>
             </section>
 
@@ -94,7 +121,13 @@ function Settings() {
                 type="submit"
                 className="save-button"
                 onClick={handleSave}
-                disabled={isLoading}
+                disabled={
+                    isLoading ||
+                    (
+                        !store.user.is_verified_telegram &&
+                        !store.user.is_verified_email
+                    )
+                }
             >
                 {isLoading ? <Loader /> : "Save"}
             </button>

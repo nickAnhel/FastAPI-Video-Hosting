@@ -34,7 +34,7 @@
     width: 70%;
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
+    gap: .5rem;
 }
 
 .credentials-wrapper img {
@@ -52,16 +52,17 @@
 }
 
 .credentials {
+    width: calc(100% - 11rem);
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: .5rem;
 }
 
 .credentials input {
     display: block;
-    width: 100%;
+    /* width: 100%; */
     font-size: 1.5rem;
-    padding: 0.5rem 0;
+    padding: 0.2rem 0;
     border: 0;
     box-sizing: border-box;
     background: transparent;
@@ -69,10 +70,93 @@
     color: #fff;
 }
 
+.email-wrapper {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.email-wrapper .verified {
+    font-weight: 600;
+    font-size: .8rem;
+    color: #28a745;
+    background-color: #1c582a;
+    padding: 0 .5rem;
+    border-radius: 1rem;
+}
+
+.email-wrapper .not-verified {
+    font-weight: 600;
+    font-size: .9rem;
+    color: #dc3545;
+    background-color: #5c1e1e;
+    padding: 0 .5rem;
+    border-radius: 1rem;
+}
+
 .credentials p.email {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #7e7e7e;
+}
+
+.telegram-wrapper {
+    width: 70%;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.telegram-wrapper input {
+    display: block;
+    width: 100%;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    border: 0;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+    background: transparent;
+    border: 1px solid #fff;
+    color: #ffff;
+}
+
+.telegram-wrapper .verify {
+    width: 5rem;
+    text-align: center;
+    font-size: 1.2rem;
+    background-color: #7e7e7e;
+    border-radius: .5rem;
+    padding: 0.5rem 1rem;
+    transition: all .2s;
+    border: 1px solid #7e7e7e;
+    cursor: pointer;
+}
+
+.telegram-wrapper .verify:hover {
+    opacity: .6;
+}
+
+.telegram-wrapper .verified {
+    width: 5rem;
+    text-align: center;
+    font-size: 1.2rem;
+    border-radius: .5rem;
+    border: 1px solid #fff;
+    padding: 0.5rem 1rem;
+}
+
+.credentials .telegram {
+    color: #7e7e7e;
+    border-color: #7e7e7e;
+    font-size: 1.1rem;
+    padding: 0;
+    width: 100%;
+    transition: all .2s;
+}
+
+.credentials .telegram:focus {
+    color: #fff;
+    border-color: #fff;
 }
 
 .profile-form .about-wrapper {
@@ -169,7 +253,8 @@
 
 .image-form {
     width: 25rem;
-    padding: 1rem;;
+    padding: 1rem;
+    ;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -212,4 +297,14 @@
 
 .image-form button {
     width: 100%;
+}
+
+.verify-text {
+    margin: 0;
+    padding: .5rem 1rem;
+    font-size: 1.5rem;
+}
+
+.verify-text a {
+    color: #33b5e5;
 }

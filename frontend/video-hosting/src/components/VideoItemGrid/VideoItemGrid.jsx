@@ -19,7 +19,7 @@ const VideoItemGrid = forwardRef((props, ref) => {
         <Link to={`/videos/${props.video.id}`} className="video-item-grid" ref={ref}>
             <img
                 className="preview"
-                src={`${import.meta.env.VITE_STORAGE_URL}VP@${props.video.id}`}
+                src={`${import.meta.env.VITE_STORAGE_URL}VP@${props.video.id}.jpg`}
                 alt={props.video.title}
             />
             <div className="info-wrapper">

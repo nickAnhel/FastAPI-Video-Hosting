@@ -121,3 +121,14 @@
 .save-button:disabled:hover {
     opacity: 0.5;
 }
+
+.settings .disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.settings .error {
+    background: transparent;
+    font-size: 1.2rem;
+    color: rgb(255, 0, 0);
+}

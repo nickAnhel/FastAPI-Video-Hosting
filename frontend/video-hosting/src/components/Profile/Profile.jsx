@@ -20,9 +20,12 @@ function Profile() {
     const [isLoadingProfilePhotoUpdate, setIsLoadingProfilePhotoUpdate] = useState(false);
     const [isLoadingProfilePhotoDelete, setIsLoadingProfilePhotoDelete] = useState(false);
     const [imgSrc, setImgSrc] = useState(`${import.meta.env.VITE_STORAGE_URL}PPl@${store.user.id}?${performance.now()}`);
+
     const [isModalActive, setIsModalActive] = useState(false);
+    const [isVerifyModalActive, setIsVerifyModalActive] = useState(false);
 
     const [username, setUsername] = useState("");
+    const [telegram, setTelegram] = useState("");
     const [about, setAbout] = useState("");
     const [socialLinks, setSocialLinks] = useState([]);
 
@@ -44,6 +47,7 @@ function Profile() {
 
     useEffect(() => {
         setUsername(store.user.username);
+        setTelegram(store.user.telegram_username);
         setAbout(store.user.about);
         setSocialLinks(store.user.social_links);
     }, []);
@@ -67,6 +71,7 @@ function Profile() {
 
     const handleReset = () => {
         setUsername(store.user.username);
+        setTelegram(store.user.telegram_username);
         setAbout(store.user.about);
         setSocialLinks(store.user.social_links);
     }
@@ -78,6 +83,7 @@ function Profile() {
         try {
             const data = {
                 username: username.trim(),
+                telegram_username: telegram ? telegram.trim() : null,
                 about: about.trim(),
                 social_links: socialLinks
             };
@@ -98,6 +104,7 @@ function Profile() {
                 type: "error"
             })
 
+            console.log(e);
             console.log(e.response?.data?.detail);
         }
         setIsLoadingSave(false);
@@ -216,8 +223,41 @@ function Profile() {
                                 maxLength={50}
                                 required
                             />
-                            <p className="email">{store.user.email}</p>
+
+                            <div className="email-wrapper">
+                                <p className="email">{store.user.email}</p>
+                                {
+                                    store.user.is_verified_email ?
+                                        <span className="verified">Verified</span>
+                                        :
+                                        <span className="not-verified">Not verified</span>
+                                }
+                            </div>
+
                         </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2>Telegram</h2>
+                    <div className="telegram-wrapper">
+                        <input
+                            className="Telegram"
+                            type="text"
+                            placeholder="telegram"
+                            value={telegram}
+                            onChange={(e) => setTelegram(e.target.value)}
+                            maxLength={32}
+                        />
+
+                        <div
+                            className={store.user.is_verified_telegram ? "verified" : "verify"}
+                            onClick={store.user.is_verified_telegram ? () => { } : () => { setIsVerifyModalActive(true) }}
+
+                        >
+                            {store.user.is_verified_telegram ? "Verified" : "Verify"}
+                        </div>
+
                     </div>
                 </div>
 
@@ -336,6 +376,12 @@ function Profile() {
 
                     </button>
                 </form>
+            </Modal>
+
+            <Modal active={isVerifyModalActive} setActive={setIsVerifyModalActive}>
+                <p className="verify-text">
+                    Contact our <a href={import.meta.env.VITE_TELEGRAM_BOT_LINK} target="_blank">Telegram bot</a> to verify your telegram account
+                </p>
             </Modal>
         </div>
     )
