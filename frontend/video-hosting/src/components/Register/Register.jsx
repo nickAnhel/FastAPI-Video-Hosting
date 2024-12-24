@@ -5,6 +5,7 @@ import "./Register.css"
 
 import { Context } from "../../main";
 import { AlertsContext } from "../../App";
+import Loader from "../Loader/Loader";
 
 
 function Register() {
@@ -17,7 +18,8 @@ function Register() {
     const [password, setPassword] = useState("");
     const [about, setAbout] = useState("");
     const [socialLinks, setSocialLinks] = useState([]);
-    const [error, setError] = useState("");
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleLinkChange = (index, event) => {
         const newLinks = [...socialLinks];
@@ -38,6 +40,7 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         try {
             await store.register(
                 {
@@ -50,13 +53,24 @@ function Register() {
             )
             navigate("/");
         } catch (e) {
-            alertsContext.addAlert({
-                text: e.response?.data?.detail,
-                time: 2000,
-                type: "error"
-            })
+            if (e.response?.data?.detail) {
+                alertsContext.addAlert({
+                    text: e.response?.data?.detail,
+                    time: 2000,
+                    type: "error"
+                })
+            } else {
+                alertsContext.addAlert({
+                    text: "Something went wrong. Please try again",
+                    time: 2000,
+                    type: "error"
+                })
+            }
+            console.log(e);
             console.log(e.response?.data?.detail);
         }
+
+        setIsLoading(false);
     }
 
     return (
@@ -89,6 +103,8 @@ function Register() {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        minLength={8}
+                        maxLength={50}
                         required
                     />
                 </div>
@@ -141,10 +157,11 @@ function Register() {
 
                 </div>
 
-                {error && <div className="error">{error}</div>}
-
-                <button type="submit">
-                    Sign Up
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                >
+                    {isLoading ? <Loader /> : "Sign Up"}
                 </button>
             </form>
 
