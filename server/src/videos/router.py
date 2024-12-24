@@ -4,6 +4,7 @@ from fastapi import (
     APIRouter,
     HTTPException,
     UploadFile,
+    BackgroundTasks,
     Query,
     Depends,
     Form,
@@ -35,6 +36,7 @@ router = APIRouter(
 async def create_video(
     video: UploadFile,
     preview: UploadFile,
+    bt: BackgroundTasks,
     title: str = Form(...),
     description: str = Form(...),
     user: UserGetWithSubscriptions = Depends(get_current_user_with_subscriptions),
@@ -61,7 +63,8 @@ async def create_video(
         data=data,
     )
 
-    await notifications_service.send_notification_to_user_subs(user=user, video=created_video)
+    bt.add_task(notifications_service.send_notification_to_user_subs, user=user, video=created_video)
+    # await notifications_service.send_notification_to_user_subs(user=user, video=created_video)
 
     return created_video
 
