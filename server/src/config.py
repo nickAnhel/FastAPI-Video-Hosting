@@ -1,4 +1,5 @@
 import os
+import json
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
@@ -58,6 +59,10 @@ class VerificationSettings(BaseModel):
     salt: str = os.environ.setdefault("VERIFICATION_SALT", "")
 
 
+class CORSSettings(BaseModel):
+    allowed_hosts: list[str] = json.loads(os.environ.get("CORS_ALLOWED_HOSTS"))
+
+
 class Settings(BaseSettings):
     project_title: str
     version: str
@@ -71,6 +76,7 @@ class Settings(BaseSettings):
     rabbitmq_settings: RabbitMQSettings = RabbitMQSettings()
     url_settings: URLSettings = URLSettings()
     verification_settings: VerificationSettings = VerificationSettings()
+    cors_settings: CORSSettings = CORSSettings()
 
 
 settings = Settings(

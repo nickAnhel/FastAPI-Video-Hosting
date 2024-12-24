@@ -18,7 +18,7 @@ admin = create_admin(app)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_settings.allowed_hosts,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
