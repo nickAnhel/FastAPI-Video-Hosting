@@ -52,7 +52,7 @@ export default class Store {
             this.setAuthenticated(false);
             this.setUser({});
         } catch (e) {
-            console.log(e.response?.data?.detail)
+            console.log(e?.response?.data?.detail)
         }
     }
 
@@ -69,7 +69,7 @@ export default class Store {
             delete userData.subscribed;
             this.setUser(userData);
         } catch (e) {
-            console.log(e.response?.data?.detail);
+            console.log(e?.response?.data?.detail);
 
             localStorage.removeItem('token');
             this.setAuthenticated(false);

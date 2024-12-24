@@ -129,12 +129,21 @@ function Profile() {
             store.logout();
             navigate("/login");
         } catch (e) {
-            alertsContext.addAlert({
-                text: e.response?.data?.detail,
-                time: 2000,
-                type: "error"
-            })
+            if (e.response?.data?.detail) {
+                alertsContext.addAlert({
+                    text: e.response?.data?.detail,
+                    time: 2000,
+                    type: "error"
+                })
+            } else {
+                alertsContext.addAlert({
+                    text: "Semothing went wrong. Please try again",
+                    time: 2000,
+                    type: "error"
+                })
+            }
 
+            console.log(e);
             console.log(e.response?.data?.detail);
         }
 
@@ -162,6 +171,7 @@ function Profile() {
                 type: "success"
             })
         } catch (e) {
+            console.log(e);
             console.log(e.response?.data?.detail);
         }
 
@@ -181,6 +191,7 @@ function Profile() {
                 type: "success"
             })
         } catch (e) {
+            console.log(e);
             console.log(e.response?.data?.detail);
         }
 

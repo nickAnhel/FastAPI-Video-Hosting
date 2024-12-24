@@ -16,7 +16,6 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
 
     const usernameInputRef = useRef(null);
 
@@ -34,13 +33,22 @@ const Login = () => {
             await store.login(username, password);
             navigate("/");
         } catch (e) {
-            // setError(e.response?.data?.detail);
+            if (e.response?.data?.detail) {
+                alertsContext.addAlert({
+                    text: e.response?.data?.detail,
+                    time: 2000,
+                    type: "error"
+                })
+            } else {
+                alertsContext.addAlert({
+                    text: "Semothing went wrong. Please try again",
+                    time: 2000,
+                    type: "error"
+                })
+            }
+
+            console.log(e);
             console.log(e.response?.data?.detail);
-            alertsContext.addAlert({
-                text: e.response?.data?.detail,
-                time: 2000,
-                type: "error"
-            })
         }
 
         setIsLoading(false);
@@ -71,8 +79,6 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-
-                {error && <div className="error">{error}</div>}
 
                 <button
                     type="submit"
