@@ -105,7 +105,7 @@ function Profile() {
             })
 
             console.log(e);
-            console.log(e.response?.data?.detail);
+            console.log(e?.response?.data?.detail);
         }
         setIsLoadingSave(false);
     };
@@ -144,7 +144,7 @@ function Profile() {
             }
 
             console.log(e);
-            console.log(e.response?.data?.detail);
+            console.log(e?.response?.data?.detail);
         }
 
         setIsLoadingDelete(false);
@@ -172,7 +172,7 @@ function Profile() {
             })
         } catch (e) {
             console.log(e);
-            console.log(e.response?.data?.detail);
+            console.log(e?.response?.data?.detail);
         }
 
         setIsLoadingProfilePhotoUpdate(false);
@@ -192,7 +192,7 @@ function Profile() {
             })
         } catch (e) {
             console.log(e);
-            console.log(e.response?.data?.detail);
+            console.log(e?.response?.data?.detail);
         }
 
         setImgSrc("../../../../assets/profile.svg");

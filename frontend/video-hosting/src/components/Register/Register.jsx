@@ -67,7 +67,7 @@ function Register() {
                 })
             }
             console.log(e);
-            console.log(e.response?.data?.detail);
+            console.log(e?.response?.data?.detail);
         }
 
         setIsLoading(false);
