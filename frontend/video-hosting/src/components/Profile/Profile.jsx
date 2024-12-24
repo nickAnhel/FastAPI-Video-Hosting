@@ -255,7 +255,7 @@ function Profile() {
                         <input
                             className="Telegram"
                             type="text"
-                            placeholder="telegram"
+                            placeholder="Telegram username"
                             value={telegram}
                             onChange={(e) => setTelegram(e.target.value)}
                             maxLength={32}
