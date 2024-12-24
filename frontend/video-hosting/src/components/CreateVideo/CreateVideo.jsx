@@ -35,6 +35,24 @@ function CreateVideo() {
     }
 
     const handlePublish = async () => {
+        if (video.size > 1000000000) {
+            alertsContext.addAlert({
+                text: "Video size is too large",
+                time: 2000,
+                type: "error"
+            })
+            return;
+        }
+
+        if (preview.size > 10000000) {
+            alertsContext.addAlert({
+                text: "Preview size is too large",
+                time: 2000,
+                type: "error"
+            })
+            return;
+        }
+
         alertsContext.addAlert({
             text: "Video is publishing. Do not leave this page!",
             time: 5000,
@@ -47,7 +65,6 @@ function CreateVideo() {
             title: title,
             description: description
         }
-        console.log(videoData)
 
         setIsLoading(true);
 
@@ -81,7 +98,6 @@ function CreateVideo() {
                 <label
                     htmlFor="preview-file"
                     className="file"
-                // style={{boxShadow: preview ? "" :  "inset 0 0 2rem 1rem rgba(0, 0, 0, .2)",}}
                 >
                     <div hidden={preview} >Select preview</div>
 

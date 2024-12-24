@@ -157,6 +157,15 @@ function Profile() {
     }
 
     const handleProfilePhotoUpdate = async () => {
+        if (profilePhoto.size > 10000000) {
+            alertsContext.addAlert({
+                text: "Profile photo size is too large",
+                time: 2000,
+                type: "error"
+            })
+            return
+        }
+
         setIsLoadingProfilePhotoUpdate(true);
 
         try {
