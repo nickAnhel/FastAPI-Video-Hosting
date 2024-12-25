@@ -33,6 +33,8 @@ function Profile() {
     const [selectedFile, setSelectedFile] = useState();
     const [preview, setPreview] = useState();
 
+    const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[^\s]*)?$/i;
+
     useEffect(() => {
         if (!selectedFile) {
             setPreview(undefined)
@@ -76,20 +78,54 @@ function Profile() {
         setSocialLinks(store.user.social_links);
     }
 
+    const normalizeURL = (url) => {
+        return url.startsWith("http://") || url.startsWith("https://")
+            ? url
+            : `https://${url}`;
+    }
+
+    const validateURL = (input) => {
+        try {
+            const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[^\s]*)?$/i;
+            const normalizedUrl = normalizeURL(input);
+            new URL(normalizedUrl)
+            return true && urlRegex.test(normalizedUrl);
+        } catch {
+            return false;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         setIsLoadingSave(true);
+
         try {
+            for (const index in socialLinks) {
+                console.log(socialLinks[index])
+
+                if (!validateURL(socialLinks[index])) {
+                    setIsLoadingSave(false);
+                    alertsContext.addAlert({
+                        text: "Wrong URL format",
+                        time: 2000,
+                        type: "error"
+                    })
+                    return;
+                }
+            }
+
+            const normalizedLinks = socialLinks.map(link => normalizeURL(link))
+
             const data = {
                 username: username.trim(),
                 telegram_username: telegram ? telegram.trim() : null,
                 about: about.trim(),
-                social_links: socialLinks
+                social_links: normalizedLinks
             };
 
             const res = await UserService.updateMe(data);
             store.setUser(res.data);
+            handleReset();
 
             alertsContext.addAlert({
                 text: "Profile data updated successfully",
@@ -98,11 +134,20 @@ function Profile() {
             })
 
         } catch (e) {
-            alertsContext.addAlert({
-                text: e.response?.data?.detail,
-                time: 2000,
-                type: "error"
-            })
+            if (e?.response?.data?.detail) {
+                alertsContext.addAlert({
+                    text: e?.response?.data?.detail,
+                    time: 2000,
+                    type: "error"
+                })
+            } else {
+                alertsContext.addAlert({
+                    text: "Something went wrong. Please try again",
+                    time: 2000,
+                    type: "error"
+                })
+
+            }
 
             console.log(e);
             console.log(e?.response?.data?.detail);
@@ -302,7 +347,7 @@ function Profile() {
                             socialLinks.map((link, index) => (
                                 <div key={index} className="link">
                                     <input
-                                        type="url"
+                                        type="text"
                                         value={link}
                                         onChange={(event) => handleLinkChange(index, event)}
                                         placeholder={`Link ${index + 1}`}

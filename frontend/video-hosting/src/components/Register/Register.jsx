@@ -29,7 +29,7 @@ function Register() {
 
     const addLink = () => {
         if (socialLinks.length < 10) {
-            setSocialLinks([...socialLinks, '']);
+            setSocialLinks([...socialLinks, ""]);
         }
     };
 
@@ -38,17 +38,52 @@ function Register() {
         setSocialLinks(newLinks);
     };
 
+    const normalizeURL = (url) => {
+        console.log(url)
+        return url.startsWith("http://") || url.startsWith("https://")
+            ? url
+            : `https://${url}`;
+    }
+
+    const validateURL = (input) => {
+        try {
+            const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[^\s]*)?$/i;
+            const normalizedUrl = normalizeURL(input);
+            new URL(normalizedUrl)
+            return true && urlRegex.test(normalizedUrl);
+        } catch {
+            return false;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         try {
+
+            for (const index in socialLinks) {
+                console.log(socialLinks[index])
+
+                if (!validateURL(socialLinks[index])) {
+                    setIsLoading(false);
+                    alertsContext.addAlert({
+                        text: "Wrong URL format",
+                        time: 2000,
+                        type: "error"
+                    })
+                    return;
+                }
+            }
+
+            const normalizedLinks = socialLinks.map(link => normalizeURL(link))
+
             await store.register(
                 {
                     username: username.trim(),
                     email: email.trim(),
                     password,
                     about: about.trim(),
-                    social_links: socialLinks
+                    social_links: normalizedLinks
                 }
             )
             navigate("/");
@@ -131,7 +166,7 @@ function Register() {
                             socialLinks.map((link, index) => (
                                 <div key={index} className="link">
                                     <input
-                                        type="url"
+                                        type="text"
                                         value={link}
                                         onChange={(event) => handleLinkChange(index, event)}
                                         placeholder={`Link ${index + 1}`}
