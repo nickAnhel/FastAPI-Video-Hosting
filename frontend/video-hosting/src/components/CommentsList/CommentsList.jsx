@@ -109,12 +109,12 @@ function CommentsList({ videoId }) {
                     >
                         {
                             isLoadingComment ?
-                            <Loader />
-                            :
-                            <img
-                                src="../../../../assets/send.svg"
-                                alt="Leave comment"
-                            />
+                                <Loader />
+                                :
+                                <img
+                                    src="../../../../assets/send.svg"
+                                    alt="Leave comment"
+                                />
                         }
                     </button>
                 </div>
@@ -122,7 +122,7 @@ function CommentsList({ videoId }) {
 
             <div className="comments">
                 {
-                    comments.length == 0 && "No comments"
+                    comments.length == 0 && !isLoading && "No comments"
                 }
                 {
                     comments.map((comment, index) => {
