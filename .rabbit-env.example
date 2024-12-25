@@ -1,0 +1,2 @@
+RABBITMQ_DEFAULT_USER="Your rabbitmq username"
+RABBITMQ_DEFAULT_PASS="Your rabbitmq password"

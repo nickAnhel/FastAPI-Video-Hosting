@@ -1,0 +1,14 @@
+TOKEN="Your telegram bot token"
+
+DB_HOST="Your db host"
+DB_PORT="Your db port"
+DB_NAME="Your db name"
+DB_USER="Your db username"
+DB_PASSWORD="Your db password"
+ECHO=false
+
+SECRET_KEY="Your verfication secret key"
+SALT="Your verfication salt"
+
+BACKEND_HOST="Your backend host"
+FRONTEND_HOST="Your frontend host"

@@ -1,0 +1,6 @@
+POSTGRES_DB="Your db name"
+POSTGRES_USER="Your db username"
+POSTGRES_PASSWORD="Your db password"
+
+PGADMIN_DEFAULT_EMAIL="Your pgadmin email"
+PGADMIN_DEFAULT_PASSWORD="Your pgadmin password"

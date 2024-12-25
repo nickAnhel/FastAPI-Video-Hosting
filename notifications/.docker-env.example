@@ -1,0 +1,12 @@
+SMTP_HOST="Your SMTP host"
+SMTP_PORT=465
+SMTP_USERNAME="Your SMTP username"
+SMTP_PASSWORD="Your SMTP password"
+
+TELEGRAM_TOKEN="Your telegram bot token"
+
+RABBITMQ_USER="Your rabbitmq username"
+RABBITMQ_PASS="Your rabbitmq password"
+RABBITMQ_HOST="Yout rabbitmq host"
+RABBITMQ_PORT="Your rabbitmq port"
+RABBITMQ_QUEUE="Your rabbitmq queue name"

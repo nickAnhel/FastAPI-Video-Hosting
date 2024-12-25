@@ -1,0 +1,4 @@
+VITE_STORAGE_URL="Your S3 storage url"
+VITE_HOST="Your frontend host"
+VITE_BACKEND_HOST="Your backend host"
+VITE_TELEGRAM_BOT_LINK="Your telegram bot link"

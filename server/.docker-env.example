@@ -1,0 +1,33 @@
+CORS_ALLOWED_HOSTS='["Your allowed host 1","Your allowed host 2"]'
+
+DB_HOST="Your db host"
+DB_PORT="Your db port"
+DB_NAME="Your db name"
+DB_USER="Your db username"
+DB_PASSWORD="Your db password"
+
+ACCESS_KEY="Your S3 access key"
+SECRET_KEY="Your S3 secret key"
+BUCKET_NAME="Your S3 bucket name"
+BUCKET_URL="Your S3 bucket url"
+STORAGE_URL="Your S3 storage url"
+
+ADMIN_SECRET_KEY="Your secret key"
+ADMIN_SESSION_EXPIRE_MINUTES="Your admin session expire time"
+
+SMTP_HOST="Your SMTP host"
+SMTP_PORT=465
+SMTP_USERNAME="Your SMTP username"
+SMTP_PASSWORD="Your SMTP password"
+
+RABBITMQ_USER="Your rabbitmq username"
+RABBITMQ_PASS="Your rabbitmq password"
+RABBITMQ_HOST="Yout rabbitmq host"
+RABBITMQ_PORT="Your rabbitmq port"
+RABBITMQ_QUEUE="Your rabbitmq queue name"
+
+BACKEND_HOST="Your backend host"
+FRONTEND_HOST="Your frontend host"
+
+VERIFICATION_SECRET_KEY="Your verfication secret key"
+VERIFICATION_SALT="Your verfication salt"
