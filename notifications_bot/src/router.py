@@ -13,8 +13,7 @@ from utils import create_url_safe_token
 router = Router()
 
 
-@router.message(CommandStart())
-async def start_command(message: Message) -> None:
+async def try_verify_telegram(message: Message) -> None:
     try:
         user = await repository.get_user(message.from_user.username)
 
@@ -29,7 +28,7 @@ async def start_command(message: Message) -> None:
                 parse_mode="html",
             )
         else:
-            await message.answer("Your telegram is verified")
+            await message.answer("Your Telegram account is verified")
 
     except NoResultFound:
         platfrom_link = hlink("ТипоTube", settings.frontend_host)
@@ -39,3 +38,16 @@ async def start_command(message: Message) -> None:
             f"Please register on {platfrom_link} and enter your telegram account in your {profile_link} to use this bot",
             parse_mode="html",
         )
+
+
+@router.message(CommandStart())
+async def start_command(message: Message) -> None:
+    await message.answer(
+        "Welcome to ТипоTube Notifications bot!\n\nCommands:\n/start  - Start using bot and verify Telegram account\n/verify - Verify your Telegram account"
+    )
+    await try_verify_telegram(message)
+
+
+@router.message(Command("verify"))
+async def verify_command(message: Message) -> None:
+    await try_verify_telegram(message)
