@@ -4,7 +4,8 @@ services:
   server:
     container_name: server
     restart: on-failure
-    command: bash -c "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
+    # command: bash -c "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
+    command: bash -c "alembic upgrade head && gunicorn -b 0.0.0.0:8000 -w 5 -k uvicorn.workers.UvicornWorker src.main:app"
     build:
       context: ./server
       dockerfile: ./Dockerfile
