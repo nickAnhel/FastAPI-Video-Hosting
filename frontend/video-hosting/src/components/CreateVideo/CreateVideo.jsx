@@ -128,6 +128,8 @@ function CreateVideo() {
                         src={videoFileSrc}
                         autoPlay
                         loop
+                        controls
+                        muted
                     />
                     <input
                         className="file-input"
