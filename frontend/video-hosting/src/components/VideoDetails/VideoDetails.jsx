@@ -137,43 +137,43 @@ function VideoDetails() {
 
     const handleLike = async () => {
         if (isLiked) {
+            setIsLiked(false);
             const res = await VideoService.unlikeVideo(video.id);
             setVideo((prev) => ({
                 ...prev,
                 likes: res.data.likes,
                 dislikes: res.data.dislikes,
-            })); setIsLiked(false);
-            setIsLiked(false);
+            }));
         } else {
+            setIsLiked(true);
+            setIsDisliked(false);
             const res = await VideoService.likeVideo(video.id);
             setVideo((prev) => ({
                 ...prev,
                 likes: res.data.likes,
                 dislikes: res.data.dislikes,
             }));
-            setIsLiked(true);
-            setIsDisliked(false);
         }
     }
 
     const handleDislike = async () => {
         if (isDisliked) {
+            setIsDisliked(false);
             const res = await VideoService.undislikeVideo(video.id);
             setVideo((prev) => ({
                 ...prev,
                 likes: res.data.likes,
                 dislikes: res.data.dislikes,
             }));
-            setIsDisliked(false);
         } else {
+            setIsDisliked(true);
+            setIsLiked(false);
             const res = await VideoService.dislikeVideo(video.id);
             setVideo((prev) => ({
                 ...prev,
                 likes: res.data.likes,
                 dislikes: res.data.dislikes,
             }));
-            setIsDisliked(true);
-            setIsLiked(false);
         }
     }
 
