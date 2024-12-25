@@ -2,8 +2,6 @@
 **ТипоTube** is a modern platform where users can view and rate videos posted by other people, share their opinions in comments and own videos, and create collections on various topics using a playlist system. In addition, the platform provides a modern notification system for the release of new videos - notifications can be viewed both on the platform itself, as well as in Email or Telegram.
 # Requirements
 To start a project, you need to have a number of installed programs and utilities:
-- `poetry`
-- `python3.12`
 - `docker` and `docker-compose`
 - `git`
 # Deploy
