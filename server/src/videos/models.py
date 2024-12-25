@@ -11,7 +11,7 @@ class VideoModel(Base):
     __tablename__ = "videos"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    title: Mapped[str] = mapped_column(String(50), unique=True)
+    title: Mapped[str] = mapped_column(String(100), unique=True)
     description: Mapped[str] = mapped_column(String(255))
 
     views: Mapped[int] = mapped_column(default=0)

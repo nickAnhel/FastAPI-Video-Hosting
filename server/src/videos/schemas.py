@@ -1,12 +1,12 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import Field
 
 from src.schemas import BaseSchema
 
 
 class VideoCreate(BaseSchema):
-    title: str = Field(max_length=50)
+    title: str = Field(max_length=100)
     description: str = Field(max_length=255)
     user_id: UUID
 

@@ -149,7 +149,7 @@ function CreateVideo() {
                     className="video-title"
                     type="text"
                     value={title}
-                    maxLength={50}
+                    maxLength={100}
                     placeholder="Video Title"
                     onChange={(e) => setTitle(e.target.value)}
                     style={{ borderColor: title.trim() ? "#fff" : "#7e7e7e" }}
