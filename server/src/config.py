@@ -66,8 +66,9 @@ class CORSSettings(BaseModel):
 class Settings(BaseSettings):
     project_title: str
     version: str
-    debug: bool
     description: str
+
+    debug: bool = os.environ.get("DEBUG")
 
     db_settings: DBSettings = DBSettings()
     file_prefixes: FilePrefixes = FilePrefixes()
@@ -82,6 +83,5 @@ class Settings(BaseSettings):
 settings = Settings(
     project_title="Video Hosting API",
     version="0.1.0",
-    debug=True,
     description="API for simple video hosting made with Python and FastAPI",
 )

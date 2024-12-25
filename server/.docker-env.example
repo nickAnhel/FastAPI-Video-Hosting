@@ -1,3 +1,5 @@
+DEBUG="true or false"
+
 CORS_ALLOWED_HOSTS='["Your allowed host 1","Your allowed host 2"]'
 
 DB_HOST="Your db host"
