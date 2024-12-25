@@ -41,7 +41,7 @@ const Login = () => {
                 })
             } else {
                 alertsContext.addAlert({
-                    text: "Semothing went wrong. Please try again",
+                    text: "Something went wrong. Please try again",
                     time: 2000,
                     type: "error"
                 })
