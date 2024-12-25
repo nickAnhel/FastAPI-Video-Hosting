@@ -145,8 +145,9 @@ function Register() {
                                 </div>
                             ))
                         }
+
                         <button
-                        type="button"
+                            type="button"
                             className="add-link"
                             onClick={(e) => { e.preventDefault(); addLink() }}
                             disabled={socialLinks.length >= 10}
@@ -156,6 +157,22 @@ function Register() {
                     </div>
 
                 </div>
+
+                <label className="personal-data">
+                    <input
+                        name="pd"
+                        type="checkbox"
+                        required
+                    />
+                    <span>
+                        I give my consent to the <a
+                            href="https://docs.google.com/document/d/1m1A20bzgjTdR2st3fbih2tmDRTAFXeKo/edit?usp=sharing&ouid=107274676406622214896&rtpof=true&sd=true"
+                            target="_blank"
+                        >
+                            processing of personal data
+                        </a>
+                    </span>
+                </label>
 
                 <button
                     type="submit"

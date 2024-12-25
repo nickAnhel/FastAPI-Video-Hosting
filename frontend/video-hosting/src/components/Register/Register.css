@@ -151,3 +151,21 @@ button.add-link:disabled {
 .link img {
     cursor: pointer;
 }
+
+.personal-data {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    font-size: 1.2rem;
+    gap: .5rem;
+}
+
+.personal-data input {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+
+.personal-data a {
+    color: #33b5e5;
+}
