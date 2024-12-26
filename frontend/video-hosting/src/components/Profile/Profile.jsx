@@ -224,6 +224,8 @@ function Profile() {
                 time: 2000,
                 type: "success"
             })
+
+            store.changedProfilePhoto();
         } catch (e) {
             console.log(e);
             console.log(e?.response?.data?.detail);
@@ -244,6 +246,7 @@ function Profile() {
                 time: 2000,
                 type: "success"
             })
+            store.changedProfilePhoto();
         } catch (e) {
             console.log(e);
             console.log(e?.response?.data?.detail);

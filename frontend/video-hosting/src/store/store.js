@@ -10,6 +10,7 @@ export default class Store {
     user = {}
     isAuthenticated = false
     isLoading = false
+    isChangedProfilePhoto = false
 
     constructor() {
         makeAutoObservable(this);
@@ -25,6 +26,10 @@ export default class Store {
 
     setLoading(value) {
         this.isLoading = value;
+    }
+
+    changedProfilePhoto() {
+        this.isChangedProfilePhoto = !this.isChangedProfilePhoto;
     }
 
     async register(data) {

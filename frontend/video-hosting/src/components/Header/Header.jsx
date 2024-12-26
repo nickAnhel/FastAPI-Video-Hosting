@@ -15,7 +15,7 @@ function Header() {
 
     useEffect(() => {
         setImgSrc(`${import.meta.env.VITE_STORAGE_URL}PPs@${store.user.id}?${performance.now()}`);
-    }, [store.user?.id])
+    }, [store.user?.id, store.isChangedProfilePhoto])
 
     return (
         <div className="header">
