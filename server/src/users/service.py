@@ -229,14 +229,11 @@ class UserService:
                 offset=offset,
                 limit=limit,
             )
-            print(users)
+            
             if user:
                 users_pydantic: list[UserGet] = []
 
                 for u in users:
-                    if u.id == user.id:
-                        continue
-
                     users_pydantic.append(
                         UserGet(
                             id=u.id,
