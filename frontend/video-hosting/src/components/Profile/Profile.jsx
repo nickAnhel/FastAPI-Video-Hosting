@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./Profile.css"
 
 import Modal from "../Modal/Modal";
@@ -301,7 +302,7 @@ function Profile() {
                                         <span className="not-verified">Not verified</span>
                                 }
                             </div>
-
+                            <Link className="my-channel" to={`/channels/${store.user.id}`}>View my channel</Link>
                         </div>
                     </div>
                 </div>
